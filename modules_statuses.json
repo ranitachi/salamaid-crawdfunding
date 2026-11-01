@@ -1,0 +1,9 @@
+{
+    "Core": true,
+    "Catalog": true,
+    "Donation": true,
+    "Payment": true,
+    "Fundraising": true,
+    "Transparency": true,
+    "Operations": true
+}

@@ -1,0 +1,11 @@
+{
+    "name": "Fundraising",
+    "alias": "fundraising",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Fundraising\\App\\Providers\\FundraisingServiceProvider"
+    ],
+    "files": []
+}

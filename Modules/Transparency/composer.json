@@ -1,0 +1,31 @@
+{
+    "name": "nwidart/transparency",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Transparency\\": "",
+            "Modules\\Transparency\\App\\": "app/",
+            "Modules\\Transparency\\Database\\Factories\\": "database/factories/",
+            "Modules\\Transparency\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Transparency\\Tests\\": "tests/"
+        }
+    }
+}

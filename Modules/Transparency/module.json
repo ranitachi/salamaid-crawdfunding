@@ -1,0 +1,11 @@
+{
+    "name": "Transparency",
+    "alias": "transparency",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Transparency\\App\\Providers\\TransparencyServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,43 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Modules\Catalog\App\Http\Controllers\Admin\CampaignModerationController;
+use Modules\Core\App\Http\Controllers\Admin\OrganizationReviewController;
+
+/*
+|--------------------------------------------------------------------------
+| Admin review routes (A4 & A5)
+|--------------------------------------------------------------------------
+|
+| File ini dipisahkan dari routes/admin.php untuk menjaga ownership domain.
+| Route di-include oleh routes/admin.php di dalam group auth + admin.
+|
+*/
+
+Route::prefix('organizations')->name('organizations.')
+    ->middleware('admin.permission:organizations.view,organizations.review')
+    ->group(function () {
+    Route::get('/', [OrganizationReviewController::class, 'index'])->name('index');
+    Route::get('/{organization}', [OrganizationReviewController::class, 'show'])->name('show');
+    Route::post('/{organization}/approve', [OrganizationReviewController::class, 'approve'])->name('approve');
+    Route::post('/{organization}/reject', [OrganizationReviewController::class, 'reject'])->name('reject');
+    Route::post('/{organization}/suspend', [OrganizationReviewController::class, 'suspend'])->name('suspend');
+    Route::post('/{organization}/restore', [OrganizationReviewController::class, 'restore'])->name('restore');
+    });
+
+Route::prefix('campaigns')->name('campaigns.')
+    ->middleware('admin.permission:campaigns.view,campaigns.review,campaigns.publish')
+    ->group(function () {
+    Route::get('/', [CampaignModerationController::class, 'index'])->name('index');
+    Route::get('/{campaign}', [CampaignModerationController::class, 'show'])->name('show');
+    Route::post('/{campaign}/submit', [CampaignModerationController::class, 'submit'])->name('submit');
+    Route::post('/{campaign}/publish', [CampaignModerationController::class, 'publish'])->name('publish');
+    Route::post('/{campaign}/reject', [CampaignModerationController::class, 'reject'])->name('reject');
+    Route::post('/{campaign}/suspend', [CampaignModerationController::class, 'suspend'])->name('suspend');
+    Route::post('/{campaign}/restore', [CampaignModerationController::class, 'restore'])->name('restore');
+    Route::post('/{campaign}/close', [CampaignModerationController::class, 'close'])->name('close');
+    Route::post('/{campaign}/feature', [CampaignModerationController::class, 'feature'])->name('feature');
+    Route::post('/{campaign}/unfeature', [CampaignModerationController::class, 'unfeature'])->name('unfeature');
+    Route::delete('/{campaign}', [CampaignModerationController::class, 'destroy'])->name('destroy');
+    Route::delete('/{campaign}/force', [CampaignModerationController::class, 'forceDestroy'])->name('force-destroy');
+    });
