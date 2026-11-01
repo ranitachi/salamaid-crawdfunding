@@ -4,6 +4,8 @@ Dokumen ini merangkum implementasi Agent OpenCode untuk paket **Agent C — A10 
 
 ## Status
 
+Status keseluruhan: `DONE` untuk user admin, role summary, dan kategori. Payment channel/fee tetap menjadi handoff A7.
+
 - **User admin**: daftar, filter role/status, pencarian, detail, aktivasi/nonaktifasi, ubah role, kirim tautan reset password. `DONE`.
 - **Role**: halaman ringkasan role + jumlah pemakai + permission, guard agar role yang masih dipakai tidak dapat dihapus. `DONE`.
 - **Kategori**: CRUD, slug unik, status aktif, proteksi kategori yang dipakai campaign. `DONE`.

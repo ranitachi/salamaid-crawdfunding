@@ -3,7 +3,7 @@
 namespace Modules\Core\App\Providers;
 
 use App\Contracts\AdminAuditLogger;
-use App\Support\LogAdminAuditLogger;
+use App\Support\DatabaseAdminAuditLogger;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -31,7 +31,7 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(AdminAuditLogger::class, LogAdminAuditLogger::class);
+        $this->app->singleton(AdminAuditLogger::class, DatabaseAdminAuditLogger::class);
 
         $this->app->register(RouteServiceProvider::class);
     }

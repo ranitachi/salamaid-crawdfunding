@@ -1,6 +1,6 @@
 # A9 — Transparency & Content Admin
 
-Status: `REVIEW` (Agent B / Claude). Fitur, authorization, UI, dan test sudah berjalan. Menunggu review integrasi.
+Status: `DONE`. Fitur, authorization, UI, migration, dan test sudah terintegrasi ke branch utama.
 
 ## Cakupan
 
