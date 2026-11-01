@@ -4,6 +4,9 @@
     <x-admin.breadcrumb :items="[['label' => 'Pembayaran']]" />
     <x-admin.page-header title="Payment operations" description="Pantau payment intent, callback provider, dan transaksi yang perlu direkonsiliasi.">
         <a class="admin-button admin-button--primary" href="{{ route('admin.payments.export', request()->query()) }}">Export CSV</a>
+        @if (auth()->user()?->hasAdminPermission('payments.manage'))
+            <a class="admin-button admin-button--quiet" href="{{ route('admin.payment-channels.index') }}">Channel & fee</a>
+        @endif
         <a class="admin-button admin-button--quiet" href="/admin/webhooks">Webhook log</a>
         <a class="admin-button admin-button--primary" href="/admin/payments-reconciliation">Rekonsiliasi</a>
     </x-admin.page-header>
