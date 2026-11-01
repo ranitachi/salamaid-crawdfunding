@@ -118,13 +118,15 @@ class DevelopmentSeeder extends Seeder
             ],
         );
 
-        CampaignUpdate::updateOrCreate(
+        $update = CampaignUpdate::updateOrCreate(
             ['campaign_id' => $campaign->id, 'title' => 'Update awal campaign demo'],
-            [
-                'content' => 'Update contoh untuk menguji halaman transparansi admin.',
-                'published_at' => now(),
-            ],
+            ['content' => 'Update contoh untuk menguji halaman transparansi admin.'],
         );
+        // Workflow fields are not mass assignable (A9); seed a published update explicitly.
+        $update->forceFill([
+            'status' => 'published',
+            'published_at' => $update->published_at ?? now(),
+        ])->save();
 
         Fundraiser::updateOrCreate(
             ['campaign_id' => $campaign->id, 'user_id' => $donor->id],

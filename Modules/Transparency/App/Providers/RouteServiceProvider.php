@@ -30,6 +30,19 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
+
+        $this->mapAdminRoutes();
+    }
+
+    /**
+     * A9 admin routes, guarded the same way as the routes/admin.php group.
+     */
+    protected function mapAdminRoutes(): void
+    {
+        Route::middleware(['web', 'auth', 'admin'])
+            ->prefix(config('admin.route_prefix').'/transparency')
+            ->name('admin.transparency.')
+            ->group(module_path('Transparency', '/routes/admin.php'));
     }
 
     /**
