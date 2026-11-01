@@ -2,6 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Payment\App\Http\Controllers\Admin\PaymentAdminController;
+use Modules\Payment\App\Http\Controllers\Admin\PaymentChannelAdminController;
+
+Route::middleware('admin.permission:payments.manage')->group(function () {
+    Route::get('payment-channels', [PaymentChannelAdminController::class, 'index'])->name('payment-channels.index');
+    Route::post('payment-channels', [PaymentChannelAdminController::class, 'store'])->name('payment-channels.store');
+    Route::patch('payment-channels/{channel}', [PaymentChannelAdminController::class, 'update'])->name('payment-channels.update');
+    Route::post('payment-channels/{channel}/activate', [PaymentChannelAdminController::class, 'activate'])->name('payment-channels.activate');
+    Route::post('payment-channels/{channel}/deactivate', [PaymentChannelAdminController::class, 'deactivate'])->name('payment-channels.deactivate');
+    Route::post('payment-channels/{channel}/fees', [PaymentChannelAdminController::class, 'storeFee'])->name('payment-channels.fees.store');
+});
 
 Route::middleware('admin.permission:payments.view,payments.manage')->group(function () {
     Route::get('payments', [PaymentAdminController::class, 'index'])->name('payments.index');

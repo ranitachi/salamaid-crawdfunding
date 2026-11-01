@@ -317,7 +317,7 @@ Menjadikan payment operation dapat dipantau, diulang secara aman, dan diaudit.
 
 - [x] Perbaiki dan jalankan migration Payment.
 - [x] Buat service dasar untuk pencatatan webhook dan rekonsiliasi payment.
-- [ ] Kelola payment channel aktif dan biaya channel.
+- [x] Kelola payment channel aktif dan biaya channel dengan effective date serta pencegahan periode fee tumpang tindih.
 - [x] Buat endpoint webhook provider (`POST /api/v1/payment/webhooks/{provider}`).
 - [x] Verifikasi signature webhook provider melalui HMAC dan konfigurasi provider.
 - [x] Simpan payload webhook yang aman untuk audit.
