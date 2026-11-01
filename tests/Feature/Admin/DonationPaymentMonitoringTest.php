@@ -134,4 +134,25 @@ class DonationPaymentMonitoringTest extends TestCase
         $response->assertUnauthorized();
         $this->assertDatabaseCount('webhooks', 0);
     }
+
+    public function test_mayar_webhook_uses_callback_token_and_nested_transaction_payload(): void
+    {
+        $donation = $this->createDonation('pending', 'pending');
+        $payment = $donation->payment;
+        $payment->update(['order_id' => 'MAYAR-TRANSACTION-1']);
+        Config::set('payment.mayar.webhook_token', 'mayar-test-token');
+        Config::set('payment.webhooks.providers.mayar.token', 'mayar-test-token');
+
+        $response = $this->postJson('/api/v1/payment/webhooks/mayar?token=mayar-test-token', [
+            'event' => 'payment.received',
+            'data' => [
+                'transactionId' => 'MAYAR-TRANSACTION-1',
+                'status' => 'SUCCESS',
+            ],
+        ]);
+
+        $response->assertOk()->assertJson(['received' => true]);
+        $this->assertDatabaseHas('payments', ['id' => $payment->id, 'status' => 'paid']);
+        $this->assertDatabaseHas('donations', ['id' => $donation->id, 'status' => 'paid']);
+    }
 }

@@ -10,6 +10,14 @@ class WebhookSignatureVerifier
     {
         $settings = config("payment.webhooks.providers.{$provider}");
 
+        if (($settings['mode'] ?? null) === 'token_query') {
+            $queryKey = config('payment.mayar.webhook_token_query', 'token');
+            $provided = (string) $request->query($queryKey, '');
+            $expected = (string) ($settings['token'] ?? '');
+
+            return $expected !== '' && $provided !== '' && hash_equals($expected, $provided);
+        }
+
         if (! is_array($settings) || blank($settings['secret'] ?? null)) {
             return false;
         }
