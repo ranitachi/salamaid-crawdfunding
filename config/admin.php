@@ -21,19 +21,19 @@ return [
         'admin' => [
             'dashboard.view', 'organizations.review', 'campaigns.review',
             'campaigns.publish', 'donations.view', 'payments.view', 'payouts.view',
-            'transparency.review', 'categories.manage', 'reports.view',
+            'transparency.review', 'categories.manage', 'reports.view', 'audit.view',
         ],
         'reviewer' => [
             'dashboard.view', 'organizations.review', 'campaigns.review',
-            'transparency.review', 'reports.view',
+            'transparency.review', 'reports.view', 'audit.view',
         ],
         'finance' => [
             'dashboard.view', 'donations.view', 'payments.manage',
-            'payouts.manage', 'reports.view',
+            'payouts.manage', 'reports.view', 'audit.view',
         ],
         'support' => [
             'dashboard.view', 'organizations.view', 'campaigns.view',
-            'donations.view', 'payments.view', 'payouts.view', 'reports.view',
+            'donations.view', 'payments.view', 'payouts.view', 'reports.view', 'audit.view',
         ],
     ],
 

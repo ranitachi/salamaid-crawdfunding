@@ -2,6 +2,7 @@
 
 namespace App\Queries\Admin;
 
+use App\Models\AdminAuditLog;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
 use Modules\Catalog\Entities\Campaign;
@@ -85,6 +86,12 @@ class DashboardQuery
 
     private function activities(CarbonImmutable $start, CarbonImmutable $end): array
     {
+        $auditActivities = $this->auditActivities($start, $end);
+
+        if ($auditActivities !== []) {
+            return $auditActivities;
+        }
+
         $items = collect();
 
         Campaign::query()->whereNotNull('published_at')->whereBetween('published_at', [$start, $end])->latest('published_at')->limit(3)->get(['id', 'title', 'published_at'])->each(function (Campaign $campaign) use ($items) {
@@ -100,5 +107,30 @@ class DashboardQuery
         });
 
         return $items->sortByDesc('at')->take(5)->values()->all();
+    }
+
+    private function auditActivities(CarbonImmutable $start, CarbonImmutable $end): array
+    {
+        return AdminAuditLog::query()
+            ->whereBetween('created_at', [$start, $end])
+            ->latest()
+            ->limit(5)
+            ->get(['action', 'subject_type', 'subject_id', 'actor_email', 'created_at'])
+            ->map(function (AdminAuditLog $log): array {
+                $url = match (true) {
+                    str_contains($log->subject_type, 'CampaignUpdate') => route('admin.transparency.show', $log->subject_id),
+                    str_contains($log->subject_type, 'Campaign') => route('admin.campaigns.show', $log->subject_id),
+                    str_contains($log->subject_type, 'Organization') => route('admin.organizations.show', $log->subject_id),
+                    str_contains($log->subject_type, 'Payout') => route('admin.payouts.show', $log->subject_id),
+                    default => route('admin.audit-logs.index', ['q' => $log->action]),
+                };
+
+                return [
+                    'at' => $log->created_at,
+                    'title' => str_replace('.', ' · ', $log->action),
+                    'description' => ($log->actor_email ?: 'System').' · '.$log->subject_id,
+                    'url' => $url,
+                ];
+            })->all();
     }
 }

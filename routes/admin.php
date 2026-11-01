@@ -29,6 +29,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     require base_path('Modules/Payment/routes/admin.php');
     require base_path('Modules/Operations/routes/admin.php');
     require base_path('routes/admin-master.php');
+    require base_path('routes/admin-audit.php');
 });
 
 // Review routes use a strict internal response for guests (403) while the
