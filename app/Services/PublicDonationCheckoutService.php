@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Modules\Catalog\Entities\Campaign;
 use Modules\Donation\Entities\Donation;
 use Modules\Payment\App\Services\CreateMayarPaymentAction;
@@ -33,7 +34,8 @@ class PublicDonationCheckoutService
             'status' => 'pending',
         ]);
 
-        $payment = $this->createPayment->execute($donation, $input['name'], $input['email'], $input['mobile']);
+        $statusUrl = URL::temporarySignedRoute('public.payments.status', now()->addDay(), ['donation' => $donation->getKey()]);
+        $payment = $this->createPayment->execute($donation, $input['name'], $input['email'], $input['mobile'], $statusUrl);
 
         return compact('donation', 'payment');
     }

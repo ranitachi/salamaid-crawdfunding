@@ -58,6 +58,8 @@ Jangan pernah menampilkan email donor, nomor rekening, raw payload Mayar, signat
 
 ## 4. Tahapan pengembangan
 
+Progress implementasi pada branch `feat/frontend`: B0, B1, B2, B3, dan B4 sudah selesai secara lokal. B3 sudah diuji dengan fake Mayar; transaksi sandbox nyata tetap menjadi langkah operasional sebelum production.
+
 ### B0 — Public shell dan design system
 
 Tujuan: menyiapkan fondasi layout tanpa fitur bisnis baru.
@@ -213,6 +215,8 @@ Acceptance criteria:
 - Status lokal mengikuti hasil webhook/sinkronisasi yang tervalidasi.
 - Refresh halaman tidak membuat payment atau donation baru.
 - Expired dan failed memiliki CTA yang jelas.
+
+Status implementasi: `DONE` untuk status page, signed URL guest, owner scoping, refresh inquiry Mayar, dan receipt print. Test: `tests/Feature/PublicPaymentStatusTest.php`.
 
 ### B5 — Akun donor
 
