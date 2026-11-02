@@ -1,6 +1,6 @@
 # A7 — Payment Operations Lanjutan (Mayar inquiry, queue, admin sync)
 
-Status: `REVIEW` (Agent B). Detail integrasi provider ada di [`payment-mayar.md`](payment-mayar.md).
+Status: `DONE` (scheduler pending payment sudah ditambahkan). Detail integrasi provider ada di [`payment-mayar.md`](payment-mayar.md).
 
 ## Yang ditambahkan
 
@@ -65,7 +65,12 @@ Dengan `QUEUE_CONNECTION=sync` (default lokal saat ini), job berjalan inline. Re
 
 `DonationPaymentMonitoringTest` juga disesuaikan: webhook Mayar sekarang memerlukan inquiry (di-fake).
 
-## Belum dikerjakan
+## Catatan lanjutan
 
-- Penyisiran terjadwal untuk payment `pending` yang webhook-nya tidak pernah datang. `SyncPaymentStatusJob` sudah siap dipakai dari scheduler.
-- Notifikasi berbasis queue (A11).
+- Notifikasi berbasis queue/email dikelola pada A11 dan tetap opt-in melalui konfigurasi mail.
+
+## Scheduler payment pending
+
+Command `payment:sync-pending` berjalan setiap lima menit melalui Laravel Scheduler. Command hanya memilih payment provider Mayar yang masih `pending` dan lebih tua dari `PAYMENT_PENDING_SYNC_MINUTES` (default 15 menit), dengan batas batch `PAYMENT_PENDING_SYNC_LIMIT` (default 100). Setiap payment didispatch ke `SyncPaymentStatusJob` dengan trigger `scheduled`; job tetap unique sehingga tidak menumpuk inquiry yang sama.
+
+Konfigurasi dapat dimatikan dengan `PAYMENT_PENDING_SYNC_ENABLED=false`. Production perlu menjalankan scheduler worker, misalnya `php artisan schedule:work`, dan queue worker database sesuai bagian sebelumnya.

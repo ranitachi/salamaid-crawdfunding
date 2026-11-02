@@ -12,6 +12,11 @@ return [
         'timeout' => (int) env('MAYAR_TIMEOUT', 10),
         'connect_timeout' => (int) env('MAYAR_CONNECT_TIMEOUT', 5),
     ],
+    'pending_sync' => [
+        'enabled' => (bool) env('PAYMENT_PENDING_SYNC_ENABLED', true),
+        'minutes' => (int) env('PAYMENT_PENDING_SYNC_MINUTES', 15),
+        'limit' => (int) env('PAYMENT_PENDING_SYNC_LIMIT', 100),
+    ],
     'webhooks' => [
         'providers' => [
             'generic' => [

@@ -29,7 +29,7 @@ Sebelum perbaikan ada 14 package dengan advisory, antara lain:
 
 Full suite lulus setelah update.
 
-Pada validasi setelah merge, `composer audit` masih melaporkan **49 advisory pada 14 package**. Sebagian dependency sudah diperbarui melalui patch/minor version, tetapi Laravel 10 sudah EOL dan beberapa advisory membutuhkan Laravel 12/13 atau versi dependency mayor. Daftar advisory harus dievaluasi ulang sebelum production release.
+Pada validasi setelah merge, `composer audit` masih perlu dijalankan ulang sebagai bagian release gate. Aplikasi sudah di-upgrade ke Laravel 12 dan dependency mayor yang terkait sudah diselaraskan; advisory yang tersisa harus dievaluasi berdasarkan lockfile terbaru.
 
 | Advisory | Keterjangkauan di aplikasi | Mitigasi |
 |---|---|---|
@@ -38,7 +38,7 @@ Pada validasi setelah merge, `composer audit` masih melaporkan **49 advisory pad
 | CRLF injection pada rule `email` (high, 2 entri) | Rule `email` hanya dipakai di form login, dan nilainya tidak pernah dipakai sebagai header email. | Untuk input email baru yang akan dikirimi email, pakai `email:rfc,filter`. |
 | CVE-2026-102279 XSS di halaman debug (low) | Hanya muncul bila `APP_DEBUG=true`. | `APP_DEBUG=false` di production (ada di checklist). |
 
-**Rekomendasi:** jadwalkan upgrade Laravel 10 → 12 sebagai pekerjaan terpisah dengan regression test penuh. Untuk sementara, jangan release production tanpa review security owner terhadap hasil `composer audit` aktual.
+**Rekomendasi:** jalankan `composer audit` pada CI/release gate dan minta review security owner sebelum production release.
 
 ## 2. Audit route dan authorization
 
@@ -157,12 +157,12 @@ Prosedurnya terdokumentasi di atas, tetapi **drill restore belum dilakukan** (li
 
 ## 10. Risiko rilis yang tersisa
 
-1. **Laravel 10 EOL dan dependency advisory:** `composer audit` aktual masih menunjukkan 49 advisory pada 14 package (§1). Upgrade mayor dan dependency remediation perlu dijadwalkan sebelum production.
+1. **Dependency advisory:** jalankan `composer audit` terhadap lockfile Laravel 12 terbaru dan selesaikan advisory yang masih memiliki jalur upgrade.
 2. **Route scaffold modul publik:** sekitar 56 route `Route::resource` bawaan generator (`/catalog`, `/core`, `/donation`, `/fundraising`, `/operations`, `/payment`, `/transparency`) aktif tanpa autentikasi.
    - GET mengembalikan 500 karena view scaffold tidak ada.
    - POST/PUT/DELETE berupa method kosong yang tetap dilindungi CSRF.
    - Tidak ada data yang bocor, tetapi route ini menambah attack surface dan error 500. **Perlu keputusan pemilik halaman publik** untuk menghapusnya sebelum rilis; tidak diubah di sini karena halaman publik di luar scope.
-3. **Scheduler sinkronisasi payment pending** belum ada (§7).
+3. **Scheduler sinkronisasi payment pending:** sudah tersedia melalui `payment:sync-pending`, tetapi production tetap harus menjalankan scheduler worker dan queue worker.
 4. **A8 belum lengkap:** rekonsiliasi settlement payout vs donasi dan model fraud flag belum dibuat.
 5. **Belum diuji:** responsive UI (desktop/mobile) dan drill backup/restore.
-6. **Integrasi sudah selesai:** A7, A8, A11, dan A12 sudah berada di `main`; validasi integrasi menghasilkan 149 test lulus dengan 1620 assertion.
+6. **Integrasi sudah selesai:** A7, A8, A11, dan A12 sudah berada di `main`; validasi terbaru menghasilkan 154 test lulus dengan 1657 assertion.

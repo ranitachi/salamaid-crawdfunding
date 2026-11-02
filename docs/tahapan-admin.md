@@ -25,11 +25,11 @@ Gunakan status berikut pada tabel roadmap:
 
 Status awal seluruh fase: `TODO`.
 
-Progress per 2026-11-02: A0, A1, A2, A3, A4, A5, A9, A10, dan A11 `DONE`. A7 sudah terintegrasi dengan inquiry Mayar, queue, retry, dan admin sync tetapi masih menunggu uji sandbox nyata. A8 sudah memiliki private evidence, download terotorisasi, dan balance validation tetapi settlement reconciliation/fraud flag masih terbuka. A12 sudah terintegrasi dan seluruh 149 test lulus; dependency advisory, upgrade Laravel, backup/restore drill, responsive QA, dan scheduler payment pending masih menjadi risiko release.
+Progress per 2026-11-02: A0, A1, A2, A3, A4, A5, A7, A9, A10, dan A11 `DONE`. A7 sudah memiliki scheduler sinkronisasi payment pending; uji sandbox nyata tetap menjadi langkah operasional. A8 sudah memiliki private evidence, download terotorisasi, dan balance validation tetapi settlement reconciliation/fraud flag masih terbuka. A12 sudah terintegrasi, Laravel sudah di-upgrade ke 12, dan seluruh 154 test lulus; backup/restore drill, responsive QA, serta settlement/fraud hardening masih menjadi risiko release.
 
 ## 3. Temuan awal dan pekerjaan pendahuluan
 
-Project saat ini sudah memiliki Laravel 10, Vite, nwidart modules, serta modul Core, Catalog, Donation, Payment, Fundraising, Transparency, dan Operations. Namun admin panel, authentication flow, policy, service/action class, dan halaman bisnis belum tersedia.
+Project saat ini menggunakan Laravel 12, PHP 8.2+, Vite, nwidart modules, serta modul Core, Catalog, Donation, Payment, Fundraising, Transparency, dan Operations.
 
 Temuan yang harus dibereskan sebelum fitur admin berjalan penuh:
 
@@ -51,8 +51,8 @@ Temuan yang harus dibereskan sebelum fitur admin berjalan penuh:
 | A3 | Dashboard | Statistik dan aktivitas operasional | A1, A2 | IN PROGRESS |
 | A4 | Organization review | Verifikasi lembaga dan anggota | A2, A3 | DONE |
 | A5 | Campaign moderation | Review, publish, reject, feature, close | A2, A4 | DONE |
-| A6 | Donation monitoring | Daftar donasi, status, detail, receipt | A2, A3 | IN PROGRESS |
-| A7 | Payment operations | Channel, callback, webhook, rekonsiliasi | A2, A6 | REVIEW |
+| A6 | Donation monitoring | Daftar donasi, status, detail, receipt | A2, A3 | DONE |
+| A7 | Payment operations | Channel, callback, webhook, rekonsiliasi | A2, A6 | DONE |
 | A8 | Payout operations | Request, approval, evidence, settlement | A2, A4, A7 | REVIEW |
 | A9 | Transparency & content | Update campaign, laporan, bukti penggunaan | A5, A8 | DONE |
 | A10 | User, category & configuration | Master data dan pengaturan admin | A2 | DONE |

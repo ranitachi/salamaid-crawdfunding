@@ -9,7 +9,7 @@ Dokumen ini dibuat setelah review `docs/admin-a4-a5.md`. A4 dan A5 dinyatakan `D
 - A6/A7: monitoring dasar, receipt printable, CSV export, webhook idempotent, signature HMAC, dan rekonsiliasi dasar sudah tersedia. Sisa pekerjaan ada pada audit export, payment channel/fee, queue callback, notifikasi, dan inquiry provider.
 - A8: `REVIEW` — evidence privat (disk `private`, download via policy), kompatibel URL lama, blokir organisasi suspended; 20 test payout lulus. Sisa: rekonsiliasi settlement dan fraud flag. Lihat `docs/admin-a8.md`.
 - A9, A10, A11: belum dikerjakan penuh.
-- A12: `REVIEW` — dependency audit dan patch minor, route/CSRF/permission invariant test, XSS/secret/CSV-injection/N+1 test, checklist deployment/rollback. Sisa risiko: Laravel 10 EOL, route scaffold modul publik, scheduler pending payment, drill backup/restore, uji responsive. Lihat `docs/admin-a12.md`.
+- A12: `REVIEW` — dependency audit, Laravel 12 upgrade, route/CSRF/permission invariant test, XSS/secret/CSV-injection/N+1 test, checklist deployment/rollback. Sisa risiko: route scaffold modul publik, drill backup/restore, uji responsive, dan settlement/fraud hardening. Lihat `docs/admin-a12.md`.
 
 Review A4/A5 tidak menemukan blocker fungsional. Catatan keputusan: `campaigns.review` masih menjadi permission moderasi yang juga mengizinkan publish untuk reviewer. Jika publish harus dipisah menjadi approval khusus, lakukan sebagai perubahan permission dan test terpisah.
 
@@ -59,7 +59,7 @@ Ambil ownership paket: Agent A — A3 Dashboard completion dan UI hardening.
 Jangan mengerjakan paket Agent B, C, D, E, atau F.
 
 Konteks:
-- Laravel 10, Blade, Vite, MySQL, Sanctum, nwidart/laravel-modules.
+- Laravel 12, PHP 8.2+, Blade, Vite, MySQL, Sanctum, nwidart/laravel-modules.
 - A0, A1, A2, A4, dan A5 selesai.
 - Dashboard sudah memakai app/Queries/Admin/DashboardQuery.php dan data database nyata.
 - Admin UI memakai layout/komponen Blade yang sudah tersedia.
@@ -203,7 +203,7 @@ Anda bertugas menyelesaikan A3 Dashboard Admin untuk project Salamaid Crowdfundi
 Workspace: /Users/fcn/Documents/WEB/salamaid-crowdfunding
 Baca: docs/tahapan-admin.md, docs/analisa-crowdfunding.md, config/admin.php, docs/pembagian-tugas-admin.md.
 
-Konteks: Laravel 10, Blade, Vite, nwidart/laravel-modules. A0, A1, A2, A4, A5 selesai. Dashboard sudah memakai DashboardQuery dan data database nyata. Jangan mengubah app/Models/User.php, route A4/A5, modul payment, atau halaman publik.
+Konteks: Laravel 12, Blade, Vite, nwidart/laravel-modules. A0, A1, A2, A4, A5 selesai. Dashboard sudah memakai DashboardQuery dan data database nyata. Jangan mengubah app/Models/User.php, route A4/A5, modul payment, atau halaman publik.
 
 Kerjakan:
 1. Tambahkan filter periode dashboard yang tervalidasi dan timezone-nya jelas.
