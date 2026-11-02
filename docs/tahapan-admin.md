@@ -56,7 +56,7 @@ Temuan yang harus dibereskan sebelum fitur admin berjalan penuh:
 | A8 | Payout operations | Request, approval, evidence, settlement | A2, A4, A7 | IN PROGRESS |
 | A9 | Transparency & content | Update campaign, laporan, bukti penggunaan | A5, A8 | DONE |
 | A10 | User, category & configuration | Master data dan pengaturan admin | A2 | DONE |
-| A11 | Audit, notification & reporting | Jejak perubahan, notifikasi, export | A3-A10 | IN PROGRESS |
+| A11 | Audit, notification & reporting | Jejak perubahan, notifikasi, export | A3-A10 | DONE |
 | A12 | Hardening & release | Security, performance, QA, deployment | A1-A11 | IN PROGRESS |
 
 ---
@@ -422,11 +422,11 @@ Menyediakan kontrol operasional dan bukti perubahan untuk keamanan serta pelapor
 - [x] Buat tabel dan service audit log.
 - [x] Simpan actor, action, subject, old values, new values, IP, user agent, dan timestamp.
 - [x] Buat daftar audit dengan filter actor, area, action, dan periode.
-- [ ] Buat notifikasi in-app untuk pekerjaan yang membutuhkan tindakan.
-- [ ] Buat email notification untuk event penting bila mail sudah siap.
-- [ ] Buat laporan campaign, donation, payment, payout, dan fee.
-- [ ] Tambahkan export CSV/XLSX sesuai kebutuhan dan permission.
-- [ ] Buat dashboard alert untuk webhook gagal, payout tertunda, dan data mismatch.
+- [x] Buat notifikasi in-app untuk pekerjaan yang membutuhkan tindakan.
+- [x] Buat email notification opt-in untuk event penting bila mail sudah siap.
+- [x] Buat laporan campaign, donation, payment, payout, dan fee.
+- [x] Tambahkan export CSV sesuai kebutuhan dan permission.
+- [x] Buat dashboard alert untuk webhook gagal, payout tertunda, dan data mismatch.
 
 ### Acceptance criteria
 

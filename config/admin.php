@@ -3,6 +3,11 @@
 return [
     'route_prefix' => 'admin',
 
+    'notifications' => [
+        // Email notifications remain disabled unless explicitly enabled in .env.
+        'email_enabled' => (bool) env('ADMIN_NOTIFICATION_EMAIL_ENABLED', false),
+    ],
+
     'roles' => [
         'super_admin' => 'Super Admin',
         'admin' => 'Admin',
@@ -19,20 +24,20 @@ return [
     'permissions' => [
         'super_admin' => ['*'],
         'admin' => [
-            'dashboard.view', 'organizations.review', 'campaigns.review',
+            'dashboard.view', 'organizations.review', 'campaigns.review', 'notifications.view',
             'campaigns.publish', 'donations.view', 'payments.view', 'payouts.view',
             'transparency.review', 'categories.manage', 'reports.view', 'audit.view',
         ],
         'reviewer' => [
-            'dashboard.view', 'organizations.review', 'campaigns.review',
+            'dashboard.view', 'organizations.review', 'campaigns.review', 'notifications.view',
             'transparency.review', 'reports.view', 'audit.view',
         ],
         'finance' => [
-            'dashboard.view', 'donations.view', 'payments.manage',
+            'dashboard.view', 'donations.view', 'payments.manage', 'notifications.view',
             'payouts.manage', 'reports.view', 'audit.view',
         ],
         'support' => [
-            'dashboard.view', 'organizations.view', 'campaigns.view',
+            'dashboard.view', 'organizations.view', 'campaigns.view', 'notifications.view',
             'donations.view', 'payments.view', 'payouts.view', 'reports.view', 'audit.view',
         ],
     ],

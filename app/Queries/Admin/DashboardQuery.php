@@ -61,6 +61,43 @@ class DashboardQuery
             ->limit(5)
             ->get();
 
+        $pendingPayoutDays = max(1, (int) config('dashboard.payout_pending_days', 3));
+        $oldPendingPayouts = Payout::query()
+            ->whereIn('status', ['requested', 'approved'])
+            ->where('created_at', '<', now()->subDays($pendingPayoutDays))
+            ->count();
+
+        $alerts = array_values(array_filter([
+            $this->alert(
+                'payment',
+                'Payment gagal/expired',
+                'Payment gagal atau expired perlu diperiksa.',
+                (int) Payment::query()->whereIn('status', ['failed', 'expired'])->count(),
+                '/admin/payments-reconciliation',
+            ),
+            $this->alert(
+                'webhook',
+                'Webhook belum diproses',
+                'Webhook provider menunggu diproses.',
+                (int) Webhook::query()->whereNull('processed_at')->count(),
+                '/admin/payments-reconciliation',
+            ),
+            $this->alert(
+                'mismatch',
+                'Payment mismatch',
+                'Status donation dan payment tidak konsisten.',
+                (int) $this->reconciliation->count(),
+                '/admin/payments-reconciliation',
+            ),
+            $this->alert(
+                'payout',
+                'Payout tertunda',
+                "Payout terbuka lebih dari {$pendingPayoutDays} hari.",
+                $oldPendingPayouts,
+                '/admin/payouts?status=requested',
+            ),
+        ]));
+
         return [
             'period' => [
                 'label' => $periodLabel,
@@ -81,7 +118,13 @@ class DashboardQuery
             ],
             'campaigns' => $campaigns,
             'activities' => $this->activities($start, $end),
+            'alerts' => $alerts,
         ];
+    }
+
+    private function alert(string $key, string $title, string $description, int $count, string $url): ?array
+    {
+        return $count > 0 ? compact('key', 'title', 'description', 'count', 'url') : null;
     }
 
     private function activities(CarbonImmutable $start, CarbonImmutable $end): array
