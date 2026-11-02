@@ -10,6 +10,14 @@ class AppSettingsService
 {
     public const CACHE_KEY = 'salamaid.app_settings';
 
+    public const PUBLIC_NAVIGATION_DEFAULTS = [
+        ['label' => 'Beranda', 'icon' => 'home', 'route' => 'public.home'],
+        ['label' => 'Program', 'icon' => 'grid_view', 'route' => 'public.program'],
+        ['label' => 'Donasi', 'icon' => 'favorite', 'route' => 'public.donations'],
+        ['label' => 'Inbox', 'icon' => 'mail', 'route' => 'public.inbox'],
+        ['label' => 'Akun', 'icon' => 'account_circle', 'route' => 'public.account'],
+    ];
+
     /** @var array<string, string> */
     public const DEFAULTS = [
         'app_name' => 'Salamaid',
@@ -64,5 +72,30 @@ class AppSettingsService
         Cache::forget(self::CACHE_KEY);
 
         return $this->all();
+    }
+
+    /** @return array<int, array{label: string, icon: string, route: string}> */
+    public function publicNavigation(): array
+    {
+        if (! Schema::hasTable('app_settings')) {
+            return self::PUBLIC_NAVIGATION_DEFAULTS;
+        }
+
+        $raw = AppSetting::query()->where('key', 'public_navigation')->value('value');
+        $items = json_decode((string) $raw, true);
+
+        if (! is_array($items) || count($items) < 3) {
+            return self::PUBLIC_NAVIGATION_DEFAULTS;
+        }
+
+        return collect($items)->filter(fn ($item): bool => is_array($item)
+            && filled($item['label'] ?? null)
+            && filled($item['icon'] ?? null)
+            && filled($item['route'] ?? null)
+            && \Illuminate\Support\Facades\Route::has($item['route']))->map(fn ($item): array => [
+                'label' => (string) $item['label'],
+                'icon' => (string) $item['icon'],
+                'route' => (string) $item['route'],
+            ])->values()->all() ?: self::PUBLIC_NAVIGATION_DEFAULTS;
     }
 }

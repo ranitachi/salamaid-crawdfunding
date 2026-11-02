@@ -14,7 +14,14 @@ class CampaignController
 
     public function home(): View
     {
-        return view('public.home', ['featured' => $this->campaigns->featured(), 'categories' => $this->campaigns->categories()]);
+        $featured = $this->campaigns->featured();
+
+        return view('public.home', [
+            'featured' => $featured,
+            'heroCampaign' => $featured->first(),
+            'categories' => $this->campaigns->categories(),
+            'impact' => $this->campaigns->impactSummary(),
+        ]);
     }
 
     public function program(Request $request): View

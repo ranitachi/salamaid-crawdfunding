@@ -22,6 +22,16 @@ class DevelopmentSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::table('app_settings')->updateOrInsert(
+            ['key' => 'public_navigation'],
+            [
+                'value' => json_encode(\App\Services\AppSettingsService::PUBLIC_NAVIGATION_DEFAULTS),
+                'group' => 'branding',
+                'type' => 'json',
+                'updated_at' => now(),
+                'created_at' => now(),
+            ],
+        );
         $admin = User::updateOrCreate(
             ['email' => env('SALAMAID_ADMIN_EMAIL', 'admin@salamaid.test')],
             [

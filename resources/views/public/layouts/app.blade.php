@@ -1,4 +1,5 @@
 @php($brand = app(\App\Services\AppSettingsService::class)->all())
+@php($navigation = app(\App\Services\AppSettingsService::class)->publicNavigation())
 @php($metaDescription = $description ?? 'Salamaid — platform gotong royong dan donasi terpercaya.')
 @php($canonical = $canonical ?? url()->current())
 <!doctype html>
@@ -27,7 +28,7 @@
         <header class="public-header">
             <a class="public-brand" href="{{ route('public.home') }}">
                 @if (!empty($brand['logo_url']))<img class="public-brand__mark" src="{{ $brand['logo_url'] }}" alt="{{ $brand['app_name'] }}">@else<span class="public-brand__mark">{{ $brand['brand_icon'] ?? 'S' }}</span>@endif
-                <span><strong class="public-brand__name">{{ $brand['app_name'] ?? 'Salamaid' }}</strong><small class="public-brand__tagline">Jembatan Kebaikan</small></span>
+                <span><strong class="public-brand__name">{{ $brand['app_name'] ?? 'Salamaid' }}</strong><small class="public-brand__tagline">{{ $brand['app_tagline'] ?? 'Jembatan Kebaikan' }}</small></span>
             </a>
             <label class="public-search" aria-label="Cari campaign"><span aria-hidden="true">⌕</span><input data-public-search type="search" placeholder="Cari campaign atau kebaikan..."></label>
             <a class="public-icon-button" href="{{ auth()->check() ? route('public.inbox') : route('public.login') }}" aria-label="Inbox">♡</a>
@@ -36,11 +37,9 @@
         <footer class="public-footer">© {{ date('Y') }} {{ $brand['app_name'] ?? 'Salamaid' }} · {{ $brand['contact_email'] ?: 'Jembatan kebaikan Indonesia' }}</footer>
     </div>
     <nav class="public-bottom-nav" aria-label="Navigasi publik">
-        <a class="{{ request()->routeIs('public.home') ? 'is-active' : '' }}" href="{{ route('public.home') }}"><span class="public-bottom-nav__icon">⌂</span>Beranda</a>
-        <a class="{{ request()->routeIs('public.program') ? 'is-active' : '' }}" href="{{ route('public.program') }}"><span class="public-bottom-nav__icon">▦</span>Program</a>
-        <a href="{{ route('public.donations') }}"><span class="public-bottom-nav__icon">♡</span>Donasi Saya</a>
-        <a class="{{ request()->routeIs('public.inbox') ? 'is-active' : '' }}" href="{{ route('public.inbox') }}"><span class="public-bottom-nav__icon">✉</span>Inbox</a>
-        <a href="{{ route('public.account') }}"><span class="public-bottom-nav__icon">◉</span>Akun</a>
+        @foreach ($navigation as $item)
+            <a class="{{ request()->routeIs($item['route']) ? 'is-active' : '' }}" href="{{ route($item['route']) }}"><span class="public-bottom-nav__icon material-symbols-outlined">{{ $item['icon'] }}</span>{{ $item['label'] }}</a>
+        @endforeach
     </nav>
 </body>
 </html>
