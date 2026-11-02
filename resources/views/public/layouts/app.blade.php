@@ -17,7 +17,7 @@
     @stack('head')
     <title>{{ $title ?? 'Salamaid' }} · {{ $brand['app_name'] ?? 'Salamaid' }}</title>
     @if (!empty($brand['favicon_url']))<link rel="icon" href="{{ $brand['favicon_url'] }}">@endif
-    @vite(['resources/css/public.css', 'resources/css/public-detail.css', 'resources/css/public-checkout.css', 'resources/css/public-payment.css', 'resources/css/public-account.css', 'resources/js/public.js'])
+    @vite(['resources/css/public.css', 'resources/css/public-responsive.css', 'resources/css/public-detail.css', 'resources/css/public-checkout.css', 'resources/css/public-payment.css', 'resources/css/public-account.css', 'resources/js/public.js'])
 </head>
 <body style="--public-primary: {{ $brand['primary_color'] ?? '#BC0004' }}; --public-primary-soft: {{ $brand['primary_soft_color'] ?? '#FFF0EF' }};">
     <div class="public-shell">

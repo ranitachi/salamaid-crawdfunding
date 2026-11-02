@@ -252,6 +252,22 @@ Route yang tersedia:
 
 Data draft, rejected, unpublished, campaign non-published, dan organisasi non-verified tidak boleh masuk ke halaman transparansi atau sitemap.
 
+### B7 — Responsive QA dan visual polish
+
+Status implementasi: `READY FOR VISUAL REVIEW`. Fondasi responsive tambahan dan style pagination publik sudah tersedia melalui `public-responsive.css`. Review manual tetap perlu dilakukan pada viewport mobile 390px, tablet, dan desktop untuk home, program, detail campaign, checkout, payment status, auth, account, dan transparency.
+
+### B8 — Mayar sandbox smoke test
+
+Status implementasi: `READY FOR MANUAL SMOKE TEST`. Automated test tetap menggunakan `Http::fake()` dan tidak membuat transaksi eksternal. Smoke test nyata harus dijalankan manual dengan credential sandbox yang tersimpan di `.env`: buat satu donation, selesaikan pembayaran pada Mayar sandbox, pastikan webhook diterima, lalu verifikasi status lokal menjadi `paid` dan receipt dapat dibuka. Jangan memasukkan credential atau payload provider ke repository.
+
+### B9 — Public auth hardening
+
+Status implementasi: `DONE` untuk forgot password dan reset password dengan token Laravel, response generik anti user-enumeration, session regeneration, dan test login setelah reset. Email verification belum diaktifkan karena membutuhkan perubahan kontrak model `User` dan konfigurasi email yang eksplisit.
+
+### B10 — Production readiness
+
+Status implementasi: `IN REVIEW`. Sitemap, robots, canonical, Open Graph, JSON-LD, cache route/view, build Vite, dan test suite sudah tersedia. Sebelum production masih perlu verifikasi konfigurasi `APP_URL`, `APP_ENV=production`, `APP_DEBUG=false`, mail transport, queue worker, storage private/public, webhook Mayar production, HTTPS, backup database, rate limit, dan rotasi credential sandbox ke production.
+
 ## 5. Fitur yang ditunda
 
 Fitur berikut terlihat pada mockup tetapi belum didukung database atau business rule saat ini:

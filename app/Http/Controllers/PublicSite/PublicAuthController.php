@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
 
 class PublicAuthController extends Controller
@@ -26,6 +27,40 @@ class PublicAuthController extends Controller
     }
 
     public function register(): View { return view('public.auth.register'); }
+
+    public function forgotPassword(): View { return view('public.auth.forgot-password'); }
+
+    public function sendResetLink(Request $request): RedirectResponse
+    {
+        $request->validate(['email' => ['required', 'email:rfc,filter']]);
+        Password::sendResetLink($request->only('email'));
+
+        return back()->with('status_message', 'Jika email terdaftar, tautan reset password akan dikirim.');
+    }
+
+    public function resetForm(string $token): View
+    {
+        return view('public.auth.reset-password', compact('token'));
+    }
+
+    public function resetPassword(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email:rfc,filter'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $status = Password::reset($data, function (User $user, string $password): void {
+            $user->forceFill(['password' => $password, 'remember_token' => null])->save();
+        });
+
+        if ($status !== Password::PASSWORD_RESET) {
+            return back()->withInput($request->only('email'))->withErrors(['email' => 'Tautan reset tidak valid atau sudah kedaluwarsa.']);
+        }
+
+        return redirect()->route('public.login')->with('status_message', 'Password berhasil diperbarui. Silakan masuk.');
+    }
 
     public function createAccount(Request $request): RedirectResponse
     {

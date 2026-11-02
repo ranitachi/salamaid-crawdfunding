@@ -34,6 +34,10 @@ Route::middleware('guest')->group(function (): void {
     Route::post('/login', [PublicAuthController::class, 'store'])->name('public.login.store');
     Route::get('/register', [PublicAuthController::class, 'register'])->name('public.register');
     Route::post('/register', [PublicAuthController::class, 'createAccount'])->name('public.register.store');
+    Route::get('/forgot-password', [PublicAuthController::class, 'forgotPassword'])->name('public.password.request');
+    Route::post('/forgot-password', [PublicAuthController::class, 'sendResetLink'])->name('public.password.email');
+    Route::get('/reset-password/{token}', [PublicAuthController::class, 'resetForm'])->name('public.password.reset');
+    Route::post('/reset-password', [PublicAuthController::class, 'resetPassword'])->name('public.password.update');
 });
 
 Route::middleware('auth')->group(function (): void {
