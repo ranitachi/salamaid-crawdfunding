@@ -3,7 +3,7 @@
 @section('content')
     <x-admin.breadcrumb :items="[['label' => 'Pembayaran', 'url' => route('admin.payments.index')], ['label' => 'Transaksi Mayar']]" />
     <x-admin.page-header title="Transaksi Mayar" description="Read-only view transaksi yang tercatat pada akun Mayar. Data ini berasal langsung dari API provider.">
-        <span class="admin-status admin-status--approved">Provider: Mayar</span>
+        <span class="admin-status admin-status--approved">Mayar · {{ strtoupper(config('payment.environment', 'sandbox')) }}</span>
     </x-admin.page-header>
 
     @if ($error)<div class="admin-alert" role="alert"><span class="admin-alert__icon">!</span><div><strong>Mayar tidak tersedia</strong><p>{{ $error }}</p></div></div><div style="height:20px"></div>@endif

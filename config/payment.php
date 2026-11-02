@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'environment' => env('MAYAR_ENVIRONMENT', 'sandbox'),
     'mayar' => [
         'base_url' => env('MAYAR_API_BASE_URL', env('MAYAR_ENVIRONMENT', 'sandbox') === 'production'
             ? 'https://api.mayar.id/hl/v2'

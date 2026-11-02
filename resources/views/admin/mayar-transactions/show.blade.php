@@ -3,6 +3,7 @@
 @section('content')
     <x-admin.breadcrumb :items="[['label' => 'Transaksi Mayar', 'url' => route('admin.mayar-transactions.index')], ['label' => 'Detail']]" />
     <x-admin.page-header title="Detail transaksi Mayar" description="Informasi read-only dari provider. Status lokal Salamaid tidak diubah dari halaman ini.">
+        <span class="admin-status admin-status--approved">Mayar · {{ strtoupper(config('payment.environment', 'sandbox')) }}</span>
         <a class="admin-button admin-button--quiet" href="{{ route('admin.mayar-transactions.index') }}">← Kembali</a>
     </x-admin.page-header>
 
