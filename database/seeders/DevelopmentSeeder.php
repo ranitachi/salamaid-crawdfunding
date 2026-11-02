@@ -312,6 +312,26 @@ class DevelopmentSeeder extends Seeder
             $demoUpdate->forceFill(['status' => 'published', 'published_at' => $demoUpdate->published_at ?? now()])->save();
         }
 
+        foreach ([
+            ['00000000-0000-0000-0000-000000000101', 'Pembayaran berhasil', 'Pembayaran donasi untuk '.$campaign->title.' telah berhasil diproses.', 'payment_success', 'paid'],
+            ['00000000-0000-0000-0000-000000000102', 'Transaksi kedaluwarsa', 'Batas waktu pembayaran donasi telah berakhir. Anda dapat mengulangi donasi kapan saja.', 'payment_expired', 'unread'],
+            ['00000000-0000-0000-0000-000000000103', 'Penyaluran terbaru', 'Penyaluran dana tahap 3 untuk '.$environmentCampaign->title.' sudah dimulai.', 'distribution', 'unread'],
+            ['00000000-0000-0000-0000-000000000104', 'Dampak terlaksana', 'Sebanyak 120 paket pangan telah disalurkan kepada keluarga penerima manfaat.', 'impact', 'read'],
+        ] as [$id, $title, $message, $kind, $state]) {
+            DB::table('notifications')->updateOrInsert(
+                ['id' => $id],
+                [
+                    'type' => 'development_demo',
+                    'notifiable_type' => User::class,
+                    'notifiable_id' => $donor->id,
+                    'data' => json_encode(['title' => $title, 'message' => $message, 'kind' => $kind]),
+                    'read_at' => $state === 'read' ? now() : null,
+                    'created_at' => now()->subMinutes(match ($kind) { 'payment_success' => 10, 'payment_expired' => 60, 'distribution' => 120, default => 180 }),
+                    'updated_at' => now(),
+                ],
+            );
+        }
+
         Fundraiser::updateOrCreate(
             ['campaign_id' => $campaign->id, 'user_id' => $donor->id],
             [

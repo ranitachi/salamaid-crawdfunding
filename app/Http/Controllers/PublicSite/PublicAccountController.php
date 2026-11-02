@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\PublicSite;
 
 use App\Http\Controllers\Controller;
+use App\Queries\PublicSite\CampaignQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -10,6 +11,10 @@ use Modules\Donation\Entities\Donation;
 
 class PublicAccountController extends Controller
 {
+    public function __construct(private readonly CampaignQuery $campaigns)
+    {
+    }
+
     public function account(Request $request): View
     {
         return view('public.account', ['user' => $request->user(), 'unreadCount' => $request->user()->unreadNotifications()->count()]);
@@ -30,7 +35,11 @@ class PublicAccountController extends Controller
 
     public function inbox(Request $request): View
     {
-        return view('public.inbox', ['notifications' => $request->user()->notifications()->latest()->paginate(20)->withQueryString()]);
+        return view('public.inbox', [
+            'notifications' => $request->user()->notifications()->latest()->paginate(20)->withQueryString(),
+            'unreadCount' => $request->user()->unreadNotifications()->count(),
+            'initiatives' => $this->campaigns->urgent(2),
+        ]);
     }
 
     public function markRead(Request $request, string $notification): RedirectResponse
