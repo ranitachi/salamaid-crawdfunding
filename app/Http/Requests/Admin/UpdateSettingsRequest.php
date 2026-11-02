@@ -16,6 +16,7 @@ class UpdateSettingsRequest extends FormRequest
         return [
             'app_name' => ['required', 'string', 'max:80'],
             'app_tagline' => ['nullable', 'string', 'max:120'],
+            'public_tagline' => ['nullable', 'string', 'max:120'],
             'primary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'primary_soft_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'accent_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],

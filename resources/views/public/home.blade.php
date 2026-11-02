@@ -12,8 +12,9 @@
     <section class="public-wallet" aria-label="Ringkasan donasi"><div class="public-wallet__heading"><span class="public-wallet__icon material-symbols-outlined">volunteer_activism</span><div><small>Total donasi tersalurkan</small><strong>Rp {{ number_format($impact['amount'] ?? 0, 0, ',', '.') }}</strong></div><span class="material-symbols-outlined public-wallet__verified">verified</span><span class="public-wallet__count">{{ number_format($impact['count'] ?? 0, 0, ',', '.') }} donasi</span></div><div class="public-wallet__status"><span></span><small>Transparansi penyaluran tersedia di setiap campaign</small><a href="{{ route('public.program') }}">Jelajahi</a></div></section>
 
     <section class="public-shortcuts" aria-label="Kategori program">
+        @php($categoryIconMap = ['heart' => 'volunteer_activism', 'leaf' => 'eco', 'book-open' => 'menu_book'])
         @forelse ($categories as $category)
-            <a href="{{ route('public.program', ['category' => $category->slug]) }}" class="public-shortcut"><span class="public-shortcut__icon material-symbols-outlined">{{ $category->icon ?: 'category' }}</span><small>{{ $category->name }}</small></a>
+            <a href="{{ route('public.program', ['category' => $category->slug]) }}" class="public-shortcut"><span class="public-shortcut__icon material-symbols-outlined">{{ $categoryIconMap[$category->icon] ?? ($category->icon ?: 'category') }}</span><small>{{ $category->name }}</small></a>
         @empty
             <a href="{{ route('public.program') }}" class="public-shortcut"><span class="public-shortcut__icon material-symbols-outlined">category</span><small>Program</small></a>
         @endforelse

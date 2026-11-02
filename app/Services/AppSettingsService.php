@@ -22,6 +22,7 @@ class AppSettingsService
     public const DEFAULTS = [
         'app_name' => 'Salamaid',
         'app_tagline' => 'Admin Console',
+        'public_tagline' => 'Jembatan Kebaikan',
         'primary_color' => '#D92D20',
         'primary_soft_color' => '#FEE4E2',
         'accent_color' => '#FF806F',

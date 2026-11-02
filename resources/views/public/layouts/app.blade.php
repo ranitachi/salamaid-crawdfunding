@@ -28,7 +28,7 @@
         <header class="public-header">
             <a class="public-brand" href="{{ route('public.home') }}">
                 @if (!empty($brand['logo_url']))<img class="public-brand__mark" src="{{ $brand['logo_url'] }}" alt="{{ $brand['app_name'] }}">@else<span class="public-brand__mark">{{ $brand['brand_icon'] ?? 'S' }}</span>@endif
-                <span><strong class="public-brand__name">{{ $brand['app_name'] ?? 'Salamaid' }}</strong><small class="public-brand__tagline">{{ $brand['app_tagline'] ?? 'Jembatan Kebaikan' }}</small></span>
+                <span><strong class="public-brand__name">{{ $brand['app_name'] ?? 'Salamaid' }}</strong><small class="public-brand__tagline">{{ $brand['public_tagline'] ?? 'Jembatan Kebaikan' }}</small></span>
             </a>
             <label class="public-search" aria-label="Cari campaign"><span aria-hidden="true">⌕</span><input data-public-search type="search" placeholder="Cari campaign atau kebaikan..."></label>
             <a class="public-icon-button" href="{{ auth()->check() ? route('public.inbox') : route('public.login') }}" aria-label="Inbox">♡</a>
