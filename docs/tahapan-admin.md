@@ -48,7 +48,7 @@ Temuan yang harus dibereskan sebelum fitur admin berjalan penuh:
 | A0 | Persiapan teknis | Baseline, perbaikan struktur, dan keputusan arsitektur | Tidak ada | DONE |
 | A1 | Admin shell | Layout Blok, sidebar, topbar, responsive state | A0 | DONE |
 | A2 | Authentication & access | Login admin, session, role, permission, policy | A0 | DONE |
-| A3 | Dashboard | Statistik dan aktivitas operasional | A1, A2 | IN PROGRESS |
+| A3 | Dashboard | Statistik dan aktivitas operasional | A1, A2 | DONE |
 | A4 | Organization review | Verifikasi lembaga dan anggota | A2, A3 | DONE |
 | A5 | Campaign moderation | Review, publish, reject, feature, close | A2, A4 | DONE |
 | A6 | Donation monitoring | Daftar donasi, status, detail, receipt | A2, A3 | DONE |
@@ -492,23 +492,23 @@ Urutan tersebut memungkinkan admin mulai mengelola organisasi dan campaign lebih
 
 | Halaman | Route | Modul utama | Aksi penting | Status |
 |---|---|---|---|---|
-| Login | `/admin/login` | App/Auth | login/logout/reset | TODO |
-| Dashboard | `/admin` | lintas modul | filter periode, drill-down | TODO |
-| Campaign list | `/admin/campaigns` | Catalog | filter, bulk action | TODO |
-| Campaign detail | `/admin/campaigns/{campaign}` | Catalog | review, publish, reject | TODO |
-| Organization list | `/admin/organizations` | Core | filter status | TODO |
-| Organization detail | `/admin/organizations/{organization}` | Core | verify, reject, suspend | TODO |
-| Donation list | `/admin/donations` | Donation | filter, export | TODO |
-| Donation detail | `/admin/donations/{donation}` | Donation/Payment | timeline, receipt | TODO |
-| Payment list | `/admin/payments` | Payment | retry, inspect webhook | TODO |
-| Payout list | `/admin/payouts` | Operations | approve, reject, mark paid | TODO |
-| Payout detail | `/admin/payouts/{payout}` | Operations | evidence, timeline | TODO |
-| Transparency | `/admin/transparency` | Transparency | review, publish | TODO |
-| Categories | `/admin/categories` | Core | CRUD, activate/deactivate | TODO |
-| Users & roles | `/admin/users` | Core/App | CRUD, role assignment | TODO |
-| Reports | `/admin/reports` | lintas modul | filter, export | TODO |
-| Audit log | `/admin/audit-logs` | App | search, filter | TODO |
-| Settings | `/admin/settings` | App | configuration | TODO |
+| Login | `/admin/login` | App/Auth | login/logout/reset | DONE |
+| Dashboard | `/admin` | lintas modul | filter periode, drill-down | DONE |
+| Campaign list | `/admin/campaigns` | Catalog | filter, bulk action | DONE |
+| Campaign detail | `/admin/campaigns/{campaign}` | Catalog | review, publish, reject | DONE |
+| Organization list | `/admin/organizations` | Core | filter status | DONE |
+| Organization detail | `/admin/organizations/{organization}` | Core | verify, reject, suspend | DONE |
+| Donation list | `/admin/donations` | Donation | filter, export | DONE |
+| Donation detail | `/admin/donations/{donation}` | Donation/Payment | timeline, receipt | DONE |
+| Payment list | `/admin/payments` | Payment | retry, inspect webhook | DONE |
+| Payout list | `/admin/payouts` | Operations | approve, reject, mark paid | DONE |
+| Payout detail | `/admin/payouts/{payout}` | Operations | evidence, timeline | DONE |
+| Transparency | `/admin/transparency` | Transparency | review, publish | DONE |
+| Categories | `/admin/categories` | Core | CRUD, activate/deactivate | DONE |
+| Users & roles | `/admin/users` | Core/App | CRUD, role assignment | DONE |
+| Reports | `/admin/reports` | lintas modul | filter, export | DONE |
+| Audit log | `/admin/audit-logs` | App | search, filter | DONE |
+| Settings | `/admin/settings` | App | configuration | DONE |
 
 ## 7. Checklist monitoring per fitur
 
