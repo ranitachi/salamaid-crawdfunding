@@ -25,7 +25,7 @@ Gunakan status berikut pada tabel roadmap:
 
 Status awal seluruh fase: `TODO`.
 
-Progress per 2026-11-02: A0, A1, A2, A3, A4, A5, A7, A9, A10, dan A11 `DONE`. A7 sudah memiliki scheduler sinkronisasi payment pending; uji sandbox nyata tetap menjadi langkah operasional. A8 sudah memiliki private evidence, download terotorisasi, dan balance validation tetapi settlement reconciliation/fraud flag masih terbuka. A12 sudah terintegrasi, Laravel sudah di-upgrade ke 12, dan seluruh 154 test lulus; backup/restore drill, responsive QA, serta settlement/fraud hardening masih menjadi risiko release.
+Progress per 2026-11-02: A0, A1, A2, A3, A4, A5, A7, A9, A10, A11, dan A13 `DONE`. A7 sudah memiliki scheduler sinkronisasi payment pending; uji sandbox nyata tetap menjadi langkah operasional. A8 sudah memiliki private evidence, download terotorisasi, dan balance validation tetapi settlement reconciliation/fraud flag masih terbuka. A12 sudah terintegrasi, Laravel sudah di-upgrade ke 12, dan seluruh 157 test lulus; backup/restore drill, responsive QA, serta settlement/fraud hardening masih menjadi risiko release.
 
 ## 3. Temuan awal dan pekerjaan pendahuluan
 
@@ -58,6 +58,7 @@ Temuan yang harus dibereskan sebelum fitur admin berjalan penuh:
 | A10 | User, category & configuration | Master data dan pengaturan admin | A2 | DONE |
 | A11 | Audit, notification & reporting | Jejak perubahan, notifikasi, export | A3-A10 | DONE |
 | A12 | Hardening & release | Security, performance, QA, deployment | A1-A11 | REVIEW |
+| A13 | Mayar transaction explorer | Daftar dan detail transaksi provider secara read-only | A7 | DONE |
 
 ---
 

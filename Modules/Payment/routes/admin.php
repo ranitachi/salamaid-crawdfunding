@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Payment\App\Http\Controllers\Admin\PaymentAdminController;
 use Modules\Payment\App\Http\Controllers\Admin\PaymentChannelAdminController;
 use Modules\Payment\App\Http\Controllers\Admin\PaymentSyncAdminController;
+use Modules\Payment\App\Http\Controllers\Admin\MayarTransactionController;
 
 Route::middleware('admin.permission:payments.manage')->group(function () {
     Route::get('payment-channels', [PaymentChannelAdminController::class, 'index'])->name('payment-channels.index');
@@ -19,6 +20,8 @@ Route::middleware('admin.permission:payments.manage')->group(function () {
 });
 
 Route::middleware('admin.permission:payments.view,payments.manage')->group(function () {
+    Route::get('mayar-transactions', [MayarTransactionController::class, 'index'])->name('mayar-transactions.index');
+    Route::get('mayar-transactions/{transaction}', [MayarTransactionController::class, 'show'])->name('mayar-transactions.show');
     Route::get('payments', [PaymentAdminController::class, 'index'])->name('payments.index');
     Route::get('payments/export', [PaymentAdminController::class, 'export'])->name('payments.export');
     Route::get('payments/{payment}', [PaymentAdminController::class, 'show'])->name('payments.show');

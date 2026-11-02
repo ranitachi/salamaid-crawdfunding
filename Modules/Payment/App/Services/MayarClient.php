@@ -51,6 +51,31 @@ class MayarClient
         return $this->send('inquiry', fn (PendingRequest $http) => $http->get('/transactions/'.rawurlencode($transactionId)));
     }
 
+    /**
+     * List provider transactions. The cursor is Mayar's `nextStartingAfter`
+     * value; this method intentionally returns only reconciliation-safe fields.
+     *
+     * @param array<string, scalar> $query
+     * @return array{data: array<int, array<string, mixed>>, nextStartingAfter: string|null}
+     */
+    public function listTransactions(array $query = []): array
+    {
+        try {
+            $response = $this->request()->get('/transactions', $query);
+        } catch (ConnectionException) {
+            throw new MayarRequestException('Mayar transaction list gagal: timeout atau koneksi terputus.', null, true);
+        }
+
+        $this->assertSuccessful($response, 'transaction list');
+
+        $items = $response->json('data', []);
+
+        return [
+            'data' => is_array($items) ? array_map(fn ($item): array => is_array($item) ? $this->transactionSummary($item) : [], $items) : [],
+            'nextStartingAfter' => $response->json('nextStartingAfter'),
+        ];
+    }
+
     /** @param callable(PendingRequest): Response $call */
     private function send(string $operation, callable $call): array
     {
@@ -60,6 +85,19 @@ class MayarClient
             throw new MayarRequestException("Mayar {$operation} gagal: timeout atau koneksi terputus.", null, true);
         }
 
+        $this->assertSuccessful($response, $operation);
+
+        $data = $response->json('data');
+
+        if (! is_array($data) || $data === []) {
+            throw new MayarRequestException("Mayar {$operation} mengembalikan data kosong.", $status, false);
+        }
+
+        return $data;
+    }
+
+    private function assertSuccessful(Response $response, string $operation): void
+    {
         $status = $response->status();
         $bodyStatus = (int) $response->json('statusCode', $status);
 
@@ -76,13 +114,18 @@ class MayarClient
             $message = Str::limit(strip_tags((string) $response->json('messages', 'Unknown error')), 150);
             throw new MayarRequestException("Mayar {$operation} ditolak ({$bodyStatus}): {$message}", $bodyStatus, false);
         }
+    }
 
-        $data = $response->json('data');
-
-        if (! is_array($data) || $data === []) {
-            throw new MayarRequestException("Mayar {$operation} mengembalikan data kosong.", $status, false);
-        }
-
-        return $data;
+    /** @param array<string, mixed> $item @return array<string, mixed> */
+    private function transactionSummary(array $item): array
+    {
+        return [
+            'id' => $item['id'] ?? null,
+            'createdAt' => $item['createdAt'] ?? null,
+            'updatedAt' => $item['updatedAt'] ?? null,
+            'status' => $item['status'] ?? null,
+            'amount' => $item['amount'] ?? null,
+            'paymentMethod' => $item['paymentMethod'] ?? null,
+        ];
     }
 }

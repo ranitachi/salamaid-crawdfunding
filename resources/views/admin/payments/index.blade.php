@@ -8,6 +8,7 @@
             <a class="admin-button admin-button--quiet" href="{{ route('admin.payment-channels.index') }}">Channel & fee</a>
         @endif
         <a class="admin-button admin-button--quiet" href="/admin/webhooks">Webhook log</a>
+        <a class="admin-button admin-button--quiet" href="{{ route('admin.mayar-transactions.index') }}">Transaksi Mayar</a>
         <a class="admin-button admin-button--primary" href="/admin/payments-reconciliation">Rekonsiliasi</a>
     </x-admin.page-header>
 
