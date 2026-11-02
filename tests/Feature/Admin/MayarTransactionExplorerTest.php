@@ -100,6 +100,25 @@ class MayarTransactionExplorerTest extends TestCase
             ->assertSee((string) $payment->id);
     }
 
+    public function test_payment_request_id_falls_back_when_transaction_lookup_returns_not_found(): void
+    {
+        Http::fake([
+            'https://api.mayar.io/hl/v2/transactions/payment-request-1' => Http::response([
+                'statusCode' => 404, 'messages' => 'Transaction not found',
+            ], 404),
+            'https://api.mayar.io/hl/v2/payments/payment-request-1' => Http::response([
+                'statusCode' => 200,
+                'data' => ['id' => 'payment-request-1', 'status' => 'paid', 'amount' => 250000, 'link' => 'pay-link'],
+            ]),
+        ]);
+
+        $this->actingAs(User::factory()->role('support')->create())
+            ->get('/admin/mayar-transactions/payment-request-1')
+            ->assertOk()
+            ->assertSee('payment-request-1')
+            ->assertSee('Rp 250.000');
+    }
+
     public function test_reviewer_without_payment_permission_cannot_browse_mayar_transactions(): void
     {
         $this->actingAs(User::factory()->role('reviewer')->create())

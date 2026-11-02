@@ -58,11 +58,24 @@ class MayarTransactionController extends Controller
             $result = $this->mayar->getTransaction($providerTransaction);
             $error = null;
         } catch (MayarRequestException $exception) {
-            report($exception);
-            $result = [];
-            $error = $exception->httpStatus === 404
-                ? 'Transaksi tidak ditemukan di akun Mayar untuk ID provider tersebut.'
-                : 'Detail transaksi Mayar belum dapat dimuat. Periksa konfigurasi API atau coba lagi.';
+            if ($exception->httpStatus === 404) {
+                try {
+                    // Mayar has separate IDs for payment requests and transactions.
+                    // Support both when an operator opens a payment-request ID.
+                    $result = $this->mayar->getPaymentRequest($providerTransaction);
+                    $error = null;
+                } catch (\Throwable $fallbackException) {
+                    report($fallbackException);
+                    $result = [];
+                    $error = $fallbackException instanceof MayarRequestException && $fallbackException->httpStatus === 404
+                        ? 'ID tersebut tidak ditemukan sebagai transaksi maupun payment request pada akun Mayar.'
+                        : 'Detail Mayar belum dapat dimuat. Periksa konfigurasi API atau coba lagi.';
+                }
+            } else {
+                report($exception);
+                $result = [];
+                $error = 'Detail transaksi Mayar belum dapat dimuat. Periksa konfigurasi API atau coba lagi.';
+            }
         } catch (\Throwable $exception) {
             report($exception);
             $result = [];
