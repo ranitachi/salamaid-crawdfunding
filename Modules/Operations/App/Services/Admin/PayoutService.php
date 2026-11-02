@@ -6,6 +6,7 @@ use App\Contracts\AdminAuditLogger;
 use App\Exceptions\AdminActionException;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Modules\Operations\Entities\Payout;
 
 class PayoutService
@@ -50,9 +51,29 @@ class PayoutService
         return $this->transition($payout, $actor, 'rejected', ['note' => $reason], $reason);
     }
 
-    public function markPaid(Payout $payout, User $actor, string $evidenceUrl): Payout
+    public function markPaid(Payout $payout, User $actor, array $evidenceData): Payout
     {
-        $evidenceUrl = trim($evidenceUrl);
+        $evidenceType = $evidenceData['type'] ?? 'url';
+        $evidenceValue = $evidenceData['value'] ?? '';
+
+        $evidenceUrl = '';
+        if ($evidenceType === 'path') {
+            // Private storage path - validate file exists
+            if (! storage('private')->exists($evidenceValue)) {
+                throw AdminActionException::requirement('File bukti tidak ditemukan di storage private.');
+            }
+            $evidenceUrl = storage('private')->url($evidenceValue);
+        } elseif ($evidenceType === 'url') {
+            // Backward compatibility: old URL format
+            $evidenceUrl = $evidenceValue;
+            // Validate that it's a proper URL
+            if (! filter_var($evidenceUrl, FILTER_VALIDATE_URL)) {
+                throw AdminActionException::requirement('Format URL bukti tidak valid.');
+            }
+        } else {
+            throw AdminActionException::requirement('Format bukti tidak dikenal.');
+        }
+
         if ($evidenceUrl === '') {
             throw AdminActionException::requirement('Bukti transfer wajib diisi sebelum payout ditandai paid.');
         }
@@ -63,8 +84,44 @@ class PayoutService
 
         return $this->transition($payout, $actor, 'paid', [
             'evidence_url' => $evidenceUrl,
+            'evidence_path' => $evidenceType === 'path' ? $evidenceValue : null,
+            'evidence_mime' => $this->detectMime($evidenceValue),
+            'evidence_size' => $this->detectSize($evidenceValue),
             'paid_at' => now(),
         ]);
+    }
+
+    private function detectMime(string $value): ?string
+    {
+        // Try to detect MIME type from the path/URL
+        if (Str::startsWith($value, 'private/')) {
+            $ext = Str::after($value, '.');
+            $ext = Str::lower($ext);
+            if ($ext === 'jpg' || $ext === 'jpeg') {
+                return 'image/jpeg';
+            }
+            if ($ext === 'png') {
+                return 'image/png';
+            }
+            if ($ext === 'pdf') {
+                return 'application/pdf';
+            }
+        }
+        // For URLs, return null (we can't reliably detect MIME from URL alone)
+        return null;
+    }
+
+    private function detectSize(string $value): ?int
+    {
+        if (Str::startsWith($value, 'private/')) {
+            // Try to get file size from storage
+            try {
+                return (int) storage('private')->size($value);
+            } catch (\Exception $e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     private function transition(
@@ -74,7 +131,8 @@ class PayoutService
         array $attributes,
         ?string $reason = null,
         bool $checkBalance = false,
-    ): Payout {
+    ): Payout
+    {
         $before = $payout->only(['status', 'approved_by', 'paid_at', 'evidence_url', 'note']);
 
         $updated = DB::transaction(function () use ($payout, $actor, $target, $attributes, $checkBalance) {
@@ -90,7 +148,7 @@ class PayoutService
         });
 
         $this->audit->log(
-            'payout.'.($target === 'paid' ? 'mark_paid' : $target),
+            'payout.'.$target,
             $updated,
             $before,
             $updated->only(['status', 'approved_by', 'paid_at', 'evidence_url', 'note']),

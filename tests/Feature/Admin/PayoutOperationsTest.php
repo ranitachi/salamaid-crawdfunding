@@ -118,12 +118,14 @@ class PayoutOperationsTest extends TestCase
             ->post(route('admin.payouts.approve', $payout))
             ->assertSessionHas('success');
 
+        // Mark paid with empty evidence - should fail
         $this->actingAs($finance)
             ->post(route('admin.payouts.paid', $payout), [])
-            ->assertSessionHasErrors('evidence_url');
+            ->assertSessionHasErrors('evidence');
 
+        // Mark paid with valid evidence URL (backward compatible)
         $this->actingAs($finance)
-            ->post(route('admin.payouts.paid', $payout), ['evidence_url' => 'https://example.test/evidence/1'])
+            ->post(route('admin.payouts.paid', $payout), ['evidence' => 'https://example.test/evidence/1'])
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('payouts', ['id' => $payout->id, 'status' => 'paid']);
