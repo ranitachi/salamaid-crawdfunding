@@ -106,6 +106,9 @@ class MayarTransactionExplorerTest extends TestCase
             'https://api.mayar.io/hl/v2/transactions/payment-request-1' => Http::response([
                 'statusCode' => 404, 'messages' => 'Transaction not found',
             ], 404),
+            'https://api.mayar.io/hl/v2/transactions?*' => Http::response([
+                'statusCode' => 200, 'data' => [], 'nextStartingAfter' => null,
+            ]),
             'https://api.mayar.io/hl/v2/payments/payment-request-1' => Http::response([
                 'statusCode' => 200,
                 'data' => ['id' => 'payment-request-1', 'status' => 'paid', 'amount' => 250000, 'link' => 'pay-link'],
@@ -117,6 +120,30 @@ class MayarTransactionExplorerTest extends TestCase
             ->assertOk()
             ->assertSee('payment-request-1')
             ->assertSee('Rp 250.000');
+    }
+
+    public function test_settled_transaction_falls_back_to_provider_list_when_detail_returns_not_found(): void
+    {
+        Http::fake([
+            'https://api.mayar.io/hl/v2/transactions/settled-1' => Http::response([
+                'statusCode' => 404, 'messages' => 'Transaction not found',
+            ], 404),
+            'https://api.mayar.io/hl/v2/transactions?*' => Http::response([
+                'statusCode' => 200,
+                'data' => [[
+                    'id' => 'settled-1', 'status' => 'settled', 'amount' => 10000,
+                    'paymentMethod' => 'Transfer VA - BNI', 'createdAt' => 1775991660429,
+                ]],
+                'nextStartingAfter' => null,
+            ]),
+        ]);
+
+        $this->actingAs(User::factory()->role('support')->create())
+            ->get('/admin/mayar-transactions/settled-1')
+            ->assertOk()
+            ->assertSee('settled-1')
+            ->assertSee('Transfer VA - BNI')
+            ->assertSee('Rp 10.000');
     }
 
     public function test_reviewer_without_payment_permission_cannot_browse_mayar_transactions(): void

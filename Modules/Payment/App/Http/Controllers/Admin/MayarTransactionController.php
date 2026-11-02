@@ -60,10 +60,16 @@ class MayarTransactionController extends Controller
         } catch (MayarRequestException $exception) {
             if ($exception->httpStatus === 404) {
                 try {
-                    // Mayar has separate IDs for payment requests and transactions.
-                    // Support both when an operator opens a payment-request ID.
-                    $result = $this->mayar->getPaymentRequest($providerTransaction);
-                    $error = null;
+                    $summary = $this->mayar->findTransaction($providerTransaction);
+                    if ($summary) {
+                        $result = ['data' => $summary];
+                        $error = null;
+                    } else {
+                        // Mayar has separate IDs for payment requests and transactions.
+                        // Support both when an operator opens a payment-request ID.
+                        $result = $this->mayar->getPaymentRequest($providerTransaction);
+                        $error = null;
+                    }
                 } catch (\Throwable $fallbackException) {
                     report($fallbackException);
                     $result = [];

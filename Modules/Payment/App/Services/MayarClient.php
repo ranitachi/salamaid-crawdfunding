@@ -76,6 +76,43 @@ class MayarClient
         ];
     }
 
+    /**
+     * Find a transaction through the paginated list endpoint. Some settled
+     * transactions are returned by GET /transactions but return 404 from the
+     * provider's detail endpoint, so the explorer uses this as a safe fallback.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function findTransaction(string $transactionId, int $maxPages = 10): ?array
+    {
+        $cursor = null;
+
+        for ($page = 0; $page < $maxPages; $page++) {
+            $query = [
+                'limit' => 50,
+                'fields' => 'id,createdAt,updatedAt,status,amount,paymentMethod',
+            ];
+            if ($cursor) {
+                $query['startingAfter'] = $cursor;
+            }
+
+            $result = $this->listTransactions($query);
+            foreach ($result['data'] as $transaction) {
+                if ((string) ($transaction['id'] ?? '') === $transactionId) {
+                    return $transaction;
+                }
+            }
+
+            $next = $result['nextStartingAfter'];
+            if (! $next || $next === $cursor) {
+                break;
+            }
+            $cursor = $next;
+        }
+
+        return null;
+    }
+
     /** @param callable(PendingRequest): Response $call */
     private function send(string $operation, callable $call): array
     {
