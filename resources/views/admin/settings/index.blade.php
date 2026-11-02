@@ -10,7 +10,7 @@
     @if (session('success'))<x-admin.toast :message="session('success')" />@endif
     @if ($errors->any())<x-admin.toast :message="$errors->first()" type="error" />@endif
 
-    <form class="admin-panel" method="POST" action="{{ route('admin.settings.update') }}">
+    <form class="admin-panel" method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="admin-panel__header"><div><h2>Identitas &amp; tampilan</h2><p>Nilai disimpan di database dan digunakan pada login serta seluruh shell admin.</p></div></div>
@@ -18,8 +18,8 @@
             <div class="admin-field"><label for="app_name">Nama aplikasi</label><input id="app_name" name="app_name" value="{{ old('app_name', $settings['app_name']) }}" required></div>
             <div class="admin-field"><label for="app_tagline">Tagline</label><input id="app_tagline" name="app_tagline" value="{{ old('app_tagline', $settings['app_tagline']) }}"></div>
             <div class="admin-field"><label for="brand_icon">Icon teks</label><input id="brand_icon" name="brand_icon" value="{{ old('brand_icon', $settings['brand_icon']) }}" maxlength="10" required><small class="admin-field__hint">Dipakai jika logo URL kosong.</small></div>
-            <div class="admin-field"><label for="logo_url">URL logo</label><input id="logo_url" name="logo_url" type="url" value="{{ old('logo_url', $settings['logo_url']) }}" placeholder="https://..."><small class="admin-field__hint">Referensi URL gambar, tidak menyimpan binary di database.</small></div>
-            <div class="admin-field"><label for="favicon_url">URL favicon</label><input id="favicon_url" name="favicon_url" type="url" value="{{ old('favicon_url', $settings['favicon_url']) }}" placeholder="https://..."></div>
+            <div class="admin-field"><label for="logo">Upload logo</label><input id="logo" name="logo" type="file" accept=".png,.jpg,.jpeg,.webp,.svg"><small class="admin-field__hint">PNG, JPG, WEBP, atau SVG; maksimal 2 MB. @if(!empty($settings['logo_url']))Logo saat ini tersimpan.@elseBelum ada logo, gunakan icon teks.@endif</small></div>
+            <div class="admin-field"><label for="favicon">Upload favicon</label><input id="favicon" name="favicon" type="file" accept=".png,.jpg,.jpeg,.webp,.ico,.svg"><small class="admin-field__hint">PNG, JPG, WEBP, ICO, atau SVG; maksimal 512 KB.</small></div>
             <div class="admin-field"><label for="primary_color">Warna utama</label><input id="primary_color" name="primary_color" value="{{ old('primary_color', $settings['primary_color']) }}" pattern="#[0-9A-Fa-f]{6}" required></div>
             <div class="admin-field"><label for="primary_soft_color">Warna lembut</label><input id="primary_soft_color" name="primary_soft_color" value="{{ old('primary_soft_color', $settings['primary_soft_color']) }}" pattern="#[0-9A-Fa-f]{6}" required></div>
             <div class="admin-field"><label for="accent_color">Warna aksen</label><input id="accent_color" name="accent_color" value="{{ old('accent_color', $settings['accent_color']) }}" pattern="#[0-9A-Fa-f]{6}" required></div>

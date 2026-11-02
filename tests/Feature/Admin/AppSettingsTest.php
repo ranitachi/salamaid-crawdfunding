@@ -6,6 +6,8 @@ use App\Models\AppSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class AppSettingsTest extends TestCase
@@ -69,5 +71,26 @@ class AppSettingsTest extends TestCase
         ])->assertSessionHasErrors(['primary_color', 'logo_url']);
 
         $this->assertDatabaseMissing('app_settings', ['key' => 'app_name', 'value' => 'Bad Settings']);
+    }
+
+    public function test_super_admin_can_upload_logo_and_favicon_to_public_storage(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->role('super_admin')->create();
+
+        $this->actingAs($admin)->put('/admin/settings', [
+            'app_name' => 'Salamaid Upload',
+            'primary_color' => '#B91C1C',
+            'primary_soft_color' => '#FEE2E2',
+            'accent_color' => '#FB7185',
+            'brand_icon' => 'S',
+            'logo' => UploadedFile::fake()->image('logo.png', 300, 100),
+            'favicon' => UploadedFile::fake()->image('favicon.png', 64, 64),
+        ])->assertRedirect('/admin/settings');
+
+        $this->assertDatabaseHas('app_settings', ['key' => 'logo_url']);
+        $this->assertDatabaseHas('app_settings', ['key' => 'favicon_url']);
+        $this->assertNotEmpty(Storage::disk('public')->allFiles('branding'));
+        $this->assertCount(2, Storage::disk('public')->allFiles('branding'));
     }
 }
