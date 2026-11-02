@@ -6,6 +6,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Modules\Catalog\Entities\Campaign;
+use Modules\Core\Entities\Organization;
+use Modules\Donation\Entities\Donation;
+use Modules\Payment\Entities\Payment;
 use Tests\TestCase;
 
 class MayarTransactionExplorerTest extends TestCase
@@ -65,6 +69,35 @@ class MayarTransactionExplorerTest extends TestCase
             ->assertSee('mayar-tx-1')
             ->assertSee('INV-1')
             ->assertDontSee('private@example.test');
+    }
+
+    public function test_local_payment_id_is_resolved_to_provider_transaction_id(): void
+    {
+        $organization = Organization::create(['slug' => 'org-local-payment', 'name' => 'Org']);
+        $campaign = Campaign::create([
+            'organization_id' => $organization->id, 'title' => 'Campaign',
+            'description' => 'Deskripsi', 'target_amount' => 1_000_000, 'status' => 'published',
+        ]);
+        $donation = Donation::create([
+            'campaign_id' => $campaign->id, 'gross_amount' => 250000,
+            'net_amount' => 250000, 'method' => 'mayar', 'status' => 'pending',
+        ]);
+        $payment = Payment::create([
+            'donation_id' => $donation->id, 'provider' => 'mayar',
+            'order_id' => 'mayar-provider-tx-1', 'channel_code' => 'mayar_checkout', 'status' => 'pending',
+        ]);
+        Http::fake([
+            'https://api.mayar.io/hl/v2/transactions/mayar-provider-tx-1' => Http::response([
+                'statusCode' => 200,
+                'data' => ['id' => 'mayar-provider-tx-1', 'status' => 'paid', 'amount' => 250000, 'paymentMethod' => 'QRIS'],
+            ]),
+        ]);
+
+        $this->actingAs(User::factory()->role('support')->create())
+            ->get('/admin/mayar-transactions/'.$payment->id)
+            ->assertOk()
+            ->assertSee('mayar-provider-tx-1')
+            ->assertSee((string) $payment->id);
     }
 
     public function test_reviewer_without_payment_permission_cannot_browse_mayar_transactions(): void

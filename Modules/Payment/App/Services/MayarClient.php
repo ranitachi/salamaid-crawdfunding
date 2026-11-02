@@ -90,7 +90,7 @@ class MayarClient
         $data = $response->json('data');
 
         if (! is_array($data) || $data === []) {
-            throw new MayarRequestException("Mayar {$operation} mengembalikan data kosong.", $status, false);
+            throw new MayarRequestException("Mayar {$operation} mengembalikan data kosong.", $response->status(), false);
         }
 
         return $data;

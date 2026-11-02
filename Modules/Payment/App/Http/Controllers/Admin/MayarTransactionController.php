@@ -4,6 +4,7 @@ namespace Modules\Payment\App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\View\View;
+use Modules\Payment\App\Exceptions\MayarRequestException;
 use Modules\Payment\App\Http\Requests\Admin\MayarTransactionIndexRequest;
 use Modules\Payment\App\Services\MayarClient;
 use Modules\Payment\Entities\Payment;
@@ -47,16 +48,27 @@ class MayarTransactionController extends Controller
     public function show(string $transaction): View
     {
         $this->authorize('viewAny', Payment::class);
+        $localPayment = Payment::query()
+            ->whereKey($transaction)
+            ->orWhere('order_id', $transaction)
+            ->first();
+        $providerTransaction = $localPayment?->order_id ?: $transaction;
 
         try {
-            $result = $this->mayar->getTransaction($transaction);
+            $result = $this->mayar->getTransaction($providerTransaction);
             $error = null;
+        } catch (MayarRequestException $exception) {
+            report($exception);
+            $result = [];
+            $error = $exception->httpStatus === 404
+                ? 'Transaksi tidak ditemukan di akun Mayar untuk ID provider tersebut.'
+                : 'Detail transaksi Mayar belum dapat dimuat. Periksa konfigurasi API atau coba lagi.';
         } catch (\Throwable $exception) {
             report($exception);
             $result = [];
-            $error = 'Detail transaksi Mayar belum dapat dimuat.';
+            $error = 'Detail transaksi Mayar belum dapat dimuat. Periksa konfigurasi API atau coba lagi.';
         }
 
-        return view('admin.mayar-transactions.show', compact('transaction', 'result', 'error'));
+        return view('admin.mayar-transactions.show', compact('transaction', 'providerTransaction', 'localPayment', 'result', 'error'));
     }
 }

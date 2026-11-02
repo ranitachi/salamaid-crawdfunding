@@ -12,7 +12,7 @@
     @if (!$error && $data)
         <div class="admin-grid">
             <div class="admin-panel">
-                <div class="admin-panel__header"><div><h2>Ringkasan provider</h2><p>Transaction ID: {{ $data['id'] ?? $transaction }}</p></div></div>
+                <div class="admin-panel__header"><div><h2>Ringkasan provider</h2><p>Transaction ID: {{ $data['id'] ?? $providerTransaction }}</p>@if ($localPayment)<p class="admin-table__secondary">Payment lokal: {{ $localPayment->id }}</p>@endif</div></div>
                 <div class="admin-panel__body">
                     <dl class="admin-detail-list">
                         <div><dt>Status</dt><dd><x-admin.status-badge :status="strtolower((string) ($data['status'] ?? 'unknown'))" /></dd></div>
