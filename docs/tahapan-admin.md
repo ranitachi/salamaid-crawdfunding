@@ -52,7 +52,7 @@ Temuan yang harus dibereskan sebelum fitur admin berjalan penuh:
 | A4 | Organization review | Verifikasi lembaga dan anggota | A2, A3 | DONE |
 | A5 | Campaign moderation | Review, publish, reject, feature, close | A2, A4 | DONE |
 | A6 | Donation monitoring | Daftar donasi, status, detail, receipt | A2, A3 | IN PROGRESS |
-| A7 | Payment operations | Channel, callback, webhook, rekonsiliasi | A2, A6 | IN PROGRESS |
+| A7 | Payment operations | Channel, callback, webhook, rekonsiliasi | A2, A6 | REVIEW |
 | A8 | Payout operations | Request, approval, evidence, settlement | A2, A4, A7 | IN PROGRESS |
 | A9 | Transparency & content | Update campaign, laporan, bukti penggunaan | A5, A8 | DONE |
 | A10 | User, category & configuration | Master data dan pengaturan admin | A2 | DONE |
@@ -324,8 +324,8 @@ Menjadikan payment operation dapat dipantau, diulang secara aman, dan diaudit.
 - [x] Terapkan idempotency berdasarkan provider, order ID, dan event.
 - [x] Buat halaman webhook masuk dan processed state.
 - [x] Buat halaman rekonsiliasi payment vs donation.
-- [ ] Buat queue/job untuk callback dan notifikasi.
-- [ ] Tambahkan inquiry status bila provider mendukung.
+- [x] Buat queue/job untuk callback dan sinkronisasi provider dengan retry/backoff (`docs/admin-a7.md`). *(Notifikasi via queue mengikuti A11.)*
+- [x] Tambahkan inquiry status Mayar (`GET /transactions/{id}`) dengan mapping status eksplisit dan aksi admin `payments.manage`.
 
 Catatan integrasi: route fitur tersedia di `Modules/Donation/routes/admin.php` dan `Modules/Payment/routes/admin.php`. File tersebut perlu di-include ke route group admin oleh Agent B setelah route authentication stabil.
 
