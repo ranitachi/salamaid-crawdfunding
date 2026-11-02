@@ -7,3 +7,4 @@
 .public-pagination .is-active{border-color:var(--public-primary);background:var(--public-primary);color:#fff}
 .public-pagination .is-disabled{opacity:.45}
 @media(max-width:700px){.public-section__heading{align-items:flex-start;flex-direction:column;gap:8px}.public-footer{padding:20px 4px}.public-button{max-width:100%}}
+.public-priority-row{margin-left:0;margin-right:0;padding-left:0;padding-right:0}

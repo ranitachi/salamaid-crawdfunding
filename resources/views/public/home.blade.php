@@ -16,7 +16,7 @@
     <section class="public-wallet" aria-label="Saku Kebaikan"><div class="public-wallet__heading"><span class="public-wallet__icon material-symbols-outlined">account_balance_wallet</span><div><small>Saku Kebaikan</small><strong>Rp 0</strong></div><span class="material-symbols-outlined public-wallet__verified">verified</span><button type="button" disabled><span class="material-symbols-outlined">add_circle</span> Isi saldo</button></div><div class="public-wallet__status"><span></span><small>Donasi otomatis: <b>Segera hadir</b></small><span class="public-muted">Atur</span></div></section>
 
     <section class="public-shortcuts" aria-label="Layanan kebaikan">
-        @foreach ([['volunteer_activism','Sedekah rutin','primary'],['calculate','Zakat maal','success'],['mosque','Wakaf','amber'],['emergency','Siaga bencana','primary'],['savings','Tabung qurban','neutral'],['medical_services','Bantuan medis','success'],['school','Peduli santri','primary'],['campaign','Galang dana','neutral']] as [$icon, $label, $tone])
+        @foreach ([['volunteer_activism','Sedekah','primary'],['calculate','Zakat','success'],['mosque','Wakaf','amber'],['emergency','Bencana','primary'],['savings','Qurban','neutral'],['medical_services','Medis','success'],['school','Santri','primary'],['campaign','Galang dana','neutral']] as [$icon, $label, $tone])
             <a href="{{ route('public.program', ['q' => $label]) }}" class="public-shortcut"><span class="public-shortcut__icon public-shortcut__icon--{{ $tone }} material-symbols-outlined">{{ $icon }}</span><small>{{ $label }}</small></a>
         @endforeach
     </section>
