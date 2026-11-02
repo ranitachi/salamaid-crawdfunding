@@ -20,10 +20,14 @@
 
 <aside class="admin-sidebar" data-admin-sidebar data-admin-close-sidebar>
     <a class="admin-sidebar__brand" href="/admin">
-        <span class="admin-brand-mark">S</span>
+        @if (!empty($brand['logo_url']))
+            <img class="admin-brand-logo" src="{{ $brand['logo_url'] }}" alt="{{ $brand['app_name'] }}">
+        @else
+            <span class="admin-brand-mark">{{ $brand['brand_icon'] ?? 'S' }}</span>
+        @endif
         <span>
-            <strong>Salamaid</strong>
-            <small>Admin Console</small>
+            <strong>{{ $brand['app_name'] ?? 'Salamaid' }}</strong>
+            <small>{{ $brand['app_tagline'] ?? 'Admin Console' }}</small>
         </span>
     </a>
 
@@ -52,7 +56,8 @@
     </nav>
 
     <div class="admin-sidebar__footer">
-        <strong>Salamaid Crowdfunding</strong><br>
-        Internal operations panel · v0.1
+        <strong>{{ $brand['app_name'] ?? 'Salamaid' }}</strong><br>
+        {{ $brand['contact_email'] ?: 'Internal operations panel' }}
+        @if (!empty($brand['contact_city']))<br>{{ $brand['contact_city'] }}@endif
     </div>
 </aside>

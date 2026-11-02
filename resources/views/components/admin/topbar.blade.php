@@ -4,7 +4,7 @@
     <div class="admin-topbar__left">
         <button class="admin-icon-button admin-menu-toggle" type="button" data-admin-menu-toggle aria-label="Buka menu">☰</button>
         <div>
-            <div class="admin-topbar__eyebrow">Salamaid / Admin</div>
+            <div class="admin-topbar__eyebrow">{{ $brand['app_name'] ?? 'Salamaid' }} / Admin</div>
             <h2 class="admin-topbar__title">{{ $title }}</h2>
         </div>
     </div>

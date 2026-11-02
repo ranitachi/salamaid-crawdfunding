@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,6 +23,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/', DashboardController::class)
         ->middleware('admin.permission:dashboard.view')
         ->name('dashboard');
+
+    Route::middleware('admin.permission:settings.manage')->prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [SettingsController::class, 'index'])->name('index');
+        Route::put('/', [SettingsController::class, 'update'])->name('update');
+    });
 
     // Module-owned admin routes. Authentication and admin-role protection come
     // from this group; each module declares its own area permission.

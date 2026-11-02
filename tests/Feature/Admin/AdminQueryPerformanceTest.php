@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Services\AppSettingsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Modules\Donation\Entities\Donation;
@@ -19,6 +20,9 @@ class AdminQueryPerformanceTest extends AdminReviewTestCase
     {
         parent::setUp();
         $this->withoutVite();
+        // Branding is shared by every admin view; warm its cache before measuring
+        // domain query counts so the assertion remains focused on N+1 queries.
+        app(AppSettingsService::class)->all();
     }
 
     private function seedRows(int $count): void

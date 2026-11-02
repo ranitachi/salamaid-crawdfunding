@@ -1,20 +1,26 @@
 <!doctype html>
+@php($brand = $brand ?? app(\App\Services\AppSettingsService::class)->all())
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Masuk · Salamaid Admin</title>
+    <title>Masuk · {{ $brand['app_name'] ?? 'Salamaid' }} Admin</title>
+    @if (!empty($brand['favicon_url']))<link rel="icon" href="{{ $brand['favicon_url'] }}">@endif
     @vite(['resources/css/admin.css'])
 </head>
-<body class="admin-body">
+<body class="admin-body" style="--admin-primary: {{ $brand['primary_color'] ?? '#D92D20' }}; --admin-primary-soft: {{ $brand['primary_soft_color'] ?? '#FEE4E2' }}; --admin-accent: {{ $brand['accent_color'] ?? '#FF806F' }};">
     <main style="display: grid; min-height: 100vh; place-items: center; padding: 16px;">
         <section class="admin-panel" style="width: 100%; max-width: 380px;">
             <div class="admin-panel__header">
                 <div>
-                    <h2>Salamaid Admin</h2>
-                    <p>Masuk untuk mengelola panel operasional.</p>
+                        <h2>{{ $brand['app_name'] ?? 'Salamaid' }} Admin</h2>
+                        <p>{{ $brand['app_tagline'] ?? 'Masuk untuk mengelola panel operasional.' }}</p>
                 </div>
-                <span class="admin-brand-mark" aria-hidden="true">S</span>
+                @if (!empty($brand['logo_url']))
+                    <img class="admin-brand-logo" src="{{ $brand['logo_url'] }}" alt="{{ $brand['app_name'] }}">
+                @else
+                    <span class="admin-brand-mark" aria-hidden="true">{{ $brand['brand_icon'] ?? 'S' }}</span>
+                @endif
             </div>
 
             <form class="admin-panel__body" method="POST" action="{{ route('admin.login.store') }}" style="display: grid; gap: 14px;" novalidate>
