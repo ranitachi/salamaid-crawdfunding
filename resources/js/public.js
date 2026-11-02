@@ -8,3 +8,18 @@ document.querySelectorAll('[data-public-search]').forEach((input) => {
         });
     });
 });
+
+document.querySelectorAll('input[name="amount_preset"]').forEach((input) => {
+    input.addEventListener('change', () => {
+        const amount = document.querySelector('#public-amount');
+        if (amount) amount.value = input.value;
+        const custom = document.querySelector('#public-amount-custom');
+        if (custom) custom.value = '';
+    });
+});
+
+document.querySelector('#public-amount-custom')?.addEventListener('input', (event) => {
+    const amount = document.querySelector('#public-amount');
+    if (amount && event.target.value) amount.value = event.target.value;
+    document.querySelectorAll('input[name="amount_preset"]').forEach((input) => { input.checked = false; });
+});

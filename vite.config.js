@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/js/admin.js',
                 'resources/css/public.css',
                 'resources/css/public-detail.css',
+                'resources/css/public-checkout.css',
                 'resources/js/public.js',
             ],
             refresh: true,
