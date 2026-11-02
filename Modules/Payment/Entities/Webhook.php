@@ -19,6 +19,8 @@ class Webhook extends Model
     protected $casts = [
         'payload' => 'array',
         'processed_at' => 'datetime',
+        'failed_at' => 'datetime',
+        'attempts' => 'integer',
     ];
 
     protected static function booted(): void

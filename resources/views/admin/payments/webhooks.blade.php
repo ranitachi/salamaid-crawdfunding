@@ -16,7 +16,7 @@
         <thead><tr><th>Provider</th><th>Event</th><th>Order ID</th><th>Signature</th><th>Diproses</th><th>Waktu</th></tr></thead>
         <tbody>
             @forelse ($webhooks as $webhook)
-                <tr><td>{{ $webhook->provider }}</td><td>{{ $webhook->event ?: '—' }}</td><td>{{ $webhook->order_id }}</td><td>{{ $webhook->signature ? substr($webhook->signature, 0, 8).'••••' : '—' }}</td><td>@if ($webhook->processed_at)<x-admin.status-badge status="paid" label="Processed" />@else<x-admin.status-badge status="pending" label="Pending" />@endif</td><td>{{ $webhook->created_at?->format('d M Y H:i') }}</td></tr>
+                <tr><td>{{ $webhook->provider }}</td><td>{{ $webhook->event ?: '—' }}</td><td>{{ $webhook->order_id }}</td><td>{{ $webhook->signature ? substr($webhook->signature, 0, 8).'••••' : '—' }}</td><td>@if ($webhook->processed_at)<x-admin.status-badge status="paid" label="Processed" />@elseif ($webhook->failed_at)<x-admin.status-badge status="failed" label="Failed" />@else<x-admin.status-badge status="pending" label="Pending" />@endif @if ($webhook->attempts)<span class="admin-table__secondary">{{ $webhook->attempts }}x{{ $webhook->last_error ? ' · '.$webhook->last_error : '' }}</span>@endif</td><td>{{ $webhook->created_at?->format('d M Y H:i') }}</td></tr>
             @empty
                 <tr><td colspan="6"><x-admin.empty-state title="Belum ada webhook" description="Callback provider akan tampil di sini." /></td></tr>
             @endforelse

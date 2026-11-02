@@ -1,6 +1,6 @@
-# A11 — Audit Log Persistence
+# A11 — Audit, Notification, dan Reporting
 
-Status: `IN PROGRESS`. Audit log database dan halaman read-only sudah tersedia; notification dan reporting masih menjadi pekerjaan lanjutan.
+Status: `DONE`. Audit persistence, notification center, dashboard alert, reporting, dan export sudah tersedia.
 
 ## Implementasi selesai
 
@@ -10,9 +10,14 @@ Status: `IN PROGRESS`. Audit log database dan halaman read-only sudah tersedia; 
 - Halaman `/admin/audit-logs` mendukung pencarian action/subject/actor dan filter tanggal.
 - Akses memakai permission `audit.view` dan dibatasi middleware admin.
 - Activity feed dashboard membaca audit log persistent dan memakai fallback timestamp domain jika belum ada log.
+- Notification center in-app tersedia di `/admin/notifications` dengan status read/unread dan aksi tandai sudah dibaca.
+- Campaign `under_review` dan organisasi `pending` memicu notifikasi kepada role yang memiliki permission review.
+- Notification email tersedia melalui channel opt-in `ADMIN_NOTIFICATION_EMAIL_ENABLED=true`; default tetap database-only.
+- Dashboard alert mendeteksi payment gagal/expired, webhook belum diproses, payment mismatch, dan payout tertunda.
+- Laporan `/admin/reports` mencakup campaign, donation, payment, payout, fee platform, dan fee channel.
+- Export report mencatat actor, filter tanggal, dan jumlah metric melalui audit action `report.export`.
 
-## Tindak lanjut
+## Catatan operasional
 
-- Notifikasi in-app dan email untuk event penting.
-- Report campaign, donation, payment, payout, dan fee.
-- Export report dengan permission, masking, dan audit actor/filter/count.
+- Aktifkan email hanya setelah konfigurasi mail production diuji.
+- Queue worker wajib aktif jika notification email dijalankan secara asynchronous.

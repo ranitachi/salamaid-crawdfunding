@@ -36,6 +36,14 @@ return [
             'throw' => false,
         ],
 
+        // Never web-served (no url, outside public/). Files are streamed only through authorized routes.
+        'private' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'visibility' => 'private',
+            'throw' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

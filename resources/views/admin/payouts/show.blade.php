@@ -23,7 +23,20 @@
                     <div><dt>Diajukan</dt><dd>{{ $payout->created_at?->format('d M Y H:i') }}</dd></div>
                     <div><dt>Dibayar</dt><dd>{{ $payout->paid_at?->format('d M Y H:i') ?? '—' }}</dd></div>
                     <div><dt>Catatan</dt><dd>{{ $payout->note ?: '—' }}</dd></div>
-                    <div><dt>Bukti transfer</dt><dd>@if ($payout->evidence_url)<a href="{{ $payout->evidence_url }}" target="_blank" rel="noopener">Buka bukti</a>@else—@endif</dd></div>
+                    <div><dt>Bukti transfer</dt><dd>
+                        @if ($payout->hasPrivateEvidence())
+                            @can('downloadEvidence', $payout)
+                                <a href="{{ route('admin.payouts.evidence.download', $payout) }}">Unduh bukti</a>
+                            @else
+                                File privat
+                            @endcan
+                            <span class="admin-table__secondary">{{ $payout->evidence_mime }} · {{ number_format(((int) $payout->evidence_size) / 1024, 0, ',', '.') }} KB</span>
+                        @elseif ($payout->hasLegacyEvidenceUrl())
+                            <a href="{{ $payout->evidence_url }}" target="_blank" rel="noopener noreferrer">Buka bukti (URL lama)</a>
+                        @else
+                            —
+                        @endif
+                    </dd></div>
                 </dl>
             </div>
         </section>
@@ -38,7 +51,23 @@
                     <form method="POST" action="{{ route('admin.payouts.reject', $payout) }}" style="display:grid; gap:8px; margin-bottom:10px;">@csrf<textarea class="admin-field" name="reason" required minlength="5" placeholder="Alasan penolakan"></textarea><button class="admin-button admin-button--danger" type="submit">Tolak payout</button></form>
                 @endcan
                 @can('markPaid', $payout)
-                    <form method="POST" action="{{ route('admin.payouts.paid', $payout) }}" style="display:grid; gap:8px;">@csrf<input class="admin-field" type="url" name="evidence_url" required placeholder="https://.../bukti-transfer"><button class="admin-button admin-button--primary" type="submit">Tandai sudah dibayar</button></form>
+                    @if ($payout->status === 'approved')
+                        <form method="POST" action="{{ route('admin.payouts.paid', $payout) }}" enctype="multipart/form-data" style="display:grid; gap:8px;">
+                            @csrf
+                            <div class="admin-field">
+                                <label for="evidence_file">Bukti transfer (JPG, PNG, PDF · maks {{ config('operations.evidence.max_kilobytes') / 1024 }} MB)</label>
+                                <input id="evidence_file" type="file" name="evidence_file" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf">
+                            </div>
+                            <div class="admin-field">
+                                <label for="evidence_url">atau URL bukti (format lama)</label>
+                                <input id="evidence_url" type="url" name="evidence_url" placeholder="https://.../bukti-transfer" value="{{ old('evidence_url') }}">
+                            </div>
+                            @error('evidence')<p class="admin-table__secondary" role="alert">{{ $message }}</p>@enderror
+                            @error('evidence_file')<p class="admin-table__secondary" role="alert">{{ $message }}</p>@enderror
+                            @error('evidence_url')<p class="admin-table__secondary" role="alert">{{ $message }}</p>@enderror
+                            <button class="admin-button admin-button--primary" type="submit">Tandai sudah dibayar</button>
+                        </form>
+                    @endif
                 @endcan
                 @cannot('approve', $payout)
                     @cannot('reject', $payout)

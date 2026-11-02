@@ -21,4 +21,6 @@ class Payment extends Model
     public function donation(){ return $this->belongsTo(\Modules\Donation\Entities\Donation::class); }
 
     public function webhooks(){ return $this->hasMany(Webhook::class, 'order_id', 'order_id'); }
+
+    public function syncLogs(){ return $this->hasMany(PaymentSyncLog::class)->latest('created_at'); }
 }

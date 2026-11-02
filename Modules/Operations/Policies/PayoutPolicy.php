@@ -32,4 +32,13 @@ class PayoutPolicy
     {
         return $user->hasAdminPermission('payouts.manage');
     }
+
+    /**
+     * Transfer evidence can contain bank details: only roles that manage payouts
+     * (finance, super_admin) may download it. View-only roles see metadata only.
+     */
+    public function downloadEvidence(User $user, Payout $payout): bool
+    {
+        return $user->hasAdminPermission('payouts.manage') && $payout->hasPrivateEvidence();
+    }
 }
