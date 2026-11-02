@@ -1,0 +1,2 @@
+@extends('public.layouts.app', ['title' => 'Inbox'])
+@section('content')<section class="public-section"><div class="public-section__heading"><div><h1>Inbox</h1><p>Notifikasi publik akan dihubungkan pada fase B5.</p></div></div><div class="public-trust"><div class="public-trust__item"><strong>Belum ada notifikasi</strong><span>Update campaign dan status pembayaran akan tampil di sini.</span></div></div></section>@endsection

@@ -14,5 +14,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    return view('public.home');
+})->name('public.home');
+
+Route::view('/program', 'public.program')->name('public.program');
+Route::view('/inbox', 'public.inbox')->name('public.inbox');
+Route::view('/account', 'public.account')->name('public.account');
+Route::view('/account/donations', 'public.donations')->name('public.donations');

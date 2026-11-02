@@ -1,0 +1,2 @@
+@extends('public.layouts.app', ['title' => 'Donasi Saya'])
+@section('content')<section class="public-section"><div class="public-section__heading"><div><h1>Donasi Saya</h1><p>Riwayat donasi akan ditampilkan secara aman pada fase B5.</p></div></div><div class="public-trust"><div class="public-trust__item"><strong>Belum ada riwayat</strong><span>Setelah donasi dibuat, status dan receipt akan tersedia di halaman ini.</span></div></div></section>@endsection

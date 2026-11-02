@@ -1,0 +1,2 @@
+@extends('public.layouts.app', ['title' => 'Akun'])
+@section('content')<section class="public-section"><div class="public-section__heading"><div><h1>Akun</h1><p>Profil dan preferensi donor akan tersedia pada fase B5.</p></div></div><div class="public-trust"><div class="public-trust__item"><strong>Masuk untuk melihat donasi</strong><span>Riwayat donasi, receipt, dan notifikasi akan terhubung ke akun Anda.</span></div></div></section>@endsection
