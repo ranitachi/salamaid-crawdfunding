@@ -1,15 +1,8 @@
 # A12 — Hardening, QA, dan Release Readiness
 
-Status: `REVIEW` (Agent C). Semua temuan dan status di dokumen ini berbasis bukti test atau command, bukan asumsi.
+Status: `REVIEW` (sudah di-merge ke `main`). Semua temuan dan status di dokumen ini berbasis bukti test atau command, bukan asumsi.
 
-Branch integrasi `agent-c/a12-hardening` berisi, berurutan:
-
-1. A8 (`agent-c/a8-payout-hardening`).
-2. Merge A7 (`agent-b/a7-mayar-sync`).
-3. Snapshot pekerjaan A11 yang belum di-commit dari workspace `main` (commit berlabel, bukan karya branch ini).
-4. Perubahan A12.
-
-Workspace `main` tidak diubah.
+Branch `agent-c/a12-hardening` sudah diintegrasikan ke `main` melalui merge commit. Urutannya mencakup A7, A8, snapshot A11, dan hardening A12.
 
 ## 1. Dependency audit (`composer audit`)
 
@@ -36,7 +29,7 @@ Sebelum perbaikan ada 14 package dengan advisory, antara lain:
 
 Full suite lulus setelah update.
 
-**Advisory yang tersisa** (5, semuanya `laravel/framework`) hanya diperbaiki di 12.x/13.x. Laravel 10 sudah EOL dan tidak punya rilis perbaikan.
+Pada validasi setelah merge, `composer audit` masih melaporkan **49 advisory pada 14 package**. Sebagian dependency sudah diperbarui melalui patch/minor version, tetapi Laravel 10 sudah EOL dan beberapa advisory membutuhkan Laravel 12/13 atau versi dependency mayor. Daftar advisory harus dievaluasi ulang sebelum production release.
 
 | Advisory | Keterjangkauan di aplikasi | Mitigasi |
 |---|---|---|
@@ -45,7 +38,7 @@ Full suite lulus setelah update.
 | CRLF injection pada rule `email` (high, 2 entri) | Rule `email` hanya dipakai di form login, dan nilainya tidak pernah dipakai sebagai header email. | Untuk input email baru yang akan dikirimi email, pakai `email:rfc,filter`. |
 | CVE-2026-102279 XSS di halaman debug (low) | Hanya muncul bila `APP_DEBUG=true`. | `APP_DEBUG=false` di production (ada di checklist). |
 
-**Rekomendasi:** jadwalkan upgrade Laravel 10 → 12 (mayor) sebagai pekerjaan terpisah, dengan regression test penuh. Ini **risiko rilis yang diterima** selama mitigasi di atas dijaga.
+**Rekomendasi:** jadwalkan upgrade Laravel 10 → 12 sebagai pekerjaan terpisah dengan regression test penuh. Untuk sementara, jangan release production tanpa review security owner terhadap hasil `composer audit` aktual.
 
 ## 2. Audit route dan authorization
 
@@ -164,7 +157,7 @@ Prosedurnya terdokumentasi di atas, tetapi **drill restore belum dilakukan** (li
 
 ## 10. Risiko rilis yang tersisa
 
-1. **Laravel 10 EOL:** 5 advisory tanpa perbaikan 10.x (§1). Saat ini tidak terjangkau atau sudah dimitigasi; upgrade mayor perlu dijadwalkan.
+1. **Laravel 10 EOL dan dependency advisory:** `composer audit` aktual masih menunjukkan 49 advisory pada 14 package (§1). Upgrade mayor dan dependency remediation perlu dijadwalkan sebelum production.
 2. **Route scaffold modul publik:** sekitar 56 route `Route::resource` bawaan generator (`/catalog`, `/core`, `/donation`, `/fundraising`, `/operations`, `/payment`, `/transparency`) aktif tanpa autentikasi.
    - GET mengembalikan 500 karena view scaffold tidak ada.
    - POST/PUT/DELETE berupa method kosong yang tetap dilindungi CSRF.
@@ -172,4 +165,4 @@ Prosedurnya terdokumentasi di atas, tetapi **drill restore belum dilakukan** (li
 3. **Scheduler sinkronisasi payment pending** belum ada (§7).
 4. **A8 belum lengkap:** rekonsiliasi settlement payout vs donasi dan model fraud flag belum dibuat.
 5. **Belum diuji:** responsive UI (desktop/mobile) dan drill backup/restore.
-6. **Branch belum di-merge:** A7, A8, dan A12 berada di branch terpisah, dan pekerjaan A11 masih berupa perubahan yang belum di-commit di `main`. Merge perlu dilakukan berurutan oleh integrator.
+6. **Integrasi sudah selesai:** A7, A8, A11, dan A12 sudah berada di `main`; validasi integrasi menghasilkan 149 test lulus dengan 1620 assertion.

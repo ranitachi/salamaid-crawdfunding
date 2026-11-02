@@ -25,7 +25,7 @@ Gunakan status berikut pada tabel roadmap:
 
 Status awal seluruh fase: `TODO`.
 
-Progress per 2026-11-01: A0, A1, A2, A4, A5, A9, dan A10 `DONE`. A3 sudah memiliki filter periode, drill-down, dan cache opsional; activity feed audit persistent masih menunggu A11. Baseline A6/A7 sudah mencakup receipt, export, webhook provider, signature HMAC, dan rekonsiliasi dasar; pekerjaan lanjutan payment channel, queue, inquiry, dan audit export masih terbuka. A8 payout sudah memiliki workflow approval, saldo, evidence URL, dan test; QA/security hardening sedang dilakukan.
+Progress per 2026-11-02: A0, A1, A2, A3, A4, A5, A9, A10, dan A11 `DONE`. A7 sudah terintegrasi dengan inquiry Mayar, queue, retry, dan admin sync tetapi masih menunggu uji sandbox nyata. A8 sudah memiliki private evidence, download terotorisasi, dan balance validation tetapi settlement reconciliation/fraud flag masih terbuka. A12 sudah terintegrasi dan seluruh 149 test lulus; dependency advisory, upgrade Laravel, backup/restore drill, responsive QA, dan scheduler payment pending masih menjadi risiko release.
 
 ## 3. Temuan awal dan pekerjaan pendahuluan
 
