@@ -15,6 +15,9 @@
     <meta property="og:url" content="{{ $canonical }}">
     @if (!empty($ogImage))<meta property="og:image" content="{{ $ogImage }}">@endif
     @stack('head')
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,1,0&display=swap" rel="stylesheet">
     <title>{{ $title ?? 'Salamaid' }} · {{ $brand['app_name'] ?? 'Salamaid' }}</title>
     @if (!empty($brand['favicon_url']))<link rel="icon" href="{{ $brand['favicon_url'] }}">@endif
     @vite(['resources/css/public.css', 'resources/css/public-responsive.css', 'resources/css/public-detail.css', 'resources/css/public-checkout.css', 'resources/css/public-payment.css', 'resources/css/public-account.css', 'resources/js/public.js'])
