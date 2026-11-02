@@ -1,3 +1,24 @@
+# Salamaid Crowdfunding — Admin
+
+## Setup lokal
+
+```bash
+composer install && npm ci
+cp .env.example .env && php artisan key:generate   # isi DB_* dan MAYAR_* di .env, jangan commit
+php artisan migrate --seed                          # seed hanya local/testing
+npm run build
+php artisan serve                                   # admin: http://127.0.0.1:8000/admin/login
+php artisan queue:work database                     # bila QUEUE_CONNECTION=database
+php artisan test                                    # SQLite in-memory, tidak menyentuh DB dev
+```
+
+Akun admin seed: `SALAMAID_ADMIN_EMAIL` / `SALAMAID_ADMIN_PASSWORD` (default lokal saja, jangan dipakai di server).
+
+Dokumentasi: `docs/tahapan-admin.md` (roadmap), `docs/admin-a*.md` (per fase), `docs/payment-mayar.md`,
+`docs/admin-a12.md` (security, konfigurasi production, deployment & rollback).
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">

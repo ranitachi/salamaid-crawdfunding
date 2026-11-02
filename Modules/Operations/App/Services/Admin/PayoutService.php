@@ -63,6 +63,11 @@ class PayoutService
             throw AdminActionException::invalidTransition('payout', $payout->status, 'paid');
         }
 
+        // An organization suspended (or no longer verified) after approval must not be paid out.
+        if (! $payout->organization?->isVerified()) {
+            throw AdminActionException::requirement('Organisasi tidak berstatus verified (mis. suspended); payout tidak dapat dibayarkan.');
+        }
+
         $disk = Storage::disk((string) config('operations.evidence.disk'));
         $storedNow = null;
 

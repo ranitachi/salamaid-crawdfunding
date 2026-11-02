@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Support\CsvSanitizer;
 use App\Contracts\AdminAuditLogger;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -46,7 +47,7 @@ class ReportController extends Controller
         return response()->streamDownload(function () use ($rows): void {
             $output = fopen('php://output', 'wb');
             foreach ($rows as $row) {
-                fputcsv($output, $row);
+                fputcsv($output, CsvSanitizer::row($row));
             }
             fclose($output);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);

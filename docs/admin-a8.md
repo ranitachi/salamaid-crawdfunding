@@ -1,12 +1,12 @@
 # A8 — Payout Hardening: Private Evidence Storage
 
-Status: `REVIEW` (Agent C). Cakupan dokumen ini adalah perbaikan bukti transfer payout yang sebelumnya ditolak di review.
+Status: `REVIEW` (Agent C). Semua test lulus, tetapi rekonsiliasi settlement dan fraud flag belum dikerjakan, sehingga belum `DONE`. Cakupan dokumen ini adalah perbaikan bukti transfer payout yang sebelumnya ditolak di review.
 
 ## Perbaikan atas review
 
 | Temuan review | Perbaikan |
 |---|---|
-| `PayoutOperationsTest` gagal | Semua test payout lulus (4 lama + 15 baru) |
+| `PayoutOperationsTest` gagal | Semua test payout lulus: 20 test di `tests/Feature/Admin/PayoutOperationsTest.php` (4 lama + 16 baru) |
 | Controller memakai `validated('evidence_url')` | Controller memakai `MarkPayoutPaidRequest::validatedEvidence()` |
 | Model belum punya field evidence | `evidence_path`, `evidence_mime`, dan `evidence_size` ada di fillable dan casts. Ditambah helper `hasEvidence()`, `hasPrivateEvidence()`, `hasLegacyEvidenceUrl()`, dan `evidenceDirectory()` |
 | Policy belum punya download | `PayoutPolicy::downloadEvidence()` |
@@ -91,9 +91,16 @@ Tidak ada migration baru. `Modules/Operations/Database/Migrations/2026_11_02_000
 
 Catatan: test upload memakai `UploadedFile` sungguhan dari file temp, karena `UploadedFile::fake()` melaporkan MIME berdasarkan nama file, bukan isinya.
 
+## Update tahap clearing A8 + A12
+
+- Nama route menjadi `admin.payouts.evidence.download` (path tetap `GET /admin/payouts/{payout}/evidence`).
+- Test evidence dipindahkan dari `PayoutEvidenceTest` ke `PayoutOperationsTest`, tanpa mengurangi assertion.
+- `markPaid()` menolak payout bila organisasi tidak lagi verified (mis. suspended setelah approval), dengan test regresi.
+- Bukti: `php artisan test tests/Feature/Admin/PayoutOperationsTest.php` menghasilkan 20 passed (144 assertions); full suite tanpa failure.
+
 ## Belum dikerjakan
 
-Prompt tugas terpotong setelah poin Policy. Bagian berikut **belum** dikerjakan:
+Bagian berikut **belum** dikerjakan:
 
 - Rekonsiliasi settlement (total payout vs donation settled).
-- Blokir payout untuk organisasi suspended atau yang punya fraud flag.
+- Fraud flag: belum ada model data. Blokir organisasi suspended sudah dikerjakan.

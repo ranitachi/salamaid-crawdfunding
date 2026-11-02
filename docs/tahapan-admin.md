@@ -53,11 +53,11 @@ Temuan yang harus dibereskan sebelum fitur admin berjalan penuh:
 | A5 | Campaign moderation | Review, publish, reject, feature, close | A2, A4 | DONE |
 | A6 | Donation monitoring | Daftar donasi, status, detail, receipt | A2, A3 | IN PROGRESS |
 | A7 | Payment operations | Channel, callback, webhook, rekonsiliasi | A2, A6 | REVIEW |
-| A8 | Payout operations | Request, approval, evidence, settlement | A2, A4, A7 | IN PROGRESS |
+| A8 | Payout operations | Request, approval, evidence, settlement | A2, A4, A7 | REVIEW |
 | A9 | Transparency & content | Update campaign, laporan, bukti penggunaan | A5, A8 | DONE |
 | A10 | User, category & configuration | Master data dan pengaturan admin | A2 | DONE |
 | A11 | Audit, notification & reporting | Jejak perubahan, notifikasi, export | A3-A10 | DONE |
-| A12 | Hardening & release | Security, performance, QA, deployment | A1-A11 | IN PROGRESS |
+| A12 | Hardening & release | Security, performance, QA, deployment | A1-A11 | REVIEW |
 
 ---
 
@@ -345,16 +345,16 @@ Mengendalikan pencairan dana dengan pemisahan tugas dan jejak audit.
 
 ### Pekerjaan
 
-- [ ] Daftar payout berdasarkan status dan organisasi.
-- [ ] Detail payout berisi nominal, saldo tersedia, rekening tujuan, dan evidence.
-- [ ] Status `requested`, `approved`, `rejected`, `paid`.
-- [ ] Validasi saldo dan campaign yang memenuhi syarat.
+- [x] Daftar payout berdasarkan status dan organisasi.
+- [x] Detail payout berisi nominal, saldo tersedia, dan evidence (privat atau URL lama).
+- [x] Status `requested`, `approved`, `rejected`, `paid`.
+- [x] Validasi saldo saat approve dan ulang sebelum paid.
 - [ ] Approval dua tahap bila dibutuhkan.
-- [ ] Aksi reject wajib memiliki alasan.
+- [x] Aksi reject wajib memiliki alasan.
 - [x] Upload bukti transfer dengan storage aman (disk `private`, unduh hanya via policy; lihat `docs/admin-a8.md`).
 - [x] Tandai paid hanya setelah bukti dan actor tersedia; saldo divalidasi ulang sebelum paid.
 - [ ] Rekonsiliasi total payout dengan donation settled.
-- [ ] Blokir payout jika organisasi suspended atau ada fraud flag.
+- [x] Blokir payout jika organisasi tidak verified/suspended (approve dan paid). *(Fraud flag belum memiliki model data.)*
 
 ### Acceptance criteria
 
@@ -444,19 +444,19 @@ Memastikan admin panel aman, stabil, dan dapat dipelihara sebelum digunakan.
 
 ### Pekerjaan
 
-- [ ] Feature test untuk login, authorization, campaign review, payment webhook, dan payout.
-- [ ] Unit test untuk status transition, fee calculation, idempotency, dan saldo payout.
-- [ ] Test validasi form dan upload.
-- [ ] Test route tidak bocor tanpa middleware.
-- [ ] Uji XSS pada input campaign/update.
-- [ ] Uji CSRF, mass assignment, IDOR, rate limit, dan privilege escalation.
-- [ ] Uji query N+1 dan pagination pada dataset besar.
+- [x] Feature test untuk login, authorization, campaign review, payment webhook, dan payout.
+- [x] Test status transition, fee, idempotency, dan saldo payout (feature/integration level).
+- [x] Test validasi form dan upload.
+- [x] Test route tidak bocor tanpa middleware (invariant seluruh route admin).
+- [x] Uji XSS pada input campaign/update, organisasi, alasan, audit, notifikasi.
+- [x] Uji CSRF, mass assignment, IDOR, rate limit, dan privilege escalation.
+- [x] Uji query N+1 (query count konstan) dan pagination.
 - [ ] Uji responsive pada halaman utama admin.
 - [ ] Uji backup dan restore database.
-- [ ] Nonaktifkan debug pada production.
-- [ ] Pastikan secret payment tidak masuk repository atau log.
-- [ ] Buat checklist deployment dan rollback.
-- [ ] Perbarui README dengan setup admin.
+- [x] Nonaktifkan debug pada production (checklist + test error disclosure).
+- [x] Pastikan secret payment tidak masuk repository atau log.
+- [x] Buat checklist deployment dan rollback (`docs/admin-a12.md`).
+- [x] Perbarui README dengan setup admin.
 
 ### Acceptance criteria
 

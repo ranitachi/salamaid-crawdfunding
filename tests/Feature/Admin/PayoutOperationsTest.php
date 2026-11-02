@@ -344,6 +344,17 @@ class PayoutOperationsTest extends TestCase
         $this->assertSame([], Storage::disk('private')->allFiles(), 'No orphan evidence file.');
     }
 
+    public function test_payout_of_organization_suspended_after_approval_cannot_be_paid(): void
+    {
+        $payout = $this->approvedPayout();
+        $payout->organization->forceFill(['status' => 'suspended'])->save();
+
+        $this->markPaid($payout, ['evidence_file' => $this->pdf()])->assertSessionHas('error');
+
+        $this->assertSame('approved', $payout->fresh()->status);
+        $this->assertSame([], Storage::disk('private')->allFiles(), 'Evidence is not stored for a blocked payout.');
+    }
+
     public function test_only_approved_payouts_can_be_marked_paid(): void
     {
         $payout = $this->approvedPayout();

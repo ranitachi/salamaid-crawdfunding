@@ -21,7 +21,8 @@
                     <td><span class="admin-table__primary">{{ $data['title'] ?? 'Notifikasi admin' }}</span><span class="admin-table__secondary">{{ $data['message'] ?? '—' }}</span></td>
                     <td>{{ $notification->created_at?->format('d M Y H:i') }}</td>
                     <td>
-                        @if (!empty($data['url']))<a class="admin-button admin-button--quiet" href="{{ $data['url'] }}">Buka</a>@endif
+                        @php($safeUrl = is_string($data['url'] ?? null) && (str_starts_with($data['url'], '/') && ! str_starts_with($data['url'], '//') || in_array(strtolower((string) parse_url($data['url'], PHP_URL_SCHEME)), ['http', 'https'], true)) ? $data['url'] : null)
+                        @if ($safeUrl)<a class="admin-button admin-button--quiet" href="{{ $safeUrl }}">Buka</a>@endif
                         @if (!$notification->read_at)
                             <form method="POST" action="{{ route('admin.notifications.read', $notification->id) }}" style="display:inline">@csrf<button class="admin-button admin-button--quiet" type="submit">Tandai dibaca</button></form>
                         @endif
