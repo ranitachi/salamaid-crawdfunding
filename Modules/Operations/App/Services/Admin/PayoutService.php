@@ -5,8 +5,10 @@ namespace Modules\Operations\App\Services\Admin;
 use App\Contracts\AdminAuditLogger;
 use App\Exceptions\AdminActionException;
 use App\Models\User;
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Modules\Operations\Entities\Payout;
 
 class PayoutService
@@ -51,77 +53,85 @@ class PayoutService
         return $this->transition($payout, $actor, 'rejected', ['note' => $reason], $reason);
     }
 
-    public function markPaid(Payout $payout, User $actor, array $evidenceData): Payout
+    /**
+     * @param array{type: 'file', file: UploadedFile}|array{type: 'url', url: string}|array{type: 'path', path: string} $evidence
+     *        as returned by MarkPayoutPaidRequest::validatedEvidence()
+     */
+    public function markPaid(Payout $payout, User $actor, array $evidence): Payout
     {
-        $evidenceType = $evidenceData['type'] ?? 'url';
-        $evidenceValue = $evidenceData['value'] ?? '';
-
-        $evidenceUrl = '';
-        if ($evidenceType === 'path') {
-            // Private storage path - validate file exists
-            if (! storage('private')->exists($evidenceValue)) {
-                throw AdminActionException::requirement('File bukti tidak ditemukan di storage private.');
-            }
-            $evidenceUrl = storage('private')->url($evidenceValue);
-        } elseif ($evidenceType === 'url') {
-            // Backward compatibility: old URL format
-            $evidenceUrl = $evidenceValue;
-            // Validate that it's a proper URL
-            if (! filter_var($evidenceUrl, FILTER_VALIDATE_URL)) {
-                throw AdminActionException::requirement('Format URL bukti tidak valid.');
-            }
-        } else {
-            throw AdminActionException::requirement('Format bukti tidak dikenal.');
-        }
-
-        if ($evidenceUrl === '') {
-            throw AdminActionException::requirement('Bukti transfer wajib diisi sebelum payout ditandai paid.');
-        }
-
         if ($payout->status !== 'approved') {
             throw AdminActionException::invalidTransition('payout', $payout->status, 'paid');
         }
 
-        return $this->transition($payout, $actor, 'paid', [
-            'evidence_url' => $evidenceUrl,
-            'evidence_path' => $evidenceType === 'path' ? $evidenceValue : null,
-            'evidence_mime' => $this->detectMime($evidenceValue),
-            'evidence_size' => $this->detectSize($evidenceValue),
-            'paid_at' => now(),
-        ]);
+        $disk = Storage::disk((string) config('operations.evidence.disk'));
+        $storedNow = null;
+
+        try {
+            $attributes = match ($evidence['type'] ?? null) {
+                'file' => $this->privateFileAttributes($payout, $disk, $storedNow = $this->storeUpload($payout, $disk, $evidence['file'] ?? null)),
+                'path' => $this->privateFileAttributes($payout, $disk, (string) ($evidence['path'] ?? '')),
+                'url' => $this->legacyUrlAttributes((string) ($evidence['url'] ?? '')),
+                default => throw AdminActionException::requirement('Format bukti tidak dikenal.'),
+            };
+
+            return $this->transition($payout, $actor, 'paid', $attributes + ['paid_at' => now()], null, true);
+        } catch (\Throwable $exception) {
+            if ($storedNow) {
+                $disk->delete($storedNow); // no orphan evidence when the payout could not be marked paid
+            }
+
+            throw $exception;
+        }
     }
 
-    private function detectMime(string $value): ?string
+    private function storeUpload(Payout $payout, Filesystem $disk, mixed $file): string
     {
-        // Try to detect MIME type from the path/URL
-        if (Str::startsWith($value, 'private/')) {
-            $ext = Str::after($value, '.');
-            $ext = Str::lower($ext);
-            if ($ext === 'jpg' || $ext === 'jpeg') {
-                return 'image/jpeg';
-            }
-            if ($ext === 'png') {
-                return 'image/png';
-            }
-            if ($ext === 'pdf') {
-                return 'application/pdf';
-            }
+        if (! $file instanceof UploadedFile || ! $file->isValid()) {
+            throw AdminActionException::requirement('File bukti tidak valid.');
         }
-        // For URLs, return null (we can't reliably detect MIME from URL alone)
-        return null;
+
+        $path = $file->store($payout->evidenceDirectory(), ['disk' => (string) config('operations.evidence.disk')]);
+
+        if ($path === false) {
+            throw AdminActionException::requirement('File bukti gagal disimpan.');
+        }
+
+        return $path;
     }
 
-    private function detectSize(string $value): ?int
+    /** MIME and size always come from the stored file on the private disk, never from the client. */
+    private function privateFileAttributes(Payout $payout, Filesystem $disk, string $path): array
     {
-        if (Str::startsWith($value, 'private/')) {
-            // Try to get file size from storage
-            try {
-                return (int) storage('private')->size($value);
-            } catch (\Exception $e) {
-                return null;
-            }
+        $insideOwnDirectory = str_starts_with($path, $payout->evidenceDirectory().'/') && ! str_contains($path, '..');
+
+        if (! $insideOwnDirectory || ! $disk->exists($path)) {
+            throw AdminActionException::requirement('File bukti tidak ditemukan di storage private.');
         }
-        return null;
+
+        $mime = (string) $disk->mimeType($path);
+
+        if (! in_array($mime, (array) config('operations.evidence.mimetypes'), true)) {
+            throw AdminActionException::requirement('Isi file bukti bukan JPG, PNG, atau PDF.');
+        }
+
+        return [
+            'evidence_path' => $path,
+            'evidence_mime' => $mime,
+            'evidence_size' => (int) $disk->size($path),
+            'evidence_url' => null, // no public URL is ever generated for private evidence
+        ];
+    }
+
+    /** Legacy external URL: kept as a link only, never treated as a private file. */
+    private function legacyUrlAttributes(string $url): array
+    {
+        $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+
+        if (filter_var($url, FILTER_VALIDATE_URL) === false || ! in_array($scheme, ['http', 'https'], true)) {
+            throw AdminActionException::requirement('Format URL bukti tidak valid.');
+        }
+
+        return ['evidence_url' => $url, 'evidence_path' => null, 'evidence_mime' => null, 'evidence_size' => null];
     }
 
     private function transition(
@@ -133,11 +143,12 @@ class PayoutService
         bool $checkBalance = false,
     ): Payout
     {
-        $before = $payout->only(['status', 'approved_by', 'paid_at', 'evidence_url', 'note']);
+        $before = $this->auditSnapshot($payout);
 
         $updated = DB::transaction(function () use ($payout, $actor, $target, $attributes, $checkBalance) {
             $locked = Payout::query()->whereKey($payout->getKey())->lockForUpdate()->firstOrFail();
 
+            // Re-checked on approve and again right before paid (settled donations can change, e.g. refunds).
             if ($checkBalance && $locked->amount > $this->balance->availableAmount($locked->organization_id, (string) $locked->getKey())) {
                 throw AdminActionException::requirement('Saldo tersedia organisasi tidak mencukupi untuk payout ini.');
             }
@@ -151,12 +162,36 @@ class PayoutService
             'payout.'.$target,
             $updated,
             $before,
-            $updated->only(['status', 'approved_by', 'paid_at', 'evidence_url', 'note']),
+            $this->auditSnapshot($updated),
             $reason,
             $actor,
             ['module' => 'Operations', 'entity' => 'payout'],
         );
 
         return $updated;
+    }
+
+    /**
+     * Audit-safe view of a payout: no file contents, and URL query strings
+     * (signed-URL tokens) and fragments are dropped.
+     */
+    private function auditSnapshot(Payout $payout): array
+    {
+        $url = (string) $payout->evidence_url;
+        $parts = $url !== '' ? parse_url($url) : false;
+
+        return [
+            'status' => $payout->status,
+            'approved_by' => $payout->approved_by,
+            'paid_at' => $payout->paid_at?->toIso8601String(),
+            'note' => $payout->note,
+            'evidence_type' => $payout->evidence_path ? 'private_file' : ($url !== '' ? 'url' : null),
+            'evidence_path' => $payout->evidence_path,
+            'evidence_mime' => $payout->evidence_mime,
+            'evidence_size' => $payout->evidence_size,
+            'evidence_url' => is_array($parts) && isset($parts['host'])
+                ? ($parts['scheme'] ?? 'https').'://'.$parts['host'].($parts['path'] ?? '')
+                : null,
+        ];
     }
 }

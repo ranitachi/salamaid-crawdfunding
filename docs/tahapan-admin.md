@@ -351,8 +351,8 @@ Mengendalikan pencairan dana dengan pemisahan tugas dan jejak audit.
 - [ ] Validasi saldo dan campaign yang memenuhi syarat.
 - [ ] Approval dua tahap bila dibutuhkan.
 - [ ] Aksi reject wajib memiliki alasan.
-- [ ] Upload bukti transfer dengan storage aman.
-- [ ] Tandai paid hanya setelah bukti dan actor tersedia.
+- [x] Upload bukti transfer dengan storage aman (disk `private`, unduh hanya via policy; lihat `docs/admin-a8.md`).
+- [x] Tandai paid hanya setelah bukti dan actor tersedia; saldo divalidasi ulang sebelum paid.
 - [ ] Rekonsiliasi total payout dengan donation settled.
 - [ ] Blokir payout jika organisasi suspended atau ada fraud flag.
 

@@ -9,4 +9,5 @@ Route::middleware('admin.permission:payouts.view,payouts.manage')->group(functio
     Route::post('payouts/{payout}/approve', [PayoutAdminController::class, 'approve'])->name('payouts.approve');
     Route::post('payouts/{payout}/reject', [PayoutAdminController::class, 'reject'])->name('payouts.reject');
     Route::post('payouts/{payout}/paid', [PayoutAdminController::class, 'markPaid'])->name('payouts.paid');
+    Route::get('payouts/{payout}/evidence', [PayoutAdminController::class, 'downloadEvidence'])->whereUuid('payout')->name('payouts.evidence');
 });
