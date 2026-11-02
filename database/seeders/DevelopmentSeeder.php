@@ -109,6 +109,41 @@ class DevelopmentSeeder extends Seeder
             ],
         );
 
+        // Mayar Sandbox reconciliation fixture. The order_id is the provider
+        // transaction ID visible in the Mayar dashboard; the local payment
+        // maps settled → paid while preserving the provider status in metadata.
+        $mayarDonation = Donation::updateOrCreate(
+            ['campaign_id' => $campaign->id, 'user_id' => $donor->id, 'message' => 'Fixture rekonsiliasi Mayar Sandbox'],
+            [
+                'gross_amount' => 10000,
+                'fee_platform' => 0,
+                'fee_channel' => 0,
+                'net_amount' => 10000,
+                'method' => 'transfer_va_bni',
+                'anonymous' => false,
+                'status' => 'paid',
+                'paid_at' => now(),
+            ],
+        );
+
+        Payment::updateOrCreate(
+            ['order_id' => 'f48688e4-1aa0-427e-9fa0-675a69289939'],
+            [
+                'donation_id' => $mayarDonation->id,
+                'provider' => 'mayar',
+                'channel_code' => 'transfer_va_bni',
+                'status' => 'paid',
+                'paid_at' => now(),
+                'raw_request_json' => ['source' => 'DevelopmentSeeder', 'environment' => 'sandbox'],
+                'raw_callback_json' => [
+                    'source' => 'Mayar Sandbox fixture',
+                    'provider_status' => 'settled',
+                    'amount' => 10000,
+                    'payment_method' => 'Transfer VA - BNI',
+                ],
+            ],
+        );
+
         Webhook::updateOrCreate(
             ['provider' => 'demo', 'order_id' => 'SALAMAID-DEMO-0001', 'event' => 'payment.paid'],
             [
