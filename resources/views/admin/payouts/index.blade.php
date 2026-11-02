@@ -2,7 +2,9 @@
 
 @section('content')
     <x-admin.breadcrumb :items="[['label' => 'Payout']]" />
-    <x-admin.page-header title="Payout operations" description="Kelola pengajuan pencairan dengan validasi saldo, approval, dan bukti transfer." />
+    <x-admin.page-header title="Payout operations" description="Kelola pengajuan pencairan dengan validasi saldo, approval, dan bukti transfer.">
+        @can('viewReconciliation', \Modules\Operations\Entities\Payout::class)<a class="admin-button admin-button--quiet" href="{{ route('admin.payouts.reconciliation') }}">Rekonsiliasi</a>@endcan
+    </x-admin.page-header>
 
     <div class="admin-stat-grid">
         <x-admin.stat-card label="Total payout" :value="number_format($summary['total'], 0, ',', '.')" icon="⇢" tone="blue" />

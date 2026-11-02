@@ -4,6 +4,7 @@ namespace Modules\Operations\Policies;
 
 use App\Models\User;
 use Modules\Operations\Entities\Payout;
+use Modules\Operations\Entities\PayoutRiskFlag;
 
 class PayoutPolicy
 {
@@ -40,5 +41,15 @@ class PayoutPolicy
     public function downloadEvidence(User $user, Payout $payout): bool
     {
         return $user->hasAdminPermission('payouts.manage') && $payout->hasPrivateEvidence();
+    }
+
+    public function viewReconciliation(User $user): bool
+    {
+        return $user->hasAnyAdminPermission('payouts.view', 'payouts.manage');
+    }
+
+    public function reviewRiskFlag(User $user, PayoutRiskFlag $flag): bool
+    {
+        return $user->hasAdminPermission('payouts.manage');
     }
 }

@@ -7,9 +7,9 @@ Dokumen ini dibuat setelah review `docs/admin-a4-a5.md`. A4 dan A5 dinyatakan `D
 - A0, A1, A2, A4, A5: `DONE`.
 - A3: `IN PROGRESS`; filter periode, drill-down widget, dan cache opsional sudah selesai. Profiling lanjutan dan activity feed audit database masih menunggu A11.
 - A6/A7: monitoring dasar, receipt printable, CSV export, webhook idempotent, signature HMAC, dan rekonsiliasi dasar sudah tersedia. Sisa pekerjaan ada pada audit export, payment channel/fee, queue callback, notifikasi, dan inquiry provider.
-- A8: `REVIEW` — evidence privat (disk `private`, download via policy), kompatibel URL lama, blokir organisasi suspended; 20 test payout lulus. Sisa: rekonsiliasi settlement dan fraud flag. Lihat `docs/admin-a8.md`.
+- A8: `DONE` — evidence privat, download via policy, blokir organisasi suspended, settlement reconciliation, dan payout risk flag; test payout + rekonsiliasi lulus. Lihat `docs/admin-a8.md`.
 - A9, A10, A11: belum dikerjakan penuh.
-- A12: `REVIEW` — dependency audit, Laravel 12 upgrade, route/CSRF/permission invariant test, XSS/secret/CSV-injection/N+1 test, checklist deployment/rollback. Sisa risiko: route scaffold modul publik, drill backup/restore, uji responsive, dan settlement/fraud hardening. Lihat `docs/admin-a12.md`.
+- A12: `DONE` untuk hardening lokal — dependency audit bersih, Laravel 12, route/CSRF/permission invariant test, XSS/secret/CSV-injection/N+1 test, dan checklist deployment/rollback. Aktivitas staging yang tersisa: route scaffold publik, drill backup/restore, responsive QA, dan smoke test Mayar. Lihat `docs/admin-a12.md`.
 
 Review A4/A5 tidak menemukan blocker fungsional. Catatan keputusan: `campaigns.review` masih menjadi permission moderasi yang juga mengizinkan publish untuk reviewer. Jika publish harus dipisah menjadi approval khusus, lakukan sebagai perubahan permission dan test terpisah.
 

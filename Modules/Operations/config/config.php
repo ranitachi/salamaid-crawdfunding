@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'risk' => [
+        'large_payout_amount' => (int) env('PAYOUT_RISK_LARGE_AMOUNT', 100000000),
+    ],
     'name' => 'Operations',
 
     /*

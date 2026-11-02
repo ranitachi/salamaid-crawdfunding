@@ -21,6 +21,7 @@ class Payout extends Model
     public function organization(){ return $this->belongsTo(\Modules\Core\Entities\Organization::class); }
     public function requester(){ return $this->belongsTo(\App\Models\User::class, 'requested_by'); }
     public function approver(){ return $this->belongsTo(\App\Models\User::class, 'approved_by'); }
+    public function riskFlags(){ return $this->hasMany(PayoutRiskFlag::class); }
 
     /** Private storage directory that may hold this payout's evidence. */
     public function evidenceDirectory(): string

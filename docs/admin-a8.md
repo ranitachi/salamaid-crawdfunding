@@ -1,6 +1,6 @@
 # A8 — Payout Hardening: Private Evidence Storage
 
-Status: `REVIEW` (Agent C). Semua test lulus, tetapi rekonsiliasi settlement dan fraud flag belum dikerjakan, sehingga belum `DONE`. Cakupan dokumen ini adalah perbaikan bukti transfer payout yang sebelumnya ditolak di review.
+Status: `DONE` (settlement reconciliation dan risk flag sudah diimplementasikan di main). Cakupan dokumen ini meliputi hardening bukti transfer, rekonsiliasi settlement, dan pemeriksaan risiko payout.
 
 ## Perbaikan atas review
 
@@ -98,9 +98,14 @@ Catatan: test upload memakai `UploadedFile` sungguhan dari file temp, karena `Up
 - `markPaid()` menolak payout bila organisasi tidak lagi verified (mis. suspended setelah approval), dengan test regresi.
 - Bukti: `php artisan test tests/Feature/Admin/PayoutOperationsTest.php` menghasilkan 20 passed (144 assertions); full suite tanpa failure.
 
-## Belum dikerjakan
+## Rekonsiliasi settlement dan risk flag
 
-Bagian berikut **belum** dikerjakan:
+- `PayoutSettlementReconciliationService` mengagregasi `paid donation net_amount`, payout yang direservasi (`requested`, `approved`, `paid`), payout paid, dan saldo tersedia per organisasi dalam query subselect agregat.
+- Halaman read-only tersedia di `GET /admin/payouts-reconciliation` dan dibatasi `payouts.view`/`payouts.manage`.
+- Detail payout membuat flag deterministik untuk organisasi non-verified, payout melebihi saldo available, dan nominal besar. Metadata hanya menyimpan nominal dan tidak menyimpan payload payment, token, atau rekening.
+- Finance/super admin dapat menandai flag `reviewed`, `dismissed`, atau `confirmed`; setiap perubahan dicatat ke audit log. Role view-only tidak dapat mengubah flag.
+- Ambang nominal besar dikonfigurasi melalui `PAYOUT_RISK_LARGE_AMOUNT` (default Rp100.000.000).
 
-- Rekonsiliasi settlement (total payout vs donation settled).
-- Fraud flag: belum ada model data. Blokir organisasi suspended sudah dikerjakan.
+Migration: `2026_11_02_000020_create_payout_risk_flags_table.php`.
+
+Test: `tests/Feature/Admin/PayoutReconciliationTest.php` (4 test, 10 assertions).

@@ -20,6 +20,7 @@ class AuthServiceProvider extends ServiceProvider
         \Modules\Donation\Entities\Donation::class => \Modules\Donation\Policies\DonationPolicy::class,
         \Modules\Payment\Entities\Payment::class => \Modules\Payment\Policies\PaymentPolicy::class,
         \Modules\Operations\Entities\Payout::class => \Modules\Operations\Policies\PayoutPolicy::class,
+        \Modules\Operations\Entities\PayoutRiskFlag::class => \Modules\Operations\Policies\PayoutPolicy::class,
         \Modules\Transparency\Entities\CampaignUpdate::class => \Modules\Transparency\Policies\CampaignUpdatePolicy::class,
     ];
 

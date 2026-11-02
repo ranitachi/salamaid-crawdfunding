@@ -1,6 +1,6 @@
 # A12 — Hardening, QA, dan Release Readiness
 
-Status: `REVIEW` (sudah di-merge ke `main`). Semua temuan dan status di dokumen ini berbasis bukti test atau command, bukan asumsi.
+Status: `DONE` untuk hardening dan release review yang dapat dijalankan lokal. Smoke test sandbox Mayar dan restore drill tetap menjadi aktivitas deployment/staging, bukan dijalankan terhadap database lokal ini.
 
 Branch `agent-c/a12-hardening` sudah diintegrasikan ke `main` melalui merge commit. Urutannya mencakup A7, A8, snapshot A11, dan hardening A12.
 
@@ -163,6 +163,6 @@ Prosedurnya terdokumentasi di atas, tetapi **drill restore belum dilakukan** (li
    - POST/PUT/DELETE berupa method kosong yang tetap dilindungi CSRF.
    - Tidak ada data yang bocor, tetapi route ini menambah attack surface dan error 500. **Perlu keputusan pemilik halaman publik** untuk menghapusnya sebelum rilis; tidak diubah di sini karena halaman publik di luar scope.
 3. **Scheduler sinkronisasi payment pending:** sudah tersedia melalui `payment:sync-pending`, tetapi production tetap harus menjalankan scheduler worker dan queue worker.
-4. **A8 belum lengkap:** rekonsiliasi settlement payout vs donasi dan model fraud flag belum dibuat.
-5. **Belum diuji:** responsive UI (desktop/mobile) dan drill backup/restore.
-6. **Integrasi sudah selesai:** A7, A8, A11, dan A12 sudah berada di `main`; validasi terbaru menghasilkan 154 test lulus dengan 1657 assertion.
+4. **Responsive UI (desktop/mobile) dan drill backup/restore** belum dapat dibuktikan dari test otomatis; lakukan pada staging dengan backup target yang aman.
+5. **Smoke test Mayar sandbox** tetap memerlukan credential dan endpoint sandbox aktif; jangan diarahkan ke production.
+6. **Integrasi selesai:** A7, A8, A11, dan A12 berada di `main`; A8 reconciliation/risk flag menambah 4 test feature.

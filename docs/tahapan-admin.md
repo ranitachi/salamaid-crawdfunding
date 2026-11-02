@@ -25,7 +25,7 @@ Gunakan status berikut pada tabel roadmap:
 
 Status awal seluruh fase: `TODO`.
 
-Progress per 2026-11-02: A0, A1, A2, A3, A4, A5, A7, A9, A10, A11, dan A13 `DONE`. A7 sudah memiliki scheduler sinkronisasi payment pending; uji sandbox nyata tetap menjadi langkah operasional. A8 sudah memiliki private evidence, download terotorisasi, dan balance validation tetapi settlement reconciliation/fraud flag masih terbuka. A12 sudah terintegrasi, Laravel sudah di-upgrade ke 12, dan seluruh 157 test lulus; backup/restore drill, responsive QA, serta settlement/fraud hardening masih menjadi risiko release.
+Progress per 2026-11-02: A0, A1, A2, A3, A4, A5, A7, A8, A9, A10, A11, A12, dan A13 `DONE`. A7 memiliki scheduler sinkronisasi payment pending; uji sandbox nyata tetap menjadi langkah operasional. A8 mencakup private evidence, balance validation, settlement reconciliation, dan payout risk flag. A12 hardening lokal lulus termasuk `composer audit`; aktivitas staging yang tersisa adalah backup/restore drill, responsive QA, smoke test Mayar, dan keputusan route scaffold publik.
 
 ## 3. Temuan awal dan pekerjaan pendahuluan
 
@@ -53,11 +53,11 @@ Temuan yang harus dibereskan sebelum fitur admin berjalan penuh:
 | A5 | Campaign moderation | Review, publish, reject, feature, close | A2, A4 | DONE |
 | A6 | Donation monitoring | Daftar donasi, status, detail, receipt | A2, A3 | DONE |
 | A7 | Payment operations | Channel, callback, webhook, rekonsiliasi | A2, A6 | DONE |
-| A8 | Payout operations | Request, approval, evidence, settlement | A2, A4, A7 | REVIEW |
+| A8 | Payout operations | Request, approval, evidence, settlement, risk flag | A2, A4, A7 | DONE |
 | A9 | Transparency & content | Update campaign, laporan, bukti penggunaan | A5, A8 | DONE |
 | A10 | User, category & configuration | Master data dan pengaturan admin | A2 | DONE |
 | A11 | Audit, notification & reporting | Jejak perubahan, notifikasi, export | A3-A10 | DONE |
-| A12 | Hardening & release | Security, performance, QA, deployment | A1-A11 | REVIEW |
+| A12 | Hardening & release | Security, performance, QA, deployment | A1-A11 | DONE* |
 | A13 | Mayar transaction explorer | Daftar dan detail transaksi provider secara read-only | A7 | DONE |
 
 ---

@@ -9,6 +9,26 @@
     @if (session('success'))<x-admin.toast :message="session('success')" />@endif
     @if (session('error'))<x-admin.toast :message="session('error')" type="error" />@endif
 
+    @if ($riskFlags->isNotEmpty())
+        <section class="admin-panel" style="margin-bottom:20px; border-color:#f2b8b5;">
+            <div class="admin-panel__header"><div><h2>Risk flag</h2><p>Pemeriksaan otomatis berdasarkan settlement dan status organisasi.</p></div></div>
+            <div class="admin-panel__body">
+                @foreach ($riskFlags as $flag)
+                    <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:10px;">
+                        <div><strong>{{ $flag->code }}</strong><div class="admin-table__secondary">{{ $flag->reason }} · {{ $flag->status }}</div></div>
+                        @can('reviewRiskFlag', $flag)
+                            @if ($flag->status === 'open')
+                                <form method="POST" action="{{ route('admin.payouts.risk-flags.review', $flag) }}" style="display:flex; gap:6px;">
+                                    @csrf <button class="admin-button admin-button--quiet" name="status" value="reviewed">Tandai ditinjau</button><button class="admin-button admin-button--danger" name="status" value="confirmed">Konfirmasi risiko</button>
+                                </form>
+                            @endif
+                        @endcan
+                    </div>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
     <div class="admin-grid">
         <section class="admin-panel">
             <div class="admin-panel__header"><div><h2>Ringkasan payout</h2><p>Status dan validasi pencairan dana.</p></div><x-admin.status-badge :status="$payout->status" /></div>

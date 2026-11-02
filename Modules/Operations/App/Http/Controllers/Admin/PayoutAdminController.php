@@ -13,7 +13,9 @@ use Modules\Operations\App\Http\Requests\RejectPayoutRequest;
 use Modules\Operations\App\Queries\Admin\PayoutMonitoringQuery;
 use Modules\Operations\App\Services\Admin\PayoutBalanceService;
 use Modules\Operations\App\Services\Admin\PayoutService;
+use Modules\Operations\App\Services\Admin\PayoutSettlementReconciliationService;
 use Modules\Operations\Entities\Payout;
+use Modules\Operations\Entities\PayoutRiskFlag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PayoutAdminController extends Controller
@@ -22,6 +24,7 @@ class PayoutAdminController extends Controller
         private readonly PayoutMonitoringQuery $query,
         private readonly PayoutService $service,
         private readonly PayoutBalanceService $balance,
+        private readonly PayoutSettlementReconciliationService $reconciliation,
     ) {
     }
 
@@ -39,11 +42,27 @@ class PayoutAdminController extends Controller
     {
         $this->authorize('view', $payout);
         $payout->load(['organization:id,name,slug,status', 'requester:id,name,email', 'approver:id,name,email']);
+        $riskFlags = $this->reconciliation->refreshFlags($payout);
 
         return view('admin.payouts.show', [
             'payout' => $payout,
             'availableAmount' => $this->balance->availableAmount($payout->organization_id, (string) $payout->getKey()),
+            'riskFlags' => $riskFlags,
         ]);
+    }
+
+    public function reconciliation(): View
+    {
+        $this->authorize('viewReconciliation', Payout::class);
+        return view('admin.payouts.reconciliation', ['organizations' => $this->reconciliation->organizations()]);
+    }
+
+    public function reviewRiskFlag(Request $request, PayoutRiskFlag $flag): RedirectResponse
+    {
+        $this->authorize('reviewRiskFlag', $flag);
+        $status = $request->validate(['status' => ['required', 'in:reviewed,dismissed,confirmed']])['status'];
+        $this->reconciliation->reviewFlag($flag, $request->user(), $status);
+        return back()->with('success', 'Status risk flag diperbarui.');
     }
 
     public function approve(Request $request, Payout $payout): RedirectResponse

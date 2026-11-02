@@ -7,6 +7,7 @@
         ['label' => 'Pembayaran', 'icon' => '▣', 'path' => '/admin/payments', 'match' => 'admin/payments*', 'permissions' => ['payments.view', 'payments.manage']],
         ['label' => 'Transaksi Mayar', 'icon' => '↗', 'path' => '/admin/mayar-transactions', 'match' => 'admin/mayar-transactions*', 'permissions' => ['payments.view', 'payments.manage']],
         ['label' => 'Payout', 'icon' => '⇢', 'path' => '/admin/payouts', 'match' => 'admin/payouts*', 'permissions' => ['payouts.view', 'payouts.manage']],
+        ['label' => 'Rekonsiliasi payout', 'icon' => '≋', 'path' => '/admin/payouts-reconciliation', 'match' => 'admin/payouts-reconciliation', 'permissions' => ['payouts.view', 'payouts.manage']],
     ];
     $managementItems = [
         ['label' => 'Transparansi', 'icon' => '◌', 'path' => '/admin/transparency', 'match' => 'admin/transparency*', 'permissions' => ['transparency.view', 'transparency.review']],
