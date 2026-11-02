@@ -44,7 +44,9 @@ class PaymentAdminController extends Controller
             'donation:id,campaign_id,user_id,gross_amount,fee_platform,fee_channel,net_amount,method,anonymous,status,paid_at,created_at',
             'donation.campaign:id,title,slug',
             'donation.user:id,name,email',
-            'webhooks:id,provider,event,order_id,signature,payload,processed_at,created_at',
+            'webhooks:id,provider,event,order_id,signature,payload,attempts,last_error,processed_at,failed_at,created_at',
+            'syncLogs' => fn ($query) => $query->limit(10),
+            'syncLogs.actor:id,name',
         ]);
 
         return view('admin.payments.show', compact('payment'));

@@ -139,9 +139,16 @@ class DonationPaymentMonitoringTest extends TestCase
     {
         $donation = $this->createDonation('pending', 'pending');
         $payment = $donation->payment;
-        $payment->update(['order_id' => 'MAYAR-TRANSACTION-1']);
+        $payment->update(['order_id' => 'MAYAR-TRANSACTION-1', 'provider' => 'mayar']);
         Config::set('payment.mayar.webhook_token', 'mayar-test-token');
         Config::set('payment.webhooks.providers.mayar.token', 'mayar-test-token');
+        Config::set('payment.mayar.api_key', 'sandbox-key');
+        Config::set('payment.mayar.base_url', 'https://api.mayar.io/hl/v2');
+        // A7: the webhook only triggers a server-to-server inquiry; the inquiry decides the status.
+        \Illuminate\Support\Facades\Http::fake(['https://api.mayar.io/hl/v2/transactions/MAYAR-TRANSACTION-1' => \Illuminate\Support\Facades\Http::response([
+            'statusCode' => 200,
+            'data' => ['id' => 'MAYAR-TRANSACTION-1', 'status' => 'paid', 'amount' => 100000],
+        ])]);
 
         $response = $this->postJson('/api/v1/payment/webhooks/mayar?token=mayar-test-token', [
             'event' => 'payment.received',

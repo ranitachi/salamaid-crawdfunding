@@ -8,6 +8,9 @@ return [
         'api_key' => env('MAYAR_API_KEY'),
         'webhook_token' => env('MAYAR_WEBHOOK_TOKEN'),
         'webhook_token_query' => env('MAYAR_WEBHOOK_TOKEN_QUERY', 'token'),
+        // Seconds. Inquiry/create calls fail fast; queue jobs retry with backoff.
+        'timeout' => (int) env('MAYAR_TIMEOUT', 10),
+        'connect_timeout' => (int) env('MAYAR_CONNECT_TIMEOUT', 5),
     ],
     'webhooks' => [
         'providers' => [
