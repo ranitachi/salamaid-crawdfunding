@@ -26,7 +26,7 @@
                     <div><dt>Bukti transfer</dt><dd>
                         @if ($payout->hasPrivateEvidence())
                             @can('downloadEvidence', $payout)
-                                <a href="{{ route('admin.payouts.evidence', $payout) }}">Unduh bukti</a>
+                                <a href="{{ route('admin.payouts.evidence.download', $payout) }}">Unduh bukti</a>
                             @else
                                 File privat
                             @endcan

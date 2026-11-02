@@ -10,7 +10,7 @@ Status: `REVIEW` (Agent C). Cakupan dokumen ini adalah perbaikan bukti transfer 
 | Controller memakai `validated('evidence_url')` | Controller memakai `MarkPayoutPaidRequest::validatedEvidence()` |
 | Model belum punya field evidence | `evidence_path`, `evidence_mime`, dan `evidence_size` ada di fillable dan casts. Ditambah helper `hasEvidence()`, `hasPrivateEvidence()`, `hasLegacyEvidenceUrl()`, dan `evidenceDirectory()` |
 | Policy belum punya download | `PayoutPolicy::downloadEvidence()` |
-| Route download belum ada | `GET /admin/payouts/{payout}/evidence` (`admin.payouts.evidence`) |
+| Route download belum ada | `GET /admin/payouts/{payout}/evidence` (`admin.payouts.evidence.download`) |
 | View belum mendukung upload | Form `multipart/form-data` dengan field `evidence_file`, plus `evidence_url` opsional untuk format lama |
 | `Modules/Operations/admin.php` | Identik dengan `Modules/Operations/routes/admin.php` dan tidak dimuat di mana pun. Duplikat mati, tidak dibawa ke branch ini (lihat catatan integrasi) |
 | Kode WIP memanggil `storage('private')` | Helper tersebut tidak ada di Laravel. Diganti `Storage::disk(config('operations.evidence.disk'))` |
