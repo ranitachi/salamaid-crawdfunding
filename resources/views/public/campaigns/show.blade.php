@@ -1,8 +1,15 @@
 @extends('public.layouts.app', ['title' => $campaign->title])
 
+@push('head')
+    <meta property="og:type" content="article">
+    <meta property="article:section" content="Campaign">
+    <script type="application/ld+json">{!! json_encode(['@context' => 'https://schema.org', '@type' => 'WebPage', 'name' => $campaign->title, 'description' => str($campaign->description)->squish()->limit(160)->toString(), 'url' => route('public.campaigns.show', $campaign->slug)], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+@endpush
+
 @section('content')
 @php($paid = (int) ($campaign->paid_amount ?? 0))
 @php($progress = $campaign->target_amount > 0 ? min(100, ($paid / $campaign->target_amount) * 100) : 0)
+<p><a class="public-link" href="{{ route('public.campaigns.transparency', $campaign->slug) }}">Lihat transparansi penuh →</a></p>
 <article class="public-campaign-detail">
     <a class="public-link" href="{{ route('public.program') }}">← Kembali ke program</a>
     <section class="public-detail-hero"><div class="public-detail-hero__image">✦</div><div class="public-detail-hero__body"><span class="public-eyebrow">{{ $campaign->category?->name ?? 'Campaign sosial' }}</span><h1>{{ $campaign->title }}</h1><p class="public-muted">{{ $campaign->organization?->name }}</p><div class="public-progress"><span style="width:{{ $progress }}%"></span></div><div class="public-campaign-card__metrics"><span class="public-muted">Terkumpul<strong>Rp {{ number_format($paid, 0, ',', '.') }}</strong></span><span class="public-muted">Target<strong>Rp {{ number_format($campaign->target_amount, 0, ',', '.') }}</strong></span><span class="public-muted">Donatur<strong>{{ number_format($campaign->paid_donation_count, 0, ',', '.') }}</strong></span></div><a class="public-button" href="#donate">Donasi sekarang →</a></div></section>

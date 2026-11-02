@@ -26,7 +26,29 @@ class CampaignController
     {
         $campaign = $this->campaigns->findPublished($slug);
         abort_if($campaign === null, 404);
-        return view('public.campaigns.show', compact('campaign'));
+        return view('public.campaigns.show', [
+            'campaign' => $campaign,
+            'description' => str($campaign->description)->squish()->limit(160),
+            'ogImage' => $campaign->cover_url,
+        ]);
+    }
+
+    public function transparency(string $slug): View
+    {
+        $campaign = $this->campaigns->findPublished($slug);
+        abort_if($campaign === null, 404);
+
+        $updates = $campaign->updates;
+        $reports = $updates->filter(fn ($update) => $update->isFundReport())->values();
+
+        return view('public.campaigns.transparency', [
+            'campaign' => $campaign,
+            'updates' => $updates,
+            'reports' => $reports,
+            'reportedAmount' => (int) $reports->sum('amount_used'),
+            'description' => 'Kabar terbaru dan laporan alokasi dana untuk '.$campaign->title.'.',
+            'ogImage' => $campaign->cover_url,
+        ]);
     }
 
     public function donate(string $slug): View

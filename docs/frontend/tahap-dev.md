@@ -240,6 +240,18 @@ Acceptance criteria:
 
 Status implementasi: `DONE` untuk login/register role user, akun donor, riwayat donasi, receipt, inbox, mark read, dan IDOR scoping. Test: `tests/Feature/PublicAccountTest.php`.
 
+### B6 — Transparansi publik dan SEO
+
+Status implementasi: `DONE` untuk halaman transparansi campaign, filter publik berbasis status `published`, agregasi laporan dana, metadata canonical/Open Graph/JSON-LD, sitemap dinamis, dan robots policy. Test: `tests/Feature/PublicTransparencySeoTest.php`.
+
+Route yang tersedia:
+
+- `/campaigns/{slug}/transparency` menampilkan update dan laporan dana yang sudah dipublikasikan.
+- `/sitemap.xml` hanya memuat home, program, dan campaign dari organisasi terverifikasi yang berstatus published.
+- `/robots.txt` menutup area admin dan akun dari crawler serta menunjuk ke sitemap.
+
+Data draft, rejected, unpublished, campaign non-published, dan organisasi non-verified tidak boleh masuk ke halaman transparansi atau sitemap.
+
 ## 5. Fitur yang ditunda
 
 Fitur berikut terlihat pada mockup tetapi belum didukung database atau business rule saat ini:

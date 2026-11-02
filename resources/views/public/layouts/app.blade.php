@@ -1,11 +1,20 @@
 @php($brand = app(\App\Services\AppSettingsService::class)->all())
+@php($metaDescription = $description ?? 'Salamaid — platform gotong royong dan donasi terpercaya.')
+@php($canonical = $canonical ?? url()->current())
 <!doctype html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="{{ $brand['primary_color'] ?? '#BC0004' }}">
-    <meta name="description" content="Salamaid — platform gotong royong dan donasi terpercaya.">
+    <meta name="description" content="{{ $metaDescription }}">
+    <link rel="canonical" href="{{ $canonical }}">
+    <meta property="og:type" content="{{ $ogType ?? 'website' }}">
+    <meta property="og:title" content="{{ $title ?? 'Salamaid' }} · {{ $brand['app_name'] ?? 'Salamaid' }}">
+    <meta property="og:description" content="{{ $metaDescription }}">
+    <meta property="og:url" content="{{ $canonical }}">
+    @if (!empty($ogImage))<meta property="og:image" content="{{ $ogImage }}">@endif
+    @stack('head')
     <title>{{ $title ?? 'Salamaid' }} · {{ $brand['app_name'] ?? 'Salamaid' }}</title>
     @if (!empty($brand['favicon_url']))<link rel="icon" href="{{ $brand['favicon_url'] }}">@endif
     @vite(['resources/css/public.css', 'resources/css/public-detail.css', 'resources/css/public-checkout.css', 'resources/css/public-payment.css', 'resources/css/public-account.css', 'resources/js/public.js'])
