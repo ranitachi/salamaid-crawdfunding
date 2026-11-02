@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PublicSite\CampaignController;
 use App\Http\Controllers\PublicSite\PaymentStatusController;
+use App\Http\Controllers\PublicSite\PublicAccountController;
+use App\Http\Controllers\PublicSite\PublicAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +25,19 @@ Route::get('/campaigns/{slug}/donate', [CampaignController::class, 'donate'])->n
 Route::post('/campaigns/{slug}/donate', [CampaignController::class, 'storeDonation'])->name('public.campaigns.donate.store');
 Route::get('/payments/status/{donation}', [PaymentStatusController::class, 'show'])->name('public.payments.status');
 Route::post('/payments/status/{donation}/refresh', [PaymentStatusController::class, 'refresh'])->name('public.payments.status.refresh');
-Route::view('/inbox', 'public.inbox')->name('public.inbox');
-Route::view('/account', 'public.account')->name('public.account');
-Route::view('/account/donations', 'public.donations')->name('public.donations');
+Route::middleware('guest')->group(function (): void {
+    Route::get('/login', [PublicAuthController::class, 'create'])->name('public.login');
+    Route::post('/login', [PublicAuthController::class, 'store'])->name('public.login.store');
+    Route::get('/register', [PublicAuthController::class, 'register'])->name('public.register');
+    Route::post('/register', [PublicAuthController::class, 'createAccount'])->name('public.register.store');
+});
+
+Route::middleware('auth')->group(function (): void {
+    Route::post('/logout', [PublicAuthController::class, 'destroy'])->name('public.logout');
+    Route::get('/inbox', [PublicAccountController::class, 'inbox'])->name('public.inbox');
+    Route::post('/inbox/read-all', [PublicAccountController::class, 'markAllRead'])->name('public.inbox.read-all');
+    Route::post('/inbox/{notification}/read', [PublicAccountController::class, 'markRead'])->name('public.inbox.read');
+    Route::get('/account', [PublicAccountController::class, 'account'])->name('public.account');
+    Route::get('/account/donations', [PublicAccountController::class, 'donations'])->name('public.donations');
+    Route::get('/account/donations/{donation}/receipt', [PublicAccountController::class, 'receipt'])->name('public.receipt');
+});

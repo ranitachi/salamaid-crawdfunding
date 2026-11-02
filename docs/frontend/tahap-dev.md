@@ -58,7 +58,7 @@ Jangan pernah menampilkan email donor, nomor rekening, raw payload Mayar, signat
 
 ## 4. Tahapan pengembangan
 
-Progress implementasi pada branch `feat/frontend`: B0, B1, B2, B3, dan B4 sudah selesai secara lokal. B3 sudah diuji dengan fake Mayar; transaksi sandbox nyata tetap menjadi langkah operasional sebelum production.
+Progress implementasi pada branch `feat/frontend`: B0, B1, B2, B3, B4, dan B5 sudah selesai secara lokal. B3 sudah diuji dengan fake Mayar; transaksi sandbox nyata tetap menjadi langkah operasional sebelum production.
 
 ### B0 — Public shell dan design system
 
@@ -237,6 +237,8 @@ Acceptance criteria:
 - Semua query donation dan notification scoped ke user login.
 - IDOR test untuk donation, payment, dan notification.
 - Guest tidak diarahkan ke fitur akun tanpa pesan yang jelas.
+
+Status implementasi: `DONE` untuk login/register role user, akun donor, riwayat donasi, receipt, inbox, mark read, dan IDOR scoping. Test: `tests/Feature/PublicAccountTest.php`.
 
 ## 5. Fitur yang ditunda
 

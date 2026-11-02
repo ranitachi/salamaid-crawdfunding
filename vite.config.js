@@ -13,6 +13,7 @@ export default defineConfig({
                 'resources/css/public-detail.css',
                 'resources/css/public-checkout.css',
                 'resources/css/public-payment.css',
+                'resources/css/public-account.css',
                 'resources/js/public.js',
             ],
             refresh: true,
