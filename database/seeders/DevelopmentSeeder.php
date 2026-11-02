@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\Catalog\Entities\Campaign;
+use Modules\Catalog\Entities\CampaignMedia;
 use Modules\Core\Entities\Category;
 use Modules\Core\Entities\Organization;
 use Modules\Core\Entities\OrganizationMember;
@@ -78,8 +79,64 @@ class DevelopmentSeeder extends Seeder
                 'location_label' => 'Indonesia',
                 'status' => 'published',
                 'is_featured' => true,
+                'cover_url' => '/images/demo/beasiswa-anak-negeri.png',
             ],
         );
+
+        $humanity = Category::updateOrCreate(
+            ['slug' => 'kemanusiaan'],
+            ['name' => 'Kemanusiaan', 'icon' => 'heart', 'is_active' => true],
+        );
+
+        $environment = Category::updateOrCreate(
+            ['slug' => 'lingkungan'],
+            ['name' => 'Lingkungan', 'icon' => 'leaf', 'is_active' => true],
+        );
+
+        $foodCampaign = Campaign::updateOrCreate(
+            ['slug' => 'paket-pangan-keluarga'],
+            [
+                'organization_id' => $organization->id,
+                'category_id' => $humanity->id,
+                'title' => 'Paket Pangan Keluarga',
+                'description' => 'Bantuan pangan bulanan untuk keluarga prasejahtera di wilayah binaan.',
+                'target_amount' => 75000000,
+                'collected_amount' => 18500000,
+                'deadline_at' => Carbon::now()->addMonths(3),
+                'location_label' => 'Jawa Barat',
+                'status' => 'published',
+                'is_featured' => true,
+                'cover_url' => '/images/demo/paket-pangan-keluarga.png',
+            ],
+        );
+
+        $environmentCampaign = Campaign::updateOrCreate(
+            ['slug' => 'pesisir-hijau'],
+            [
+                'organization_id' => $organization->id,
+                'category_id' => $environment->id,
+                'title' => 'Pesisir Hijau',
+                'description' => 'Pemulihan pesisir melalui penanaman mangrove bersama warga dan relawan.',
+                'target_amount' => 50000000,
+                'collected_amount' => 9200000,
+                'deadline_at' => Carbon::now()->addMonths(4),
+                'location_label' => 'Demak, Jawa Tengah',
+                'status' => 'published',
+                'is_featured' => false,
+                'cover_url' => '/images/demo/pesisir-hijau.png',
+            ],
+        );
+
+        foreach ([
+            [$campaign, 'beasiswa-anak-negeri.png', 'Ruang belajar untuk masa depan'],
+            [$foodCampaign, 'paket-pangan-keluarga.png', 'Pangan untuk keluarga'],
+            [$environmentCampaign, 'pesisir-hijau.png', 'Relawan menanam mangrove'],
+        ] as [$demoCampaign, $filename, $caption]) {
+            CampaignMedia::updateOrCreate(
+                ['campaign_id' => $demoCampaign->id, 'url' => '/images/demo/'.$filename],
+                ['type' => 'image', 'caption' => $caption, 'sort' => 0],
+            );
+        }
 
         $donation = Donation::updateOrCreate(
             ['campaign_id' => $campaign->id, 'user_id' => $donor->id, 'message' => 'Donasi demo admin'],
@@ -144,11 +201,81 @@ class DevelopmentSeeder extends Seeder
             ],
         );
 
+        $mayarPendingDonation = Donation::updateOrCreate(
+            ['campaign_id' => $foodCampaign->id, 'user_id' => $donor->id, 'message' => 'Fixture Mayar pending'],
+            [
+                'gross_amount' => 75000,
+                'fee_platform' => 0,
+                'fee_channel' => 0,
+                'net_amount' => 75000,
+                'method' => 'mayar_checkout',
+                'anonymous' => false,
+                'status' => 'pending',
+                'expired_at' => now()->addHours(8),
+            ],
+        );
+
+        Payment::updateOrCreate(
+            ['order_id' => 'MAYAR-DEMO-PENDING-0001'],
+            [
+                'donation_id' => $mayarPendingDonation->id,
+                'provider' => 'mayar',
+                'channel_code' => 'mayar_checkout',
+                'status' => 'pending',
+                'redirect_url' => 'https://web.mayar.io/payment/MAYAR-DEMO-PENDING-0001',
+                'raw_request_json' => ['source' => 'DevelopmentSeeder', 'environment' => 'sandbox'],
+                'raw_callback_json' => ['source' => 'Mayar Sandbox fixture', 'provider_status' => 'created', 'amount' => 75000],
+            ],
+        );
+
+        $mayarFailedDonation = Donation::updateOrCreate(
+            ['campaign_id' => $environmentCampaign->id, 'user_id' => $donor->id, 'message' => 'Fixture Mayar failed'],
+            [
+                'gross_amount' => 125000,
+                'fee_platform' => 0,
+                'fee_channel' => 0,
+                'net_amount' => 125000,
+                'method' => 'mayar_checkout',
+                'anonymous' => true,
+                'status' => 'failed',
+            ],
+        );
+
+        Payment::updateOrCreate(
+            ['order_id' => 'MAYAR-DEMO-FAILED-0001'],
+            [
+                'donation_id' => $mayarFailedDonation->id,
+                'provider' => 'mayar',
+                'channel_code' => 'mayar_checkout',
+                'status' => 'failed',
+                'raw_request_json' => ['source' => 'DevelopmentSeeder', 'environment' => 'sandbox'],
+                'raw_callback_json' => ['source' => 'Mayar Sandbox fixture', 'provider_status' => 'expired', 'amount' => 125000],
+            ],
+        );
+
         Webhook::updateOrCreate(
             ['provider' => 'demo', 'order_id' => 'SALAMAID-DEMO-0001', 'event' => 'payment.paid'],
             [
                 'signature' => 'demo-webhook-signature',
                 'payload' => ['order_id' => 'SALAMAID-DEMO-0001', 'status' => 'paid'],
+                'processed_at' => now(),
+            ],
+        );
+
+        Webhook::updateOrCreate(
+            ['provider' => 'mayar', 'order_id' => 'MAYAR-DEMO-PENDING-0001', 'event' => 'payment.created'],
+            [
+                'signature' => 'demo-mayar-signature-pending',
+                'payload' => ['order_id' => 'MAYAR-DEMO-PENDING-0001', 'status' => 'created', 'environment' => 'sandbox'],
+                'processed_at' => now(),
+            ],
+        );
+
+        Webhook::updateOrCreate(
+            ['provider' => 'mayar', 'order_id' => 'MAYAR-DEMO-FAILED-0001', 'event' => 'payment.expired'],
+            [
+                'signature' => 'demo-mayar-signature-failed',
+                'payload' => ['order_id' => 'MAYAR-DEMO-FAILED-0001', 'status' => 'expired', 'environment' => 'sandbox'],
                 'processed_at' => now(),
             ],
         );
@@ -162,6 +289,18 @@ class DevelopmentSeeder extends Seeder
             'status' => 'published',
             'published_at' => $update->published_at ?? now(),
         ])->save();
+
+        foreach ([
+            [$foodCampaign, 'Distribusi pangan perdana', 'Sebanyak 120 paket pangan telah disalurkan kepada keluarga penerima manfaat.', 'update', null],
+            [$foodCampaign, 'Laporan alokasi paket pangan', 'Laporan penggunaan dana untuk pembelian dan distribusi paket pangan.', 'fund_report', 6500000],
+            [$environmentCampaign, 'Penanaman mangrove dimulai', 'Relawan dan warga menanam bibit mangrove di area pesisir prioritas.', 'update', null],
+        ] as [$demoCampaign, $title, $content, $type, $amount]) {
+            $demoUpdate = CampaignUpdate::updateOrCreate(
+                ['campaign_id' => $demoCampaign->id, 'title' => $title],
+                ['type' => $type, 'content' => $content, 'amount_used' => $amount],
+            );
+            $demoUpdate->forceFill(['status' => 'published', 'published_at' => $demoUpdate->published_at ?? now()])->save();
+        }
 
         Fundraiser::updateOrCreate(
             ['campaign_id' => $campaign->id, 'user_id' => $donor->id],
