@@ -47,6 +47,25 @@ class CampaignQuery
         return Category::query()->active()->whereHas('campaigns', fn (Builder $campaign) => $campaign->where('status', 'published'))->orderBy('name')->get(['id', 'name', 'slug', 'icon']);
     }
 
+    public function findPublished(string $slug): ?Campaign
+    {
+        if (! $this->tablesAvailable()) return null;
+
+        return Campaign::query()
+            ->published()
+            ->where('slug', $slug)
+            ->whereHas('organization', fn (Builder $organization) => $organization->where('status', 'verified'))
+            ->with([
+                'organization:id,name,status,logo_url,description',
+                'category:id,name,slug,icon',
+                'media' => fn ($media) => $media->orderBy('sort'),
+                'updates' => fn ($updates) => $updates->public()->with('attachments')->latest('published_at'),
+            ])
+            ->withSum(['donations as paid_amount' => fn (Builder $donation) => $donation->where('status', 'paid')], 'net_amount')
+            ->withCount(['donations as paid_donation_count' => fn (Builder $donation) => $donation->where('status', 'paid')])
+            ->first();
+    }
+
     private function tablesAvailable(): bool
     {
         return Schema::hasTable('campaigns') && Schema::hasTable('organizations') && Schema::hasTable('donations');

@@ -17,6 +17,8 @@ use App\Http\Controllers\PublicSite\CampaignController;
 Route::get('/', [CampaignController::class, 'home'])->name('public.home');
 
 Route::get('/program', [CampaignController::class, 'program'])->name('public.program');
+Route::get('/campaigns/{slug}', [CampaignController::class, 'show'])->name('public.campaigns.show');
+Route::get('/campaigns/{slug}', [CampaignController::class, 'show'])->name('public.campaigns.show');
 Route::view('/inbox', 'public.inbox')->name('public.inbox');
 Route::view('/account', 'public.account')->name('public.account');
 Route::view('/account/donations', 'public.donations')->name('public.donations');

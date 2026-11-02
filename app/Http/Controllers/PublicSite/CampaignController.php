@@ -19,4 +19,11 @@ class CampaignController
     {
         return view('public.program', ['campaigns' => $this->campaigns->paginate($request), 'categories' => $this->campaigns->categories()]);
     }
+
+    public function show(string $slug): View
+    {
+        $campaign = $this->campaigns->findPublished($slug);
+        abort_if($campaign === null, 404);
+        return view('public.campaigns.show', compact('campaign'));
+    }
 }
