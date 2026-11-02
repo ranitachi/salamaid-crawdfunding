@@ -20,6 +20,17 @@ class CampaignQuery
         return $this->base()->where('is_featured', true)->latest('featured_at')->limit($limit)->get();
     }
 
+    public function urgent(int $limit = 3): Collection
+    {
+        if (! $this->tablesAvailable()) return collect();
+
+        return $this->base()
+            ->whereNotNull('deadline_at')
+            ->orderBy('deadline_at')
+            ->limit($limit)
+            ->get();
+    }
+
     public function paginate(Request $request, int $perPage = 12)
     {
         if (! $this->tablesAvailable()) {

@@ -26,7 +26,12 @@ class CampaignController
 
     public function program(Request $request): View
     {
-        return view('public.program', ['campaigns' => $this->campaigns->paginate($request), 'categories' => $this->campaigns->categories()]);
+        return view('public.program', [
+            'campaigns' => $this->campaigns->paginate($request),
+            'categories' => $this->campaigns->categories(),
+            'featured' => $this->campaigns->featured(),
+            'urgent' => $this->campaigns->urgent(),
+        ]);
     }
 
     public function show(string $slug): View
