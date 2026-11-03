@@ -21,9 +21,7 @@
             @if ($donation->payment?->redirect_url)<a class="public-button" href="{{ $donation->payment->redirect_url }}">Lanjutkan pembayaran</a>@endif
             <form method="POST" action="{{ route('public.receipt.regenerate-payment', $donation) }}">
                 @csrf
-                @if (!$storedMobile)
-                    <label class="public-field"><span>Nomor WhatsApp untuk pembayaran</span><input type="text" name="mobile" value="{{ old('mobile') }}" placeholder="+62812..." required></label>
-                @endif
+                <label class="public-field"><span>Nomor WhatsApp untuk pembayaran</span><input type="text" name="mobile" value="{{ old('mobile', $storedMobile) }}" placeholder="+62812..." required></label>
                 <button class="public-button public-button--outline" type="submit">Buat ulang link pembayaran</button>
             </form>
         @endif

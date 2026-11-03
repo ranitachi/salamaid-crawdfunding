@@ -233,7 +233,7 @@ class DevelopmentSeeder extends Seeder
                 'channel_code' => 'mayar_checkout',
                 'status' => 'pending',
                 'redirect_url' => 'https://web.mayar.io/payment/MAYAR-DEMO-PENDING-0001',
-                'raw_request_json' => ['source' => 'DevelopmentSeeder', 'environment' => 'sandbox'],
+                'raw_request_json' => ['source' => 'DevelopmentSeeder', 'environment' => 'sandbox', 'name' => 'Demo Donor', 'email' => 'donor@salamaid.test', 'mobile' => '+628120000000'],
                 'raw_callback_json' => ['source' => 'Mayar Sandbox fixture', 'provider_status' => 'created', 'amount' => 75000],
             ],
         );
