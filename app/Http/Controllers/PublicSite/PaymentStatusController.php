@@ -13,10 +13,23 @@ use Modules\Payment\App\Services\SyncPaymentStatusAction;
 
 class PaymentStatusController extends Controller
 {
-    public function show(Request $request, Donation $donation): View
+    public function show(Request $request, Donation $donation, SyncPaymentStatusAction $sync): View
     {
         $this->authorizeAccess($request, $donation);
         $donation->load(['payment', 'campaign:id,title,slug']);
+
+        // Mayar redirects the browser to this signed URL after checkout. The
+        // redirect itself is not payment proof, so confirm the status with
+        // Mayar before rendering the result page.
+        if (URL::hasValidSignature($request) && $donation->payment?->provider === 'mayar' && $donation->payment->status === 'pending') {
+            try {
+                $sync->execute($donation->payment, 'callback');
+                $donation->refresh()->load(['payment', 'campaign:id,title,slug']);
+            } catch (MayarRequestException $exception) {
+                report($exception);
+            }
+        }
+
         return view('public.payments.status', compact('donation'));
     }
 

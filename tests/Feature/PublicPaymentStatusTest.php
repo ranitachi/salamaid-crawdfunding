@@ -43,6 +43,7 @@ class PublicPaymentStatusTest extends TestCase
     {
         $campaign = $this->campaign();
         $payment = $this->payment($campaign);
+        Http::fake(['*/transactions/*' => Http::response(['data' => ['id' => $payment->order_id, 'status' => 'unpaid', 'amount' => 50000]], 200)]);
         $url = URL::temporarySignedRoute('public.payments.status', now()->addMinutes(10), ['donation' => $payment->donation_id]);
 
         $this->get($url)->assertOk()->assertSee('Menunggu pembayaran');
@@ -57,6 +58,18 @@ class PublicPaymentStatusTest extends TestCase
         $url = URL::temporarySignedRoute('public.payments.status.refresh', now()->addMinutes(10), ['donation' => $payment->donation_id]);
 
         $this->post($url)->assertRedirect()->assertSessionHas('status_message');
+        $this->assertDatabaseHas('payments', ['id' => $payment->id, 'status' => 'paid']);
+        $this->assertDatabaseHas('donations', ['id' => $payment->donation_id, 'status' => 'paid']);
+    }
+
+    public function test_signed_provider_callback_auto_syncs_paid_status_before_rendering(): void
+    {
+        $campaign = $this->campaign();
+        $payment = $this->payment($campaign);
+        Http::fake(['*/transactions/*' => Http::response(['data' => ['id' => $payment->order_id, 'status' => 'paid', 'amount' => 50000]], 200)]);
+        $url = URL::temporarySignedRoute('public.payments.status', now()->addMinutes(10), ['donation' => $payment->donation_id]);
+
+        $this->get($url)->assertOk()->assertSee('Pembayaran berhasil')->assertDontSee('Menunggu pembayaran');
         $this->assertDatabaseHas('payments', ['id' => $payment->id, 'status' => 'paid']);
         $this->assertDatabaseHas('donations', ['id' => $payment->donation_id, 'status' => 'paid']);
     }
