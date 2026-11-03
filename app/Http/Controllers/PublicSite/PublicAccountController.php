@@ -87,11 +87,29 @@ class PublicAccountController extends Controller
 
     public function inbox(Request $request): View
     {
+        $tab = $request->string('tab')->toString();
+        abort_unless(in_array($tab, ['', 'all', 'donations', 'updates'], true), 404);
+        $notifications = $request->user()->notifications()->latest();
+        if ($tab === 'donations') {
+            $notifications->whereIn('data->kind', ['payment_success', 'payment_expired']);
+        } elseif ($tab === 'updates') {
+            $notifications->whereIn('data->kind', ['distribution', 'impact']);
+        }
+
         return view('public.inbox', [
-            'notifications' => $request->user()->notifications()->latest()->paginate(20)->withQueryString(),
+            'notifications' => $notifications->paginate(20)->withQueryString(),
             'unreadCount' => $request->user()->unreadNotifications()->count(),
             'initiatives' => $this->campaigns->urgent(2),
+            'tab' => $tab ?: 'all',
         ]);
+    }
+
+    public function showNotification(Request $request, string $notification): View
+    {
+        $notification = $request->user()->notifications()->whereKey($notification)->firstOrFail();
+        $notification->markAsRead();
+
+        return view('public.inbox-show', compact('notification'));
     }
 
     public function markRead(Request $request, string $notification): RedirectResponse

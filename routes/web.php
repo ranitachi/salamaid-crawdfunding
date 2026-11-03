@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [PublicAuthController::class, 'destroy'])->name('public.logout');
     Route::get('/inbox', [PublicAccountController::class, 'inbox'])->name('public.inbox');
     Route::post('/inbox/read-all', [PublicAccountController::class, 'markAllRead'])->name('public.inbox.read-all');
+    Route::get('/inbox/{notification}', [PublicAccountController::class, 'showNotification'])->name('public.inbox.show');
     Route::post('/inbox/{notification}/read', [PublicAccountController::class, 'markRead'])->name('public.inbox.read');
     Route::get('/account', [PublicAccountController::class, 'account'])->name('public.account');
     Route::put('/account/profile', [PublicAccountController::class, 'updateProfile'])->name('public.account.profile.update');

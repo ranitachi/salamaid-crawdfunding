@@ -51,6 +51,28 @@ class PublicAccountTest extends TestCase
         $this->assertNull($notification->fresh()->read_at);
     }
 
+    public function test_inbox_tabs_filter_notifications_and_detail_marks_read(): void
+    {
+        $owner = User::factory()->create();
+        $donation = DatabaseNotification::create(['id' => (string) Str::uuid(), 'type' => 'test', 'notifiable_type' => User::class, 'notifiable_id' => $owner->id, 'data' => ['title' => 'Donasi', 'message' => 'Berhasil', 'kind' => 'payment_success'], 'read_at' => null]);
+        DatabaseNotification::create(['id' => (string) Str::uuid(), 'type' => 'test', 'notifiable_type' => User::class, 'notifiable_id' => $owner->id, 'data' => ['title' => 'Update', 'message' => 'Dampak', 'kind' => 'impact'], 'read_at' => null]);
+
+        $this->actingAs($owner)->get(route('public.inbox', ['tab' => 'donations']))->assertOk()->assertSee('Berhasil')->assertDontSee('Dampak');
+        $this->actingAs($owner)->get(route('public.inbox', ['tab' => 'updates']))->assertOk()->assertSee('Dampak')->assertDontSee('Berhasil');
+        $this->actingAs($owner)->get(route('public.inbox.show', $donation->id))->assertOk()->assertSee('Berhasil');
+        $this->assertNotNull($donation->fresh()->read_at);
+    }
+
+    public function test_notification_detail_is_scoped_to_owner(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+        $notification = DatabaseNotification::create(['id' => (string) Str::uuid(), 'type' => 'test', 'notifiable_type' => User::class, 'notifiable_id' => $other->id, 'data' => ['title' => 'Private', 'message' => 'Private', 'kind' => 'impact'], 'read_at' => null]);
+
+        $this->actingAs($owner)->get(route('public.inbox.show', $notification->id))->assertNotFound();
+        $this->assertNull($notification->fresh()->read_at);
+    }
+
     public function test_receipt_is_not_accessible_to_another_user(): void
     {
         $owner = User::factory()->create();
