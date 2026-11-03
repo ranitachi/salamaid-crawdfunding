@@ -78,6 +78,22 @@ class DevelopmentSeeder extends Seeder
             ],
         );
 
+        $demoDonors = collect([
+            ['name' => 'Aisyah Rahma', 'email' => 'aisyah.demo@salamaid.test', 'mobile' => '+628120000101'],
+            ['name' => 'Budi Santoso', 'email' => 'budi.demo@salamaid.test', 'mobile' => '+628120000102'],
+            ['name' => 'Citra Lestari', 'email' => 'citra.demo@salamaid.test', 'mobile' => '+628120000103'],
+            ['name' => 'Dedi Kurniawan', 'email' => 'dedi.demo@salamaid.test', 'mobile' => '+628120000104'],
+            ['name' => 'Eka Putri', 'email' => 'eka.demo@salamaid.test', 'mobile' => '+628120000105'],
+        ])->map(fn (array $attributes) => User::updateOrCreate(
+            ['email' => $attributes['email']],
+            $attributes + [
+                'password' => 'change-me-local',
+                'role' => 'user',
+                'is_active' => true,
+                'email_verified_at' => now(),
+            ],
+        ));
+
         $organization = Organization::updateOrCreate(
             ['slug' => 'yayasan-salamaid-demo'],
             [
@@ -191,7 +207,7 @@ class DevelopmentSeeder extends Seeder
             ['role' => 'owner'],
         );
 
-        Campaign::updateOrCreate(
+        $partnerFoodCampaign = Campaign::updateOrCreate(
             ['slug' => 'paket-sembako-ramadan'],
             [
                 'organization_id' => $partnerOrganization->id,
@@ -347,6 +363,50 @@ class DevelopmentSeeder extends Seeder
                 'raw_request_json' => ['source' => 'DevelopmentSeeder', 'environment' => 'sandbox'],
                 'raw_callback_json' => ['source' => 'Mayar Sandbox fixture', 'provider_status' => 'expired', 'amount' => 125000],
             ]);
+
+        // Paid donor fixtures keep the displayed collected amount consistent
+        // with the donor table. Existing non-fixture donations are preserved,
+        // while the five deterministic fixtures fill the remaining amount.
+        $seedPaidDonations = static function (Campaign $demoCampaign, $donors): void {
+            $fixturePrefix = 'Seed dummy donor '.$demoCampaign->slug.' %';
+            $existingPaid = (int) Donation::query()
+                ->where('campaign_id', $demoCampaign->id)
+                ->where('status', 'paid')
+                ->where(fn ($query) => $query->whereNull('message')->orWhere('message', 'not like', $fixturePrefix))
+                ->sum('net_amount');
+            $remaining = max(0, (int) $demoCampaign->collected_amount - $existingPaid);
+            $shares = [20, 18, 22, 15, 25];
+            $allocated = 0;
+
+            foreach ($donors->values() as $index => $demoDonor) {
+                $amount = $index === 4
+                    ? max(0, $remaining - $allocated)
+                    : intdiv($remaining * $shares[$index], 100);
+                $allocated += $amount;
+
+                Donation::updateOrCreate(
+                    [
+                        'campaign_id' => $demoCampaign->id,
+                        'user_id' => $demoDonor->id,
+                        'message' => 'Seed dummy donor '.$demoCampaign->slug.' '.($index + 1),
+                    ],
+                    [
+                        'gross_amount' => $amount,
+                        'fee_platform' => 0,
+                        'fee_channel' => 0,
+                        'net_amount' => $amount,
+                        'method' => 'qris',
+                        'anonymous' => false,
+                        'status' => 'paid',
+                        'paid_at' => now(),
+                    ],
+                );
+            }
+        };
+
+        foreach ([$campaign, $foodCampaign, $environmentCampaign, $partnerFoodCampaign] as $demoCampaign) {
+            $seedPaidDonations($demoCampaign, $demoDonors);
+        }
 
         Webhook::updateOrCreate(
             ['provider' => 'demo', 'order_id' => 'SALAMAID-DEMO-0001', 'event' => 'payment.paid'],
