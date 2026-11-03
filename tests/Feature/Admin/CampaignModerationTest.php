@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
 use Mockery;
 use Modules\Catalog\App\Queries\CampaignModerationQuery;
+use Modules\Catalog\Entities\CampaignMedia;
 use Modules\Core\Entities\OrganizationMember;
 
 class CampaignModerationTest extends AdminReviewTestCase
@@ -67,6 +68,31 @@ class CampaignModerationTest extends AdminReviewTestCase
         ]);
 
         $response->assertSessionHasErrors('cover');
+    }
+
+    public function test_organization_admin_can_add_and_remove_campaign_media(): void
+    {
+        Storage::fake('public');
+        $admin = $this->user('organization_admin');
+        $organization = $this->organization('verified');
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $admin->id, 'role' => 'owner']);
+        $campaign = $this->campaign($organization, 'draft');
+
+        $this->actingAs($admin)->post(route('admin.campaigns.media.store', $campaign), [
+            'media' => UploadedFile::fake()->image('story.png', 1200, 800),
+            'caption' => 'Dokumentasi kegiatan',
+        ])->assertRedirect(route('admin.campaigns.show', $campaign));
+
+        $media = CampaignMedia::query()->where('campaign_id', $campaign->id)->firstOrFail();
+        $path = str_replace('/storage/', '', parse_url($media->url, PHP_URL_PATH));
+        Storage::disk('public')->assertExists($path);
+        $this->assertSame('Dokumentasi kegiatan', $media->caption);
+
+        $this->actingAs($admin)->delete(route('admin.campaigns.media.destroy', [$campaign, $media]))
+            ->assertRedirect(route('admin.campaigns.show', $campaign));
+
+        Storage::disk('public')->assertMissing($path);
+        $this->assertDatabaseMissing('campaign_media', ['id' => $media->id]);
     }
 
     public function test_organization_admin_can_edit_own_draft_campaign(): void

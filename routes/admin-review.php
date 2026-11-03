@@ -46,6 +46,8 @@ Route::prefix('campaigns')->name('campaigns.')
     Route::get('/', [CampaignModerationController::class, 'index'])->name('index');
     Route::get('/{campaign}/edit', [CampaignModerationController::class, 'edit'])->name('edit');
     Route::put('/{campaign}', [CampaignModerationController::class, 'update'])->name('update');
+    Route::post('/{campaign}/media', [CampaignModerationController::class, 'storeMedia'])->name('media.store');
+    Route::delete('/{campaign}/media/{media}', [CampaignModerationController::class, 'destroyMedia'])->name('media.destroy');
     Route::get('/{campaign}', [CampaignModerationController::class, 'show'])->name('show');
     Route::post('/{campaign}/submit', [CampaignModerationController::class, 'submit'])->name('submit');
     Route::post('/{campaign}/publish', [CampaignModerationController::class, 'publish'])->name('publish');

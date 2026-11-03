@@ -18,6 +18,7 @@ use Modules\Catalog\App\Http\Requests\SuspendCampaignRequest;
 use Modules\Catalog\App\Queries\CampaignModerationQuery;
 use Modules\Catalog\App\Services\CampaignModerationService;
 use Modules\Catalog\Entities\Campaign;
+use Modules\Catalog\Entities\CampaignMedia;
 use Modules\Core\Entities\Category;
 use Modules\Core\Entities\Organization;
 
@@ -152,6 +153,37 @@ class CampaignModerationController extends Controller
             : 'Campaign berhasil diperbarui.';
 
         return redirect()->route('admin.campaigns.show', $campaign)->with('success', $message);
+    }
+
+    public function storeMedia(Request $request, Campaign $campaign, AdminAuditLogger $audit): RedirectResponse
+    {
+        $this->authorize('update', $campaign);
+        $data = $request->validate([
+            'media' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'caption' => ['nullable', 'string', 'max:190'],
+        ]);
+        $url = $this->images->storeCampaignMedia($request->file('media'));
+        $media = CampaignMedia::create([
+            'campaign_id' => $campaign->id,
+            'type' => 'image',
+            'url' => $url,
+            'caption' => $data['caption'] ?? null,
+            'sort' => (int) $campaign->media()->max('sort') + 1,
+        ]);
+        $audit->log('campaign.media.added', $media, [], ['campaign_id' => $campaign->id, 'type' => 'image'], null, $request->user());
+
+        return redirect()->route('admin.campaigns.show', $campaign)->with('success', 'Media campaign berhasil ditambahkan.');
+    }
+
+    public function destroyMedia(Request $request, Campaign $campaign, CampaignMedia $media, AdminAuditLogger $audit): RedirectResponse
+    {
+        $this->authorize('update', $campaign);
+        abort_unless((string) $media->campaign_id === (string) $campaign->id, 404);
+        $this->images->deleteOwnedFile($media->url);
+        $audit->log('campaign.media.removed', $media, ['campaign_id' => $campaign->id], [], null, $request->user());
+        $media->delete();
+
+        return redirect()->route('admin.campaigns.show', $campaign)->with('success', 'Media campaign berhasil dihapus.');
     }
 
     public function submit(Request $request, Campaign $campaign): RedirectResponse

@@ -1,0 +1,62 @@
+.public-program-priority-card {
+    position: relative;
+}
+
+.public-program-priority-card__image {
+    display: block;
+    height: 180px;
+    overflow: hidden;
+}
+
+.public-program-priority-card__image img {
+    display: block;
+}
+
+.public-program-priority-card__image > span {
+    z-index: 2;
+    top: 9px;
+    bottom: auto;
+}
+
+.public-program-priority-card__image::after {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    background: linear-gradient(0deg, #1c1b1bd9 0%, transparent 64%);
+    content: '';
+}
+
+.public-program-priority-card__body > small {
+    position: absolute;
+    z-index: 2;
+    top: 139px;
+    right: 10px;
+    left: 10px;
+    display: block;
+    overflow: hidden;
+    color: #fff;
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.public-program-priority-card__body > small b {
+    display: none;
+}
+
+.public-program-priority-card__body > h3 {
+    position: absolute;
+    z-index: 2;
+    top: 151px;
+    right: 10px;
+    left: 10px;
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 0;
+    color: #fff;
+    font-size: 16px;
+    line-height: 1.2;
+    text-shadow: 0 1px 3px #0008;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}

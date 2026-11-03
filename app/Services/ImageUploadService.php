@@ -16,6 +16,37 @@ class ImageUploadService
      */
     public function storeCampaignCover(UploadedFile $file, ?string $previousUrl = null): string
     {
+        return $this->storeCampaignImage($file, $previousUrl);
+    }
+
+    public function storeCampaignMedia(UploadedFile $file, ?string $previousUrl = null): string
+    {
+        return $this->storeCampaignImage($file, $previousUrl);
+    }
+
+    public function deleteOwnedFile(?string $url): void
+    {
+        if (! $url) {
+            return;
+        }
+
+        $disk = Storage::disk('public');
+        $diskUrl = rtrim((string) config('filesystems.disks.public.url'), '/');
+        $path = null;
+
+        if ($diskUrl !== '' && Str::startsWith($url, $diskUrl.'/')) {
+            $path = Str::after($url, $diskUrl.'/');
+        } elseif (Str::startsWith($url, '/storage/')) {
+            $path = Str::after($url, '/storage/');
+        }
+
+        if ($path && $disk->exists($path)) {
+            $disk->delete($path);
+        }
+    }
+
+    private function storeCampaignImage(UploadedFile $file, ?string $previousUrl = null): string
+    {
         $path = 'campaigns/'.Str::uuid().'.jpg';
         $disk = Storage::disk('public');
         $contents = $this->optimizedJpeg($file);
@@ -55,24 +86,4 @@ class ImageUploadService
         return $contents;
     }
 
-    private function deleteOwnedFile(?string $url): void
-    {
-        if (! $url) {
-            return;
-        }
-
-        $disk = Storage::disk('public');
-        $diskUrl = rtrim((string) config('filesystems.disks.public.url'), '/');
-        $path = null;
-
-        if ($diskUrl !== '' && Str::startsWith($url, $diskUrl.'/')) {
-            $path = Str::after($url, $diskUrl.'/');
-        } elseif (Str::startsWith($url, '/storage/')) {
-            $path = Str::after($url, '/storage/');
-        }
-
-        if ($path && $disk->exists($path)) {
-            $disk->delete($path);
-        }
-    }
 }

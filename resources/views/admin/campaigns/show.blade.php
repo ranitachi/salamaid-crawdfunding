@@ -212,10 +212,22 @@
         title="Media Campaign"
         description="{{ $campaign->media->count() }} media terlampir."
     >
+        @if ($canEdit)
+            <div class="admin-panel__body" style="border-bottom:1px solid var(--admin-line);">
+                <form method="POST" action="{{ route('admin.campaigns.media.store', $campaign) }}" enctype="multipart/form-data" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:end;">
+                    @csrf
+                    <div class="admin-field"><label for="media">Tambah gambar media</label><input id="media" name="media" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required><small class="admin-field__hint">JPG, PNG, atau WebP, maksimal 4 MB. Gambar dikompres otomatis.</small></div>
+                    <div class="admin-field"><label for="caption">Caption (opsional)</label><input id="caption" name="caption" maxlength="190" placeholder="Keterangan gambar"></div>
+                    <button class="admin-button admin-button--primary" type="submit">Upload Media</button>
+                </form>
+                @error('media')<small class="admin-field__hint" style="display:block;color:var(--admin-coral);margin-top:8px">{{ $message }}</small>@enderror
+                @error('caption')<small class="admin-field__hint" style="display:block;color:var(--admin-coral);margin-top:8px">{{ $message }}</small>@enderror
+            </div>
+        @endif
         @if ($campaign->media->isEmpty())
             <tbody>
             <tr>
-                <td colspan="4">
+                        <td colspan="{{ $canEdit ? 5 : 4 }}">
                     <x-admin-review.empty-state
                         title="Belum ada media"
                         description="Campaign membutuhkan minimal satu media atau cover sebelum dapat dipublikasikan."
@@ -230,6 +242,7 @@
                 <th>URL</th>
                 <th>Caption</th>
                 <th>Urutan</th>
+                @if ($canEdit)<th>Aksi</th>@endif
             </tr>
             </thead>
             <tbody>
@@ -239,6 +252,9 @@
                     <td><a href="{{ $media->url }}" target="_blank" rel="noopener noreferrer">{{ $media->url }}</a></td>
                     <td>{{ $media->caption ?: '—' }}</td>
                     <td>{{ $media->sort }}</td>
+                    @if ($canEdit)
+                        <td><form method="POST" action="{{ route('admin.campaigns.media.destroy', [$campaign, $media]) }}" onsubmit="return confirm('Hapus media ini?');">@csrf @method('DELETE')<button class="admin-button admin-button--quiet" type="submit">Hapus</button></form></td>
+                    @endif
                 </tr>
             @endforeach
             </tbody>
