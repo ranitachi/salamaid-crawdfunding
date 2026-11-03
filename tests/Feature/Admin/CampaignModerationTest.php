@@ -76,7 +76,7 @@ class CampaignModerationTest extends AdminReviewTestCase
         $otherCampaign = $this->campaign($otherOrganization, 'draft', ['title' => 'Campaign Milik Lain']);
 
         $this->actingAs($organizationAdmin)->get(route('admin.campaigns.index'))
-            ->assertOk()->assertSee('Campaign Milik Saya')->assertDontSee('Campaign Milik Lain');
+            ->assertOk()->assertSee('Campaign Milik Saya')->assertSee(route('admin.campaigns.edit', $ownCampaign), false)->assertDontSee('Campaign Milik Lain');
         $this->actingAs($organizationAdmin)->get(route('admin.campaigns.show', $otherCampaign))->assertForbidden();
         $this->actingAs($organizationAdmin)->get(route('admin.mayar-transactions.index'))->assertForbidden();
 

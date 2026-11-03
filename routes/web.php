@@ -23,6 +23,10 @@ Route::get('/', [CampaignController::class, 'home'])->name('public.home');
 
 Route::get('/program', [CampaignController::class, 'program'])->name('public.program');
 Route::get('/lembaga', [OrganizationController::class, 'index'])->name('public.organizations.index');
+Route::get('/user', [PublicAccountController::class, 'user'])->name('public.user');
+Route::get('/terms', fn () => view('public.terms'))->name('public.terms');
+Route::get('/help', [PublicAccountController::class, 'help'])->name('public.help');
+Route::get('/privacy', [PublicAccountController::class, 'privacy'])->name('public.privacy');
 Route::get('/campaigns/{slug}', [CampaignController::class, 'show'])->name('public.campaigns.show');
 Route::get('/campaigns/{slug}/transparency', [CampaignController::class, 'transparency'])->name('public.campaigns.transparency');
 Route::get('/campaigns/{slug}/donate', [CampaignController::class, 'donate'])->name('public.campaigns.donate');
@@ -59,5 +63,5 @@ Route::middleware('auth')->group(function (): void {
 });
 
 Route::get('/{slug}', [OrganizationController::class, 'show'])
-    ->where('slug', '^(?!(?:admin|login|register|program|campaigns|payments|sitemap\\.xml|robots\\.txt|inbox|account)$)[a-z0-9]+(?:-[a-z0-9]+)*$')
+    ->where('slug', '^(?!(?:admin|login|register|program|lembaga|user|campaigns|payments|sitemap\\.xml|robots\\.txt|inbox|account)$)[a-z0-9]+(?:-[a-z0-9]+)*$')
     ->name('public.organizations.show');

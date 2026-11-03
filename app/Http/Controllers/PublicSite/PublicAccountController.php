@@ -33,6 +33,15 @@ class PublicAccountController extends Controller
         ]);
     }
 
+    public function user(Request $request): View
+    {
+        if ($request->user()) {
+            return $this->account($request);
+        }
+
+        return view('public.user');
+    }
+
     public function updateProfile(Request $request): RedirectResponse
     {
         $user = $request->user();

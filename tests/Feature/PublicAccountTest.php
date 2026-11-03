@@ -25,6 +25,7 @@ class PublicAccountTest extends TestCase
 
     public function test_guest_is_redirected_to_public_login_and_can_register(): void
     {
+        $this->get(route('public.user'))->assertOk()->assertSee('Masuk Sekarang')->assertSee(route('public.login'), false);
         $this->get(route('public.account'))->assertRedirect(route('public.login'));
         $this->post(route('public.register.store'), ['name' => 'Public Donor', 'email' => 'public@example.test', 'password' => 'password-123', 'password_confirmation' => 'password-123'])->assertRedirect(route('public.account'));
         $this->assertAuthenticated()->assertDatabaseHas('users', ['email' => 'public@example.test', 'role' => 'user']);

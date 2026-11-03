@@ -16,7 +16,7 @@ class AppSettingsService
         ['label' => 'Lembaga', 'icon' => 'domain', 'route' => 'public.organizations.index'],
         ['label' => 'Donasi', 'icon' => 'favorite', 'route' => 'public.donations'],
         ['label' => 'Inbox', 'icon' => 'mail', 'route' => 'public.inbox'],
-        ['label' => 'Akun', 'icon' => 'account_circle', 'route' => 'public.account'],
+        ['label' => 'Akun', 'icon' => 'account_circle', 'route' => 'public.user'],
     ];
 
     /** @var array<string, string> */

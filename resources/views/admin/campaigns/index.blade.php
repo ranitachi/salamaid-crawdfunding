@@ -132,6 +132,9 @@
                     <td>{{ $campaign->deadline_at?->format('d M Y') ?? '—' }}</td>
                     <td>
                         <a href="{{ route('admin.campaigns.show', $campaign) }}" class="admin-button admin-button--quiet">Detail</a>
+                        @can('update', $campaign)
+                            <a href="{{ route('admin.campaigns.edit', $campaign) }}" class="admin-button admin-button--primary">Edit</a>
+                        @endcan
                     </td>
                 </tr>
             @endforeach
