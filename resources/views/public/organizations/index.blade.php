@@ -10,7 +10,7 @@
         @forelse ($organizations as $organization)
             <a class="public-organization-list-card" href="{{ route('public.organizations.show', $organization->slug) }}">
                 <div class="public-organization-list-card__identity">
-                    @if ($organization->logo_url)<img src="{{ $organization->logo_url }}" alt="Logo {{ $organization->name }}">@else<span class="material-symbols-outlined">domain</span>@endif
+                    @if ($organization->logo_url)<img src="{{ $organization->logo_url }}" alt="Logo {{ $organization->name }}" loading="lazy" decoding="async">@else<span class="material-symbols-outlined">domain</span>@endif
                     <div><h2>{{ $organization->name }}</h2><span><span class="material-symbols-outlined">verified</span> Terverifikasi</span></div>
                 </div>
                 <p>{{ $organization->description ? str($organization->description)->squish()->limit(110) : 'Lembaga yang menghadirkan program kebaikan dan dampak nyata.' }}</p>
