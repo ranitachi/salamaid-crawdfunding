@@ -15,7 +15,7 @@ class DonationExportService
 
     public function csv(Request $request): StreamedResponse
     {
-        $rows = $this->query->forExport($request)->lazy();
+        $rows = $this->query->forExport($request, $request->user())->lazy();
 
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');

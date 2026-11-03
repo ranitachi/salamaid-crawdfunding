@@ -18,6 +18,11 @@ class DonationPolicy
 
     public function view(User $user, Donation $donation): bool
     {
-        return $this->viewAny($user);
+        if (! $this->viewAny($user)) {
+            return false;
+        }
+
+        return ! $user->isOrganizationAdmin()
+            || in_array((string) $donation->campaign?->organization_id, $user->managedOrganizationIds(), true);
     }
 }

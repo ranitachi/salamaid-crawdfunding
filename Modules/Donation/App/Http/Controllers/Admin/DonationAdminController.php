@@ -38,7 +38,7 @@ class DonationAdminController extends Controller
 
         return view('admin.donations.index', [
             'donations' => $this->query->paginate($request),
-            'summary' => $this->query->summary(),
+            'summary' => $this->query->summary($request->user()),
         ]);
     }
 

@@ -97,7 +97,7 @@
                 <th>Kategori</th>
                 <th>Status</th>
                 <th>Target / Terkumpul</th>
-                <th>Donasi</th>
+                <th>Jumlah Donatur</th>
                 <th>Deadline</th>
                 <th>Aksi</th>
             </tr>
@@ -128,7 +128,7 @@
                         <span class="admin-table__primary">Rp {{ number_format((int) $campaign->target_amount, 0, ',', '.') }}</span>
                         <span class="admin-table__secondary">Rp {{ number_format((int) $campaign->collected_amount, 0, ',', '.') }}</span>
                     </td>
-                    <td>{{ $campaign->donations_count }}</td>
+                    <td><a class="admin-button admin-button--quiet" href="{{ route('admin.campaigns.donors', $campaign) }}">{{ number_format($campaign->donations_count, 0, ',', '.') }} donatur</a></td>
                     <td>{{ $campaign->deadline_at?->format('d M Y') ?? '—' }}</td>
                     <td>
                         <a href="{{ route('admin.campaigns.show', $campaign) }}" class="admin-button admin-button--quiet">Detail</a>

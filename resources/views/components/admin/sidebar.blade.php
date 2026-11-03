@@ -4,6 +4,7 @@
         ['label' => 'Campaign', 'icon' => '✦', 'path' => '/admin/campaigns', 'match' => 'admin/campaigns*', 'permissions' => ['campaigns.view', 'campaigns.review', 'campaigns.publish']],
         ['label' => 'Organisasi', 'icon' => '◉', 'path' => '/admin/organizations', 'match' => 'admin/organizations*', 'permissions' => ['organizations.view', 'organizations.review']],
         ['label' => 'Donasi', 'icon' => '↗', 'path' => '/admin/donations', 'match' => 'admin/donations*', 'permissions' => ['donations.view']],
+        ['label' => 'Donatur Lembaga', 'icon' => '♙', 'path' => '/admin/donors', 'match' => 'admin/donors*', 'permissions' => ['donations.view']],
         ['label' => 'Pembayaran', 'icon' => '▣', 'path' => '/admin/payments', 'match' => 'admin/payments*', 'permissions' => ['payments.view', 'payments.manage']],
         ['label' => 'Transaksi Mayar', 'icon' => '↗', 'path' => '/admin/mayar-transactions', 'match' => 'admin/mayar-transactions*', 'permissions' => ['payments.view', 'payments.manage']],
         ['label' => 'Payout', 'icon' => '⇢', 'path' => '/admin/payouts', 'match' => 'admin/payouts*', 'permissions' => ['payouts.view', 'payouts.manage']],

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Catalog\App\Http\Controllers\Admin\CampaignModerationController;
+use App\Http\Controllers\Admin\DonorAdminController;
 use Modules\Core\App\Http\Controllers\Admin\OrganizationReviewController;
 use Modules\Core\App\Http\Controllers\Admin\OrganizationProfileController;
 
@@ -44,6 +45,7 @@ Route::prefix('campaigns')->name('campaigns.')
     ->middleware('admin.permission:campaigns.view,campaigns.review,campaigns.publish')
     ->group(function () {
     Route::get('/', [CampaignModerationController::class, 'index'])->name('index');
+    Route::get('/{campaign}/donors', [DonorAdminController::class, 'campaign'])->name('donors');
     Route::get('/{campaign}/edit', [CampaignModerationController::class, 'edit'])->name('edit');
     Route::put('/{campaign}', [CampaignModerationController::class, 'update'])->name('update');
     Route::post('/{campaign}/media', [CampaignModerationController::class, 'storeMedia'])->name('media.store');

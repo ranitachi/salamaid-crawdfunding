@@ -10,9 +10,48 @@ use Mockery;
 use Modules\Catalog\App\Queries\CampaignModerationQuery;
 use Modules\Catalog\Entities\CampaignMedia;
 use Modules\Core\Entities\OrganizationMember;
+use Modules\Donation\Entities\Donation;
 
 class CampaignModerationTest extends AdminReviewTestCase
 {
+    public function test_organization_admin_can_view_only_its_campaign_and_organization_donors(): void
+    {
+        $admin = $this->user('organization_admin');
+        $organization = $this->organization('verified');
+        $foreignOrganization = $this->organization('verified');
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $admin->id, 'role' => 'owner']);
+        $campaign = $this->campaign($organization, 'published');
+        $foreignCampaign = $this->campaign($foreignOrganization, 'published');
+        $donor = $this->user('user');
+        $donor->update(['name' => 'Donatur Milik Lembaga', 'mobile' => '+628120000001']);
+        $foreignDonor = $this->user('user');
+        $foreignDonor->update(['name' => 'Donatur Lembaga Lain']);
+
+        Donation::create(['campaign_id' => $campaign->id, 'user_id' => $donor->id, 'gross_amount' => 125000, 'net_amount' => 123000, 'method' => 'qris', 'status' => 'paid', 'paid_at' => now()]);
+        Donation::create(['campaign_id' => $foreignCampaign->id, 'user_id' => $foreignDonor->id, 'gross_amount' => 90000, 'net_amount' => 88000, 'method' => 'qris', 'status' => 'paid', 'paid_at' => now()]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.campaigns.donors', $campaign))
+            ->assertOk()
+            ->assertSee('Donatur Milik Lembaga')
+            ->assertSee($donor->email)
+            ->assertSee('+628120000001')
+            ->assertSee('Rp 125.000')
+            ->assertDontSee('Donatur Lembaga Lain');
+
+        $this->actingAs($admin)
+            ->get(route('admin.donors.index'))
+            ->assertOk()
+            ->assertSee('Donatur Milik Lembaga')
+            ->assertDontSee('Donatur Lembaga Lain');
+
+        $this->actingAs($this->user('admin'))
+            ->get(route('admin.donors.index'))
+            ->assertOk()
+            ->assertSee('Donatur Milik Lembaga')
+            ->assertSee('Donatur Lembaga Lain');
+    }
+
     public function test_organization_admin_can_upload_an_optimized_cover_on_create(): void
     {
         Storage::fake('public');

@@ -38,6 +38,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     require base_path('routes/admin-help.php');
     require base_path('routes/admin-audit.php');
     require base_path('routes/admin-report.php');
+    Route::middleware('admin.permission:donations.view')->group(function () {
+        Route::get('donors', [\App\Http\Controllers\Admin\DonorAdminController::class, 'index'])->name('donors.index');
+    });
     require base_path('routes/admin-notifications.php');
 });
 
