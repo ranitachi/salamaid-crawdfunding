@@ -1,87 +1,220 @@
-# Salamaid Crowdfunding — Admin
+<div align="center">
 
-## Setup lokal
+<img src="public/icon/logo-salamaid.png" alt="Salamaid" height="88">
 
-```bash
-composer install && npm ci
-cp .env.example .env && php artisan key:generate   # isi DB_* dan MAYAR_* di .env, jangan commit
-php artisan migrate --seed                          # seed hanya local/testing
-npm run build
-php artisan serve                                   # admin: http://127.0.0.1:8000/admin/login
-php artisan queue:work database                     # bila QUEUE_CONNECTION=database
-php artisan test                                    # SQLite in-memory, tidak menyentuh DB dev
-```
+# Salamaid Crowdfunding
 
-Akun admin seed: `SALAMAID_ADMIN_EMAIL` / `SALAMAID_ADMIN_PASSWORD` (default lokal saja, jangan dipakai di server).
+**Platform donasi dan penggalangan dana yang transparan dari donasi pertama sampai dana tersalurkan.**
 
-Dokumentasi: `docs/tahapan-admin.md` (roadmap), `docs/admin-a*.md` (per fase), `docs/payment-mayar.md`,
-`docs/admin-a12.md` (security, konfigurasi production, deployment & rollback).
-
----
-
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+<p>
+  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=flat-square&logo=php&logoColor=white">
+  <img alt="Laravel" src="https://img.shields.io/badge/Laravel-12-FF2D20?style=flat-square&logo=laravel&logoColor=white">
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite&logoColor=white">
+  <img alt="Payment" src="https://img.shields.io/badge/Payment-Mayar-0F766E?style=flat-square">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-216%20passed-16A34A?style=flat-square">
 </p>
 
-## About Laravel
+<sub>
+  <a href="#-sekilas">Sekilas</a> ·
+  <a href="#-fitur">Fitur</a> ·
+  <a href="#-arsitektur">Arsitektur</a> ·
+  <a href="#-memulai">Memulai</a> ·
+  <a href="#-keamanan">Keamanan</a> ·
+  <a href="#-production">Production</a> ·
+  <a href="#-dokumentasi">Dokumentasi</a>
+</sub>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+</div>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<br>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ✦ Sekilas
 
-## Learning Laravel
+Salamaid menghubungkan **donatur**, **lembaga penggalang dana**, dan **tim operasional** dalam satu aplikasi:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Donatur** menemukan program, berdonasi lewat Mayar, lalu mengikuti kabar dan laporan penggunaan dana.
+- **Lembaga** mengelola profil, kampanye, dan laporan transparansinya sendiri.
+- **Tim admin** memverifikasi lembaga, memoderasi kampanye, memantau pembayaran, menyalurkan dana (payout), dan mengaudit setiap keputusan.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+<table>
+  <tr>
+    <td width="33%" valign="top">
+      <h4>🤲 Donasi yang mudah</h4>
+      Checkout ringkas, status pembayaran real-time, kuitansi yang bisa diunduh, dan riwayat donasi di akun donatur.
+    </td>
+    <td width="33%" valign="top">
+      <h4>🔎 Transparan sejak awal</h4>
+      Kabar terbaru, alokasi dana, dan bukti penggunaan dana diperiksa admin sebelum dipublikasikan.
+    </td>
+    <td width="33%" valign="top">
+      <h4>🛡️ Operasional yang aman</h4>
+      Akses berbasis role, pemisahan tugas pada payout, audit log, dan bukti pembayaran yang disimpan privat.
+    </td>
+  </tr>
+</table>
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+<br>
 
-## Laravel Sponsors
+## ✦ Fitur
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Situs publik
 
-### Premium Partners
+| Area | Yang tersedia |
+| --- | --- |
+| **Penemuan** | Beranda, katalog program, direktori lembaga, profil lembaga dengan tab interaktif |
+| **Kampanye** | Cerita, alokasi dana, kabar terbaru, halaman transparansi per kampanye |
+| **Donasi** | Checkout donasi, halaman status pembayaran dengan tombol *refresh*, pembuatan ulang tautan bayar |
+| **Akun donatur** | Registrasi, login, reset password, inbox notifikasi, riwayat donasi, kuitansi (lihat dan unduh) |
+| **SEO & konten** | `sitemap.xml`, `robots.txt`, serta halaman About, Contact, Help, Terms, dan Privacy |
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Panel admin (`/admin`)
 
-## Contributing
+| Domain | Kemampuan |
+| --- | --- |
+| **Lembaga** | Review dan verifikasi (`pending → verified / rejected / suspended`) beserta catatan keputusan |
+| **Kampanye** | Moderasi, publikasi, dan pengelolaan kategori |
+| **Donasi & Payment** | Monitoring, export CSV, sinkronisasi status ke Mayar, *transaction explorer*, log dan *retry* webhook |
+| **Payout** | Alur `requested → approved → paid` dengan cek saldo, pemisahan tugas, bukti bayar privat, rekonsiliasi, dan *risk flag* |
+| **Transparansi** | Review kabar dan lampiran bukti penggunaan dana sebelum tayang |
+| **Pengguna** | Manajemen pengguna dan role (khusus `super_admin`) |
+| **Insight** | Dashboard KPI, laporan dengan export, notifikasi kerja, dan audit log |
+| **Konten** | Artikel bantuan, pengaturan aplikasi, dan channel pembayaran |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Role & hak akses
 
-## Code of Conduct
+Permission didefinisikan terpusat di [`config/admin.php`](config/admin.php), lalu ditegakkan berlapis lewat middleware, policy, dan Form Request.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Role | Fokus |
+| --- | --- |
+| `super_admin` | Akses penuh (`*`), termasuk pengelolaan role |
+| `admin` | Review lembaga, kampanye, dan transparansi; publikasi; kategori; konten bantuan |
+| `reviewer` | Review lembaga, kampanye, dan transparansi |
+| `finance` | Mengelola payment dan payout |
+| `support` | Akses baca untuk membantu donatur dan lembaga, tanpa melihat data rekening |
+| `organization_admin` | Mengelola lembaga, kampanye, dan laporan transparansinya sendiri |
 
-## Security Vulnerabilities
+<br>
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## ✦ Arsitektur
 
-## License
+Aplikasi ini adalah monolit Laravel modular ([`nwidart/laravel-modules`](https://github.com/nWidart/laravel-modules)). Setiap domain bisnis menjadi satu modul di `Modules/`.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```mermaid
+flowchart LR
+    D([Donatur]) -->|checkout| DON[Donation]
+    DON --> PAY[Payment]
+    PAY <-->|API v2 · webhook| MAYAR[(Mayar)]
+    PAY -->|paid| CAT[Catalog<br/>Campaign]
+    CAT --> TRA[Transparency]
+    CORE[Core<br/>Organization · Category] --> CAT
+    OPS[Operations<br/>Payout] -->|saldo| CAT
+    ADM{{Panel Admin}} -.-> CORE & CAT & PAY & OPS & TRA
+```
+
+| Modul | Tanggung jawab |
+| --- | --- |
+| `Core` | Organisasi, anggota organisasi, kategori |
+| `Catalog` | Kampanye dan media kampanye |
+| `Fundraising` | Fundraiser |
+| `Donation` | Donasi beserta export-nya |
+| `Payment` | Payment, channel, fee, webhook, log sinkronisasi Mayar |
+| `Operations` | Payout, bukti bayar, risk flag |
+| `Transparency` | Kabar kampanye dan lampiran bukti |
+
+**Status pembayaran yang andal.** Status Mayar dipetakan secara eksplisit, transisinya hanya bisa maju (status `paid` tidak bisa turun lagi), dan webhook selalu diverifikasi ulang ke API Mayar sebelum dipercaya. Payment yang masih `pending` disinkronkan otomatis oleh scheduler `payment:sync-pending` setiap 5 menit, dan juga bisa dipicu manual dari panel admin.
+
+<br>
+
+## ✦ Memulai
+
+**Prasyarat:** PHP 8.2+, Composer, Node.js 18+, dan MySQL/MariaDB (test memakai SQLite in-memory).
+
+```bash
+# 1. Dependensi
+composer install
+npm ci
+
+# 2. Environment (isi DB_* dan MAYAR_* di .env, jangan di-commit)
+cp .env.example .env
+php artisan key:generate
+
+# 3. Database & aset
+php artisan migrate --seed      # seeder hanya untuk local/testing
+npm run build                   # atau `npm run dev` saat development
+
+# 4. Jalankan
+php artisan serve               # http://127.0.0.1:8000
+php artisan queue:work          # bila QUEUE_CONNECTION=database
+php artisan schedule:work       # sinkronisasi payment pending
+```
+
+Panel admin tersedia di **`/admin/login`**. Akun admin hasil seed memakai `SALAMAID_ADMIN_EMAIL` dan `SALAMAID_ADMIN_PASSWORD` dari `.env`. Nilai default-nya hanya untuk lokal; jangan dipakai di server.
+
+### Testing
+
+```bash
+php artisan test                                    # seluruh suite
+php artisan test --filter=AdminSecurityHardeningTest
+php artisan test tests/Feature/Admin                # panel admin saja
+```
+
+Suite berjalan di SQLite in-memory, jadi tidak menyentuh database development. Saat ini: **216 test, 2.175 assertion, semua lulus.**
+
+<br>
+
+## ✦ Keamanan
+
+Hardening admin (fase A12) dikunci oleh test otomatis, sehingga regresi langsung terdeteksi di CI:
+
+- **Proteksi route menyeluruh.** Setiap route admin wajib memakai `web` + `auth` + `admin` + `admin.permission`. Route baru tanpa proteksi akan menggagalkan test.
+- **CSRF diuji sungguhan.** Bypass bawaan test dimatikan, lalu setiap route non-GET dipastikan menolak request tanpa token (419).
+- **Matriks permission.** Setiap role diuji terhadap setiap halaman, termasuk percobaan eskalasi hak akses dan IDOR.
+- **Output aman.** XSS ter-escape, link notifikasi menolak skema `javascript:`, dan export CSV dilindungi dari *formula injection*.
+- **Rahasia tidak bocor.** Hash password, signature, dan payload mentah dipastikan tidak muncul di halaman, export, maupun audit log.
+- **Bukti payout privat.** File disimpan di disk `private` tanpa URL publik, MIME dideteksi dari isi file, dan unduhan memerlukan permission `payouts.manage`.
+- **Performa.** Tidak ada N+1: jumlah query di setiap halaman daftar tetap konstan berapa pun jumlah barisnya.
+
+Detail lengkap ada di [`docs/admin-a12.md`](docs/admin-a12.md).
+
+<br>
+
+## ✦ Production
+
+| Kunci | Nilai yang disarankan |
+| --- | --- |
+| `APP_ENV` / `APP_DEBUG` | `production` / `false` |
+| `QUEUE_CONNECTION` | `database`, dengan worker yang dijaga supervisor |
+| `MAYAR_ENVIRONMENT` | `production`, beserta `MAYAR_API_KEY` dan `MAYAR_WEBHOOK_TOKEN` |
+| `PAYOUT_EVIDENCE_DISK` | `private` |
+| `PAYMENT_PENDING_SYNC_ENABLED` | `true` |
+| `ADMIN_NOTIFICATION_EMAIL_ENABLED` | `true` bila mailer sudah dikonfigurasi |
+
+```bash
+php artisan migrate --force
+php artisan config:cache && php artisan route:cache && php artisan view:cache
+# cron:  * * * * * php artisan schedule:run
+```
+
+Endpoint webhook untuk Mayar: `POST /api/v1/payment/webhooks/{provider}`.
+Checklist deployment dan rollback lengkap ada di [`docs/admin-a12.md`](docs/admin-a12.md).
+
+<br>
+
+## ✦ Dokumentasi
+
+| Dokumen | Isi |
+| --- | --- |
+| [`docs/tahapan-admin.md`](docs/tahapan-admin.md) | Roadmap dan status setiap fase (A0–A12) |
+| [`docs/pembagian-tugas-admin.md`](docs/pembagian-tugas-admin.md) | Pembagian kerja antar-agent |
+| [`docs/payment-mayar.md`](docs/payment-mayar.md) | Integrasi Mayar: inquiry, webhook, pemetaan status |
+| [`docs/admin-a7.md`](docs/admin-a7.md) | Sinkronisasi payment dan queue job |
+| [`docs/admin-a8.md`](docs/admin-a8.md) | Payout dan bukti pembayaran privat |
+| [`docs/admin-a9.md`](docs/admin-a9.md) | Moderasi transparansi |
+| [`docs/admin-a12.md`](docs/admin-a12.md) | Security, konfigurasi production, deployment, dan rollback |
+
+<br>
+
+<div align="center">
+  <img src="public/icon/salamaid-small.png" alt="" height="28"><br>
+  <sub>Dibangun dengan Laravel untuk penyaluran kebaikan yang amanah dan terbuka.</sub>
+</div>
