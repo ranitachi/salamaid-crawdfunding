@@ -4,8 +4,7 @@
     <meta property="og:type" content="article">
     <meta property="article:section" content="Campaign">
     <style>
-        .public-campaign-route .public-header,.public-campaign-route .public-footer,.public-campaign-route .public-bottom-nav{display:none}
-        .public-campaign-route .public-main{padding:0 0 92px}
+        .public-campaign-route .public-main{padding:16px 16px 112px}
     </style>
     <script type="application/ld+json">{!! json_encode(['@context' => 'https://schema.org', '@type' => 'WebPage', 'name' => $campaign->title, 'description' => str($campaign->description)->squish()->limit(160)->toString(), 'url' => route('public.campaigns.show', $campaign->slug)], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
 @endpush
