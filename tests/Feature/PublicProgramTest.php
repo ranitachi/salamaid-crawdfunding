@@ -20,9 +20,12 @@ class PublicProgramTest extends TestCase
         Campaign::create(['organization_id' => $organization->id, 'category_id' => $education->id, 'title' => 'Beasiswa Pendidikan', 'slug' => 'beasiswa-pendidikan', 'description' => 'Pendidikan', 'target_amount' => 1000000, 'deadline_at' => now()->addDays(20), 'status' => 'published', 'is_featured' => true, 'published_at' => now()]);
         Campaign::create(['organization_id' => $organization->id, 'category_id' => $humanity->id, 'title' => 'Paket Kemanusiaan', 'slug' => 'paket-kemanusiaan', 'description' => 'Kemanusiaan', 'target_amount' => 1000000, 'deadline_at' => now()->addDays(10), 'status' => 'published', 'is_featured' => true, 'published_at' => now()]);
 
-        $this->get(route('public.program', ['category' => 'pendidikan']))
+        $response = $this->get(route('public.program', ['category' => 'pendidikan']))
             ->assertOk()
             ->assertSee('Beasiswa Pendidikan')
             ->assertDontSee('Paket Kemanusiaan');
+
+        $response->assertSee('public-chip is-active', false);
+        $response->assertSee('>Pendidikan</a>', false);
     }
 }
