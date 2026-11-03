@@ -51,6 +51,8 @@ class StoreCampaignUpdateRequest extends FormRequest
         return [
             'campaign_id.exists' => 'Campaign tidak ditemukan.',
             'amount_used.required_if' => 'Nominal penggunaan dana wajib diisi untuk laporan penggunaan dana.',
+            'amount_used.prohibited_unless' => 'Nominal digunakan hanya boleh diisi untuk jenis laporan penggunaan dana.',
+            'payout_id.prohibited_unless' => 'Payout hanya boleh dipilih untuk jenis laporan penggunaan dana.',
         ];
     }
 }

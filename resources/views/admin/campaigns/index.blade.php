@@ -135,6 +135,9 @@
                         @can('update', $campaign)
                             <a href="{{ route('admin.campaigns.edit', $campaign) }}" class="admin-button admin-button--primary">Edit</a>
                         @endcan
+                        @can('viewAny', \Modules\Transparency\Entities\CampaignUpdate::class)
+                            <a href="{{ route('admin.transparency.index', ['campaign_id' => $campaign->id]) }}" class="admin-button admin-button--quiet">Transparansi</a>
+                        @endcan
                     </td>
                 </tr>
             @endforeach
