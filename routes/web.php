@@ -6,6 +6,7 @@ use App\Http\Controllers\PublicSite\PaymentStatusController;
 use App\Http\Controllers\PublicSite\PublicAccountController;
 use App\Http\Controllers\PublicSite\PublicAuthController;
 use App\Http\Controllers\PublicSite\PublicSeoController;
+use App\Http\Controllers\PublicSite\OrganizationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,3 +56,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/account/donations/{donation}/receipt/download', [PublicAccountController::class, 'downloadReceipt'])->name('public.receipt.download');
     Route::post('/account/donations/{donation}/regenerate-payment', [PublicAccountController::class, 'regeneratePayment'])->name('public.receipt.regenerate-payment');
 });
+
+Route::get('/{slug}', [OrganizationController::class, 'show'])
+    ->where('slug', '^(?!(?:admin|login|register|program|campaigns|payments|sitemap\\.xml|robots\\.txt|inbox|account)$)[a-z0-9]+(?:-[a-z0-9]+)*$')
+    ->name('public.organizations.show');
