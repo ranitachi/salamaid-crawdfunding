@@ -47,6 +47,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/inbox/{notification}/read', [PublicAccountController::class, 'markRead'])->name('public.inbox.read');
     Route::get('/account', [PublicAccountController::class, 'account'])->name('public.account');
     Route::put('/account/profile', [PublicAccountController::class, 'updateProfile'])->name('public.account.profile.update');
+    Route::get('/account/help', [PublicAccountController::class, 'help'])->name('public.account.help');
+    Route::get('/account/privacy', [PublicAccountController::class, 'privacy'])->name('public.account.privacy');
     Route::get('/account/donations', [PublicAccountController::class, 'donations'])->name('public.donations');
     Route::get('/account/donations/{donation}/receipt', [PublicAccountController::class, 'receipt'])->name('public.receipt');
     Route::post('/account/donations/{donation}/regenerate-payment', [PublicAccountController::class, 'regeneratePayment'])->name('public.receipt.regenerate-payment');

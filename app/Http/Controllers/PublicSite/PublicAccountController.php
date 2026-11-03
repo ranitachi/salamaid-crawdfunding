@@ -45,6 +45,16 @@ class PublicAccountController extends Controller
         return to_route('public.account')->with('status_message', 'Profil berhasil diperbarui.');
     }
 
+    public function help(): View
+    {
+        return view('public.help');
+    }
+
+    public function privacy(): View
+    {
+        return view('public.privacy');
+    }
+
     public function donations(Request $request): View
     {
         $donations = Donation::query()->where('user_id', $request->user()->getKey())->with(['campaign:id,title,slug', 'payment:id,donation_id,provider,order_id,status,paid_at'])->latest()->paginate(12)->withQueryString();

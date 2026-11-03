@@ -129,4 +129,12 @@ class PublicAccountTest extends TestCase
             'mobile' => '+628120000000',
         ])->assertSessionHasErrors('email');
     }
+
+    public function test_authenticated_user_can_open_help_and_privacy_pages(): void
+    {
+        $owner = User::factory()->create();
+
+        $this->actingAs($owner)->get(route('public.account.help'))->assertOk()->assertSee('Pusat bantuan');
+        $this->actingAs($owner)->get(route('public.account.privacy'))->assertOk()->assertSee('Keamanan dan privasi');
+    }
 }
