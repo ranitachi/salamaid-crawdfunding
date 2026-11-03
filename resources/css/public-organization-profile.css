@@ -1,0 +1,23 @@
+.public-organization-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    padding: 4px;
+    border-radius: 10px;
+    background: var(--public-line);
+}
+
+.public-organization-tabs a {
+    padding: 9px 6px;
+    border-radius: 7px;
+    color: var(--public-muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+}
+
+.public-organization-tabs a.is-active {
+    background: var(--public-primary);
+    color: #fff;
+}

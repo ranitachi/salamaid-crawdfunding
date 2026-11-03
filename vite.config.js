@@ -13,6 +13,7 @@ export default defineConfig({
                 'resources/css/public-responsive.css',
                 'resources/css/public-program-overrides.css',
                 'resources/css/public-campaign-media.css',
+                'resources/css/public-organization-profile.css',
                 'resources/css/public-detail.css',
                 'resources/css/public-checkout.css',
                 'resources/css/public-payment.css',
