@@ -6,7 +6,7 @@
     <header class="public-detail-section">
         <span class="public-eyebrow">Transparansi campaign</span>
         <h1>{{ $campaign->title }}</h1>
-        <p class="public-muted">{{ $campaign->organization?->name }} · Update dan laporan yang sudah dipublikasikan</p>
+        <p class="public-muted">@if($campaign->organization?->slug)<a class="public-organization-link" href="{{ route('public.organizations.show', $campaign->organization->slug) }}">{{ $campaign->organization->name }}</a>@else{{ $campaign->organization?->name }}@endif · Update dan laporan yang sudah dipublikasikan</p>
     </header>
     <section class="public-detail-grid">
         <div>
