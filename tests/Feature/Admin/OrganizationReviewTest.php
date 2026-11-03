@@ -224,7 +224,7 @@ class OrganizationReviewTest extends AdminReviewTestCase
             ->get(route('admin.organizations.index'))
             ->assertForbidden();
 
-        $this->get(route('admin.organizations.index'))->assertForbidden();
+        $this->get(route('admin.organizations.index'))->assertRedirect(route('admin.login'));
     }
 
     public function test_rejected_organization_can_be_restored_to_pending(): void

@@ -7,14 +7,15 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Review endpoints are internal operations and deliberately return 403 for
- * guests; the dashboard entrypoint keeps the normal redirect-to-login UX.
+ * Review endpoints use the same login UX as the rest of the admin area.
  */
 class RejectGuestAdminReview
 {
     public function handle(Request $request, Closure $next): Response
     {
-        abort_unless($request->user(), 403);
+        if (! $request->user()) {
+            return redirect()->guest(route('admin.login'));
+        }
 
         return $next($request);
     }
