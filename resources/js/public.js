@@ -23,3 +23,14 @@ document.querySelector('#public-amount-custom')?.addEventListener('input', (even
     if (amount && event.target.value) amount.value = event.target.value;
     document.querySelectorAll('input[name="amount_preset"]').forEach((input) => { input.checked = false; });
 });
+
+document.querySelectorAll('[data-toggle-password]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const input = button.parentElement.querySelector('input');
+        const icon = button.querySelector('.material-symbols-outlined');
+        const visible = input.type === 'text';
+        input.type = visible ? 'password' : 'text';
+        icon.textContent = visible ? 'visibility' : 'visibility_off';
+        button.setAttribute('aria-label', visible ? 'Tampilkan password' : 'Sembunyikan password');
+    });
+});

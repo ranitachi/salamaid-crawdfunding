@@ -64,8 +64,20 @@ class PublicAuthController extends Controller
 
     public function createAccount(Request $request): RedirectResponse
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'email' => ['required', 'email:rfc,filter', 'max:190', 'unique:users,email'], 'password' => ['required', 'string', 'min:8', 'confirmed']]);
-        $user = User::create(['name' => $data['name'], 'email' => $data['email'], 'password' => Hash::make($data['password']), 'role' => 'user', 'is_active' => true]);
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'email' => ['required', 'email:rfc,filter', 'max:190', 'unique:users,email'],
+            'mobile' => ['nullable', 'string', 'regex:/^\+?[0-9 ()-]{8,24}$/'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'mobile' => $data['mobile'] ?? null,
+            'password' => Hash::make($data['password']),
+            'role' => 'user',
+            'is_active' => true,
+        ]);
         event(new Registered($user));
         Auth::login($user);
         $request->session()->regenerate();
