@@ -112,6 +112,16 @@ class PublicAccountTest extends TestCase
         $this->actingAs($other)->get(route('public.receipt.download', $donation))->assertNotFound();
     }
 
+    public function test_failed_donation_has_no_receipt_download(): void
+    {
+        $owner = User::factory()->create();
+        $donation = Donation::create(['campaign_id' => $this->campaign()->id, 'user_id' => $owner->id, 'gross_amount' => 50000, 'net_amount' => 50000, 'method' => 'mayar', 'status' => 'failed']);
+
+        $this->actingAs($owner)->get(route('public.receipt', $donation))
+            ->assertOk()->assertDontSee('Unduh receipt PDF');
+        $this->actingAs($owner)->get(route('public.receipt.download', $donation))->assertNotFound();
+    }
+
     public function test_owner_can_regenerate_pending_mayar_payment_link(): void
     {
         $owner = User::factory()->create();

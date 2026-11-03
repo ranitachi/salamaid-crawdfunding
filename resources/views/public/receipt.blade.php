@@ -25,7 +25,9 @@
                 <button class="public-button public-button--outline" type="submit">Buat ulang link pembayaran</button>
             </form>
         @endif
-        <a class="public-button public-button--outline" href="{{ route('public.receipt.download', $donation) }}"><span class="material-symbols-outlined">download</span> Unduh receipt PDF</a>
+        @if ($donation->status === 'paid')
+            <a class="public-button public-button--outline" href="{{ route('public.receipt.download', $donation) }}"><span class="material-symbols-outlined">download</span> Unduh receipt PDF</a>
+        @endif
     </div>
 </section>
 @endsection

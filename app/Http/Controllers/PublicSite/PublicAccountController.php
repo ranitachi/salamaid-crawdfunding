@@ -76,6 +76,7 @@ class PublicAccountController extends Controller
     public function downloadReceipt(Request $request, Donation $donation, PublicReceiptPdfService $pdf)
     {
         abort_unless((string) $donation->user_id === (string) $request->user()->getKey(), 404);
+        abort_unless($donation->status === 'paid', 404);
         $donation->load(['campaign:id,title', 'user:id,name', 'payment:id,donation_id,order_id']);
         $document = $pdf->generate($donation);
 
