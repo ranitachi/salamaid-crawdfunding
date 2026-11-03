@@ -20,7 +20,7 @@
         <p>{{ $data['message'] ?? $data['description'] ?? 'Ada pembaruan untuk Anda.' }}</p>
         <time datetime="{{ $notification->created_at?->toIso8601String() }}">{{ $notification->created_at?->translatedFormat('d F Y, H:i') }}</time>
         @if(($data['kind'] ?? '') === 'payment_success')
-            <a class="public-button" href="{{ route('public.donations') }}"><span class="material-symbols-outlined">receipt_long</span> Lihat donasi saya</a>
+            <a class="public-button" href="{{ !empty($data['donation_id']) ? route('public.receipt', $data['donation_id']) : route('public.donations') }}"><span class="material-symbols-outlined">receipt_long</span> Lihat detail donasi</a>
         @elseif(($data['kind'] ?? '') === 'payment_expired')
             <a class="public-button" href="{{ !empty($data['donation_id']) ? route('public.receipt', $data['donation_id']) : route('public.program') }}"><span class="material-symbols-outlined">refresh</span> Ulangi donasi</a>
         @elseif(in_array($data['kind'] ?? '', ['distribution', 'impact'], true))

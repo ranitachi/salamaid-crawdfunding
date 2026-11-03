@@ -73,6 +73,16 @@ class PublicAccountTest extends TestCase
         $this->assertNull($notification->fresh()->read_at);
     }
 
+    public function test_success_notification_links_to_its_donation_receipt(): void
+    {
+        $owner = User::factory()->create();
+        $donation = Donation::create(['campaign_id' => $this->campaign()->id, 'user_id' => $owner->id, 'gross_amount' => 50000, 'net_amount' => 50000, 'method' => 'mayar', 'status' => 'paid', 'paid_at' => now()]);
+        $notification = DatabaseNotification::create(['id' => (string) Str::uuid(), 'type' => 'test', 'notifiable_type' => User::class, 'notifiable_id' => $owner->id, 'data' => ['title' => 'Pembayaran berhasil', 'message' => 'Berhasil', 'kind' => 'payment_success', 'donation_id' => $donation->id], 'read_at' => null]);
+
+        $this->actingAs($owner)->get(route('public.inbox.show', $notification->id))
+            ->assertOk()->assertSee(route('public.receipt', $donation), false)->assertSee('Lihat detail donasi');
+    }
+
     public function test_receipt_is_not_accessible_to_another_user(): void
     {
         $owner = User::factory()->create();
