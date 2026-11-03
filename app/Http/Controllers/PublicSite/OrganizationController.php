@@ -9,6 +9,18 @@ use Modules\Donation\Entities\Donation;
 
 class OrganizationController
 {
+    public function index(): View
+    {
+        $organizations = Organization::query()
+            ->where('status', 'verified')
+            ->whereHas('campaigns', fn ($query) => $query->published())
+            ->withCount(['campaigns as published_campaign_count' => fn ($query) => $query->published()])
+            ->orderBy('name')
+            ->get();
+
+        return view('public.organizations.index', compact('organizations'));
+    }
+
     public function show(string $slug): View
     {
         $organization = Organization::query()

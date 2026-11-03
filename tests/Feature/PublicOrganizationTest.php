@@ -27,4 +27,16 @@ class PublicOrganizationTest extends TestCase
 
         $this->get(route('public.organizations.show', $organization->slug))->assertNotFound();
     }
+
+    public function test_public_organization_index_lists_verified_organizations(): void
+    {
+        $organization = Organization::create(['slug' => 'lembaga-index', 'name' => 'Lembaga Index', 'status' => 'verified', 'verified_at' => now()]);
+        Campaign::create(['organization_id' => $organization->id, 'title' => 'Campaign Index', 'slug' => 'campaign-index', 'description' => 'Cerita', 'target_amount' => 1000000, 'status' => 'published', 'published_at' => now()]);
+
+        $this->get(route('public.organizations.index'))
+            ->assertOk()
+            ->assertSee('Lembaga Index')
+            ->assertSee(route('public.organizations.show', $organization->slug), false)
+            ->assertSee('1 program publik');
+    }
 }

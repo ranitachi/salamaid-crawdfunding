@@ -110,7 +110,7 @@ class CampaignQuery
         return Campaign::query()
             ->published()
             ->whereHas('organization', fn (Builder $organization) => $organization->where('status', 'verified'))
-            ->with(['organization:id,name,status', 'category:id,name,slug,icon'])
+            ->with(['organization:id,name,slug,status,logo_url', 'category:id,name,slug,icon'])
             ->withSum(['donations as paid_amount' => fn (Builder $donation) => $donation->where('status', 'paid')], 'net_amount')
             ->withCount(['donations as paid_donation_count' => fn (Builder $donation) => $donation->where('status', 'paid')]);
     }

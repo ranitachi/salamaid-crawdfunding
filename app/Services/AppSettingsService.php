@@ -13,6 +13,7 @@ class AppSettingsService
     public const PUBLIC_NAVIGATION_DEFAULTS = [
         ['label' => 'Beranda', 'icon' => 'home', 'route' => 'public.home'],
         ['label' => 'Program', 'icon' => 'grid_view', 'route' => 'public.program'],
+        ['label' => 'Lembaga', 'icon' => 'domain', 'route' => 'public.organizations.index'],
         ['label' => 'Donasi', 'icon' => 'favorite', 'route' => 'public.donations'],
         ['label' => 'Inbox', 'icon' => 'mail', 'route' => 'public.inbox'],
         ['label' => 'Akun', 'icon' => 'account_circle', 'route' => 'public.account'],

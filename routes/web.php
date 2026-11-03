@@ -22,6 +22,7 @@ use App\Http\Controllers\PublicSite\OrganizationController;
 Route::get('/', [CampaignController::class, 'home'])->name('public.home');
 
 Route::get('/program', [CampaignController::class, 'program'])->name('public.program');
+Route::get('/lembaga', [OrganizationController::class, 'index'])->name('public.organizations.index');
 Route::get('/campaigns/{slug}', [CampaignController::class, 'show'])->name('public.campaigns.show');
 Route::get('/campaigns/{slug}/transparency', [CampaignController::class, 'transparency'])->name('public.campaigns.transparency');
 Route::get('/campaigns/{slug}/donate', [CampaignController::class, 'donate'])->name('public.campaigns.donate');
