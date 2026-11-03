@@ -93,6 +93,25 @@ class PublicAccountTest extends TestCase
         $this->actingAs($owner)->get(route('public.receipt', $donation))->assertOk()->assertSee('Receipt Salamaid');
     }
 
+    public function test_owner_can_download_receipt_as_pdf(): void
+    {
+        $owner = User::factory()->create();
+        $donation = Donation::create(['campaign_id' => $this->campaign()->id, 'user_id' => $owner->id, 'gross_amount' => 50000, 'net_amount' => 50000, 'method' => 'mayar', 'status' => 'paid', 'paid_at' => now()]);
+        $response = $this->actingAs($owner)->get(route('public.receipt.download', $donation));
+
+        $response->assertOk()->assertHeader('Content-Type', 'application/pdf')->assertHeader('Content-Disposition');
+        $this->assertStringStartsWith('%PDF', $response->getContent());
+    }
+
+    public function test_another_user_cannot_download_receipt_pdf(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+        $donation = Donation::create(['campaign_id' => $this->campaign()->id, 'user_id' => $owner->id, 'gross_amount' => 50000, 'net_amount' => 50000, 'method' => 'mayar', 'status' => 'paid', 'paid_at' => now()]);
+
+        $this->actingAs($other)->get(route('public.receipt.download', $donation))->assertNotFound();
+    }
+
     public function test_owner_can_regenerate_pending_mayar_payment_link(): void
     {
         $owner = User::factory()->create();

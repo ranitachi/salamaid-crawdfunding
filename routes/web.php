@@ -52,5 +52,6 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/account/privacy', [PublicAccountController::class, 'privacy'])->name('public.account.privacy');
     Route::get('/account/donations', [PublicAccountController::class, 'donations'])->name('public.donations');
     Route::get('/account/donations/{donation}/receipt', [PublicAccountController::class, 'receipt'])->name('public.receipt');
+    Route::get('/account/donations/{donation}/receipt/download', [PublicAccountController::class, 'downloadReceipt'])->name('public.receipt.download');
     Route::post('/account/donations/{donation}/regenerate-payment', [PublicAccountController::class, 'regeneratePayment'])->name('public.receipt.regenerate-payment');
 });

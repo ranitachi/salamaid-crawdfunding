@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Modules\Donation\Entities\Donation;
 use Modules\Payment\App\Exceptions\MayarRequestException;
+use App\Services\PublicReceiptPdfService;
 
 class PublicAccountController extends Controller
 {
@@ -70,6 +71,19 @@ class PublicAccountController extends Controller
         abort_unless((string) $donation->user_id === (string) $request->user()->getKey(), 404);
         $donation->load(['campaign:id,title,slug', 'payment']);
         return view('public.receipt', compact('donation'));
+    }
+
+    public function downloadReceipt(Request $request, Donation $donation, PublicReceiptPdfService $pdf)
+    {
+        abort_unless((string) $donation->user_id === (string) $request->user()->getKey(), 404);
+        $donation->load(['campaign:id,title', 'user:id,name', 'payment:id,donation_id,order_id']);
+        $document = $pdf->generate($donation);
+
+        return response($document['contents'], 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$document['filename'].'"',
+            'Content-Length' => (string) strlen($document['contents']),
+        ]);
     }
 
     public function regeneratePayment(Request $request, Donation $donation, \App\Services\PublicDonationCheckoutService $checkout): RedirectResponse

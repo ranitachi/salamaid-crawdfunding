@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'pdf' => [
+        'wkhtmltopdf_binary' => env('WKHTMLTOPDF_BINARY', 'wkhtmltopdf'),
+    ],
+
 ];
