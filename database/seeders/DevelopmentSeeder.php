@@ -55,6 +55,21 @@ class DevelopmentSeeder extends Seeder
                 'created_at' => now(),
             ],
         );
+        foreach ([
+            'contact_email' => 'salamaid.official@gmail.com',
+            'contact_phone' => '0811-1439-193',
+            'contact_address' => 'Jl. Pangeran Sogiri No.160, RT.03/RW.03, Tanah Baru, Kec. Bogor Utara, Kota Bogor, Jawa Barat 16154',
+            'contact_city' => 'Bogor',
+            'contact_country' => 'Indonesia',
+            'about_title' => 'Tentang SalamAid',
+            'about_content' => 'SalamAid adalah platform dan gerakan kebaikan yang menghubungkan kepedulian masyarakat dengan aksi kemanusiaan yang transparan. SalamAid dikelola oleh Yayasan Salam Aid Nusantara dengan semangat Bersama Membangun Kebaikan.',
+            'contact_description' => 'Hubungi tim SalamAid untuk pertanyaan, kolaborasi kebaikan, atau bantuan terkait donasi.',
+        ] as $key => $value) {
+            DB::table('app_settings')->updateOrInsert(
+                ['key' => $key],
+                ['value' => $value, 'group' => 'branding', 'type' => 'string', 'updated_at' => now(), 'created_at' => now()],
+            );
+        }
         $admin = User::updateOrCreate(
             ['email' => env('SALAMAID_ADMIN_EMAIL', 'admin@salamaid.test')],
             [
