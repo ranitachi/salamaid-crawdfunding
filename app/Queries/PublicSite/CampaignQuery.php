@@ -13,19 +13,22 @@ use Modules\Core\Entities\Category;
 
 class CampaignQuery
 {
-    public function featured(int $limit = 3): Collection
+    public function featured(int $limit = 3, ?string $category = null): Collection
     {
         if (! $this->tablesAvailable()) return collect();
 
-        return $this->base()->where('is_featured', true)->latest('featured_at')->limit($limit)->get();
+        return $this->base()->where('is_featured', true)
+            ->when($category, fn (Builder $query) => $query->whereHas('category', fn (Builder $categoryQuery) => $categoryQuery->where('slug', $category)))
+            ->latest('featured_at')->limit($limit)->get();
     }
 
-    public function urgent(int $limit = 3): Collection
+    public function urgent(int $limit = 3, ?string $category = null): Collection
     {
         if (! $this->tablesAvailable()) return collect();
 
         return $this->base()
             ->whereNotNull('deadline_at')
+            ->when($category, fn (Builder $query) => $query->whereHas('category', fn (Builder $categoryQuery) => $categoryQuery->where('slug', $category)))
             ->orderBy('deadline_at')
             ->limit($limit)
             ->get();

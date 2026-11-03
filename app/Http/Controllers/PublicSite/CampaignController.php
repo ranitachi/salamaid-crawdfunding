@@ -27,11 +27,13 @@ class CampaignController
 
     public function program(Request $request): View
     {
+        $category = $request->string('category')->toString() ?: null;
+
         return view('public.program', [
             'campaigns' => $this->campaigns->paginate($request),
             'categories' => $this->campaigns->categories(),
-            'featured' => $this->campaigns->featured(),
-            'urgent' => $this->campaigns->urgent(),
+            'featured' => $this->campaigns->featured(category: $category),
+            'urgent' => $this->campaigns->urgent(category: $category),
         ]);
     }
 
