@@ -104,4 +104,29 @@ class PublicAccountTest extends TestCase
 
         $this->assertDatabaseHas('payments', ['donation_id' => $donation->id, 'order_id' => 'recovered-payment']);
     }
+
+    public function test_user_can_update_personal_profile_data(): void
+    {
+        $owner = User::factory()->create(['name' => 'Old Name', 'email' => 'old@example.test']);
+
+        $this->actingAs($owner)->put(route('public.account.profile.update'), [
+            'name' => 'Updated Name',
+            'email' => 'updated@example.test',
+            'mobile' => '+628120000000',
+        ])->assertRedirect(route('public.account'))->assertSessionHas('status_message');
+
+        $this->assertDatabaseHas('users', ['id' => $owner->id, 'name' => 'Updated Name', 'email' => 'updated@example.test', 'mobile' => '+628120000000']);
+    }
+
+    public function test_user_cannot_update_profile_with_duplicate_email(): void
+    {
+        $owner = User::factory()->create(['email' => 'owner@example.test']);
+        User::factory()->create(['email' => 'taken@example.test']);
+
+        $this->actingAs($owner)->put(route('public.account.profile.update'), [
+            'name' => $owner->name,
+            'email' => 'taken@example.test',
+            'mobile' => '+628120000000',
+        ])->assertSessionHasErrors('email');
+    }
 }

@@ -47,6 +47,7 @@ class DevelopmentSeeder extends Seeder
             ['email' => 'donor@salamaid.test'],
             [
                 'name' => 'Demo Donor',
+                'mobile' => '+628120000000',
                 'password' => 'change-me-local',
                 'role' => 'user',
                 'is_active' => true,

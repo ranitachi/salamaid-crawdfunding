@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Queries\PublicSite\CampaignQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Modules\Donation\Entities\Donation;
 use Modules\Payment\App\Exceptions\MayarRequestException;
@@ -18,7 +19,30 @@ class PublicAccountController extends Controller
 
     public function account(Request $request): View
     {
-        return view('public.account', ['user' => $request->user(), 'unreadCount' => $request->user()->unreadNotifications()->count()]);
+        $user = $request->user();
+        $donations = Donation::query()->where('user_id', $user->getKey());
+
+        return view('public.account', [
+            'user' => $user,
+            'unreadCount' => $user->unreadNotifications()->count(),
+            'donationCount' => (clone $donations)->count(),
+            'paidDonationAmount' => (int) (clone $donations)->where('status', 'paid')->sum('net_amount'),
+            'pendingDonationCount' => (clone $donations)->whereIn('status', ['pending', 'expired'])->count(),
+        ]);
+    }
+
+    public function updateProfile(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'email' => ['required', 'email:rfc,filter', 'max:190', Rule::unique('users', 'email')->ignore($user->getKey())],
+            'mobile' => ['nullable', 'string', 'regex:/^\+?[0-9 ()-]{8,24}$/'],
+        ]);
+
+        $user->forceFill($data)->save();
+
+        return to_route('public.account')->with('status_message', 'Profil berhasil diperbarui.');
     }
 
     public function donations(Request $request): View
