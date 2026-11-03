@@ -48,4 +48,5 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/account', [PublicAccountController::class, 'account'])->name('public.account');
     Route::get('/account/donations', [PublicAccountController::class, 'donations'])->name('public.donations');
     Route::get('/account/donations/{donation}/receipt', [PublicAccountController::class, 'receipt'])->name('public.receipt');
+    Route::post('/account/donations/{donation}/regenerate-payment', [PublicAccountController::class, 'regeneratePayment'])->name('public.receipt.regenerate-payment');
 });

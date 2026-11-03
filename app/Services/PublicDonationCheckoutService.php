@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
+use RuntimeException;
 use Modules\Catalog\Entities\Campaign;
 use Modules\Donation\Entities\Donation;
 use Modules\Payment\App\Services\CreateMayarPaymentAction;
@@ -48,6 +49,31 @@ class PublicDonationCheckoutService
             ->whereHas('organization', fn ($query) => $query->where('status', 'verified'))
             ->with('organization:id,name,status')
             ->first();
+    }
+
+    public function regenerate(Donation $donation, ?string $mobile = null): Payment
+    {
+        $donation->loadMissing(['campaign', 'payment', 'user']);
+        $payment = $donation->payment;
+
+        if (! in_array((string) $donation->status, ['pending', 'expired'], true)
+            || ($payment && $payment->provider !== 'mayar')
+            || $payment?->status === 'paid') {
+            throw new RuntimeException('Donasi ini tidak memerlukan link pembayaran baru.');
+        }
+
+        $request = is_array($payment?->raw_request_json) ? $payment->raw_request_json : [];
+        $name = trim((string) ($request['name'] ?? $donation->user?->name));
+        $email = trim((string) ($request['email'] ?? $donation->user?->email));
+        $mobile = trim((string) ($mobile ?: ($request['mobile'] ?? '')));
+
+        if ($name === '' || $email === '' || $mobile === '') {
+            throw new RuntimeException('Data kontak donasi tidak lengkap untuk membuat link baru.');
+        }
+
+        $statusUrl = URL::temporarySignedRoute('public.payments.status', now()->addDay(), ['donation' => $donation->getKey()]);
+
+        return $this->createPayment->execute($donation, $name, $email, $mobile, $statusUrl);
     }
 
     public function channels()
