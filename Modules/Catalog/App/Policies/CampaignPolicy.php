@@ -31,6 +31,20 @@ class CampaignPolicy
         return $user->hasAdminPermission('campaigns.manage');
     }
 
+    public function update(User $user, Campaign $campaign): bool
+    {
+        if (! $user->hasAdminPermission('campaigns.manage') || ! $this->belongsToActorOrganization($user, $campaign)) {
+            return false;
+        }
+
+        return in_array($campaign->status, ['draft', 'under_review', 'published', 'rejected'], true);
+    }
+
+    public function edit(User $user, Campaign $campaign): bool
+    {
+        return $this->update($user, $campaign);
+    }
+
     private function belongsToActorOrganization(User $user, Campaign $campaign): bool
     {
         return ! $user->isOrganizationAdmin() || in_array((string) $campaign->organization_id, $user->managedOrganizationIds(), true);

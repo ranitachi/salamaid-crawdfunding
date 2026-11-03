@@ -2,11 +2,13 @@
 
 namespace Modules\Catalog\App\Http\Controllers\Admin;
 
+use App\Contracts\AdminAuditLogger;
 use App\Exceptions\AdminActionException;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Modules\Catalog\App\Enums\CampaignStatus;
 use Modules\Catalog\App\Http\Requests\CampaignIndexRequest;
@@ -85,7 +87,60 @@ class CampaignModerationController extends Controller
             'canDelete' => Gate::forUser($user)->allows('delete', $campaign) && ! $campaign->isPublished(),
             'canForceDelete' => Gate::forUser($user)->allows('forceDelete', $campaign)
                 && $campaign->canBePermanentlyDeleted(),
+            'canEdit' => Gate::forUser($user)->allows('update', $campaign),
         ]);
+    }
+
+    public function edit(Campaign $campaign, Request $request): View
+    {
+        $this->authorize('update', $campaign);
+
+        return view('admin.campaigns.edit', [
+            'campaign' => $campaign,
+            'categories' => Category::query()->active()->orderBy('name')->get(['id', 'name']),
+            'organizations' => Organization::query()
+                ->whereIn('id', $request->user()->managedOrganizationIds())
+                ->orderBy('name')->get(['id', 'name']),
+        ]);
+    }
+
+    public function update(Request $request, Campaign $campaign, AdminAuditLogger $audit): RedirectResponse
+    {
+        $this->authorize('update', $campaign);
+
+        $data = $request->validate([
+            'organization_id' => ['required', 'uuid', 'exists:organizations,id'],
+            'category_id' => ['nullable', 'uuid', 'exists:categories,id'],
+            'title' => ['required', 'string', 'max:190'],
+            'slug' => ['required', 'string', 'max:190', 'alpha_dash', Rule::unique('campaigns', 'slug')->ignore($campaign->id)],
+            'description' => ['required', 'string', 'max:10000'],
+            'target_amount' => ['required', 'integer', 'min:1'],
+            'deadline_at' => ['nullable', 'date'],
+            'location_label' => ['nullable', 'string', 'max:190'],
+            'cover_url' => ['nullable', 'url', 'max:1000'],
+        ]);
+
+        abort_unless(in_array((string) $data['organization_id'], $request->user()->managedOrganizationIds(), true), 403);
+
+        $before = $campaign->only(['organization_id', 'category_id', 'title', 'slug', 'description', 'target_amount', 'deadline_at', 'location_label', 'cover_url', 'status', 'published_at', 'rejection_reason']);
+        if ($campaign->status === 'published') {
+            $data['status'] = 'under_review';
+            $data['published_at'] = null;
+            $data['rejection_reason'] = null;
+        } elseif ($campaign->status === 'rejected') {
+            $data['status'] = 'draft';
+            $data['rejection_reason'] = null;
+        }
+
+        $campaign->fill($data);
+        $campaign->save();
+        $audit->log('campaign.updated', $campaign, $before, $campaign->only(array_keys($before)), null, $request->user());
+
+        $message = $before['status'] === 'published'
+            ? 'Campaign diperbarui dan dikembalikan ke antrean review.'
+            : 'Campaign berhasil diperbarui.';
+
+        return redirect()->route('admin.campaigns.show', $campaign)->with('success', $message);
     }
 
     public function submit(Request $request, Campaign $campaign): RedirectResponse

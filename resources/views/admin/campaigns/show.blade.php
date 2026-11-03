@@ -11,6 +11,9 @@
     <x-admin.page-header :title="$campaign->title" :description="$campaign->slug">
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
             <x-admin-review.status-badge :status="$campaign->status" />
+            @if ($canEdit)
+                <a href="{{ route('admin.campaigns.edit', $campaign) }}" class="admin-button admin-button--quiet">Edit Campaign</a>
+            @endif
             @if ($campaign->is_featured)
                 <x-admin.status-badge status="featured" label="Featured" />
             @endif

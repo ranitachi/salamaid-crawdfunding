@@ -10,6 +10,62 @@ use Modules\Core\Entities\OrganizationMember;
 
 class CampaignModerationTest extends AdminReviewTestCase
 {
+    public function test_organization_admin_can_edit_own_draft_campaign(): void
+    {
+        $admin = $this->user('organization_admin');
+        $organization = $this->organization('verified');
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $admin->id, 'role' => 'owner']);
+        $campaign = $this->campaign($organization, 'draft');
+
+        $this->actingAs($admin)->get(route('admin.campaigns.edit', $campaign))->assertOk();
+        $this->actingAs($admin)->put(route('admin.campaigns.update', $campaign), [
+            'organization_id' => $organization->id,
+            'category_id' => null,
+            'title' => 'Campaign Diperbarui',
+            'slug' => 'campaign-diperbarui',
+            'description' => 'Deskripsi campaign yang sudah diperbarui.',
+            'target_amount' => 2000000,
+        ])->assertRedirect(route('admin.campaigns.show', $campaign));
+
+        $this->assertDatabaseHas('campaigns', ['id' => $campaign->id, 'title' => 'Campaign Diperbarui', 'status' => 'draft']);
+    }
+
+    public function test_editing_published_campaign_returns_it_to_review(): void
+    {
+        $admin = $this->user('organization_admin');
+        $organization = $this->organization('verified');
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $admin->id, 'role' => 'owner']);
+        $campaign = $this->campaign($organization, 'published', ['published_at' => now()]);
+
+        $this->actingAs($admin)->put(route('admin.campaigns.update', $campaign), [
+            'organization_id' => $organization->id,
+            'title' => $campaign->title,
+            'slug' => $campaign->slug,
+            'description' => 'Perubahan campaign published.',
+            'target_amount' => $campaign->target_amount,
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('campaigns', ['id' => $campaign->id, 'status' => 'under_review', 'published_at' => null]);
+    }
+
+    public function test_organization_admin_cannot_edit_another_organizations_campaign(): void
+    {
+        $admin = $this->user('organization_admin');
+        $owned = $this->organization('verified');
+        $other = $this->organization('verified');
+        OrganizationMember::create(['organization_id' => $owned->id, 'user_id' => $admin->id, 'role' => 'owner']);
+        $campaign = $this->campaign($other, 'draft');
+
+        $this->actingAs($admin)->get(route('admin.campaigns.edit', $campaign))->assertForbidden();
+        $this->actingAs($admin)->put(route('admin.campaigns.update', $campaign), [
+            'organization_id' => $other->id,
+            'title' => 'Tidak boleh',
+            'slug' => $campaign->slug,
+            'description' => 'Tidak boleh.',
+            'target_amount' => 1000000,
+        ])->assertForbidden();
+    }
+
     public function test_organization_admin_is_scoped_to_own_campaigns_and_cannot_see_mayar(): void
     {
         $organizationAdmin = $this->user('organization_admin');
