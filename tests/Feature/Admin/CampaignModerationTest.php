@@ -4,12 +4,71 @@ namespace Tests\Feature\Admin;
 
 use App\Contracts\AdminAuditLogger;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use Mockery;
 use Modules\Catalog\App\Queries\CampaignModerationQuery;
 use Modules\Core\Entities\OrganizationMember;
 
 class CampaignModerationTest extends AdminReviewTestCase
 {
+    public function test_organization_admin_can_upload_an_optimized_cover_on_create(): void
+    {
+        Storage::fake('public');
+        $admin = $this->user('organization_admin');
+        $organization = $this->organization('verified');
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $admin->id, 'role' => 'owner']);
+
+        $this->actingAs($admin)->post(route('admin.campaigns.store'), [
+            'organization_id' => $organization->id,
+            'title' => 'Campaign dengan Cover',
+            'slug' => 'campaign-dengan-cover',
+            'description' => 'Deskripsi campaign dengan gambar cover.',
+            'target_amount' => 1000000,
+            'cover' => UploadedFile::fake()->image('cover.png', 2400, 1600),
+        ])->assertRedirect();
+
+        $campaign = \Modules\Catalog\Entities\Campaign::query()->where('slug', 'campaign-dengan-cover')->firstOrFail();
+        $this->assertStringStartsWith('/storage/campaigns/', $campaign->cover_url);
+        Storage::disk('public')->assertExists(str_replace('/storage/', '', parse_url($campaign->cover_url, PHP_URL_PATH)));
+        $this->assertSame('image/jpeg', mime_content_type(Storage::disk('public')->path(str_replace('/storage/', '', parse_url($campaign->cover_url, PHP_URL_PATH)))));
+    }
+
+    public function test_cover_upload_replaces_only_previous_owned_cover_and_invalid_types_are_rejected(): void
+    {
+        Storage::fake('public');
+        $admin = $this->user('organization_admin');
+        $organization = $this->organization('verified');
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $admin->id, 'role' => 'owner']);
+        $campaign = $this->campaign($organization, 'draft', ['cover_url' => '/storage/campaigns/old.jpg']);
+        Storage::disk('public')->put('campaigns/old.jpg', 'old-cover');
+
+        $this->actingAs($admin)->put(route('admin.campaigns.update', $campaign), [
+            'organization_id' => $organization->id,
+            'title' => $campaign->title,
+            'slug' => $campaign->slug,
+            'description' => $campaign->description,
+            'target_amount' => $campaign->target_amount,
+            'cover' => UploadedFile::fake()->image('new.webp', 1800, 1000),
+        ])->assertRedirect();
+
+        $campaign->refresh();
+        $newPath = str_replace('/storage/', '', parse_url($campaign->cover_url, PHP_URL_PATH));
+        Storage::disk('public')->assertMissing('campaigns/old.jpg');
+        Storage::disk('public')->assertExists($newPath);
+
+        $response = $this->actingAs($admin)->put(route('admin.campaigns.update', $campaign), [
+            'organization_id' => $organization->id,
+            'title' => $campaign->title,
+            'slug' => $campaign->slug,
+            'description' => $campaign->description,
+            'target_amount' => $campaign->target_amount,
+            'cover' => UploadedFile::fake()->create('cover.pdf', 100, 'application/pdf'),
+        ]);
+
+        $response->assertSessionHasErrors('cover');
+    }
+
     public function test_organization_admin_can_edit_own_draft_campaign(): void
     {
         $admin = $this->user('organization_admin');

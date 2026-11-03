@@ -5,7 +5,7 @@
 <x-admin.page-header title="Buat Campaign" description="Campaign akan disimpan sebagai draft dan menunggu proses review.">
     <a class="admin-button admin-button--quiet" href="{{ route('admin.campaigns.index') }}">Kembali</a>
 </x-admin.page-header>
-<form class="admin-panel" method="POST" action="{{ route('admin.campaigns.store') }}">
+<form class="admin-panel" method="POST" action="{{ route('admin.campaigns.store') }}" enctype="multipart/form-data">
     @csrf
     <div class="admin-panel__body" style="display:grid;gap:16px">
         <div class="admin-field"><label for="organization_id">Lembaga</label><select id="organization_id" name="organization_id" required><option value="">Pilih lembaga</option>@foreach($organizations as $organization)<option value="{{ $organization->id }}" @selected(old('organization_id') === $organization->id)>{{ $organization->name }}</option>@endforeach</select>@error('organization_id')<small class="admin-field__hint" style="color:var(--admin-coral)">{{ $message }}</small>@enderror</div>
@@ -14,7 +14,7 @@
         <div class="admin-field"><label for="slug">Slug URL</label><input id="slug" name="slug" value="{{ old('slug') }}" placeholder="contoh-campaign" required>@error('slug')<small class="admin-field__hint" style="color:var(--admin-coral)">{{ $message }}</small>@enderror</div>
         <div class="admin-field"><label for="description">Deskripsi</label><textarea id="description" name="description" rows="7" required>{{ old('description') }}</textarea>@error('description')<small class="admin-field__hint" style="color:var(--admin-coral)">{{ $message }}</small>@enderror</div>
         <div class="admin-settings-grid"><div class="admin-field"><label for="target_amount">Target dana</label><input id="target_amount" name="target_amount" type="number" min="1" value="{{ old('target_amount') }}" required></div><div class="admin-field"><label for="deadline_at">Batas waktu</label><input id="deadline_at" name="deadline_at" type="datetime-local" value="{{ old('deadline_at') }}"></div></div>
-        <div class="admin-settings-grid"><div class="admin-field"><label for="location_label">Lokasi</label><input id="location_label" name="location_label" value="{{ old('location_label') }}"></div><div class="admin-field"><label for="cover_url">URL gambar cover</label><input id="cover_url" name="cover_url" type="url" value="{{ old('cover_url') }}"></div></div>
+        <div class="admin-settings-grid"><div class="admin-field"><label for="location_label">Lokasi</label><input id="location_label" name="location_label" value="{{ old('location_label') }}"></div><div class="admin-field"><label for="cover">Gambar cover</label><input id="cover" name="cover" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"> <small class="admin-field__hint">JPG, PNG, atau WebP. Maksimal 4 MB; gambar akan diperkecil dan dikompres otomatis.</small>@error('cover')<small class="admin-field__hint" style="color:var(--admin-coral)">{{ $message }}</small>@enderror</div></div>
     </div>
     <div class="admin-panel__footer" style="display:flex;gap:8px"><button class="admin-button admin-button--primary" type="submit">Simpan sebagai Draft</button><a class="admin-button admin-button--quiet" href="{{ route('admin.campaigns.index') }}">Batal</a></div>
 </form>

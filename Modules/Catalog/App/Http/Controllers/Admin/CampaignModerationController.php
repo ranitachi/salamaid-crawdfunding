@@ -5,6 +5,7 @@ namespace Modules\Catalog\App\Http\Controllers\Admin;
 use App\Contracts\AdminAuditLogger;
 use App\Exceptions\AdminActionException;
 use App\Http\Controllers\Controller;
+use App\Services\ImageUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -25,6 +26,7 @@ class CampaignModerationController extends Controller
     public function __construct(
         private CampaignModerationQuery $query,
         private CampaignModerationService $service,
+        private ImageUploadService $images,
     ) {
     }
 
@@ -64,9 +66,13 @@ class CampaignModerationController extends Controller
             'target_amount' => ['required', 'integer', 'min:1'],
             'deadline_at' => ['nullable', 'date'],
             'location_label' => ['nullable', 'string', 'max:190'],
-            'cover_url' => ['nullable', 'url', 'max:1000'],
+            'cover' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
         abort_unless(in_array((string) $data['organization_id'], $request->user()->managedOrganizationIds(), true), 403);
+        if ($request->hasFile('cover')) {
+            $data['cover_url'] = $this->images->storeCampaignCover($request->file('cover'));
+        }
+        unset($data['cover']);
         $data['status'] = 'draft';
         $campaign = Campaign::create($data);
 
@@ -117,10 +123,15 @@ class CampaignModerationController extends Controller
             'target_amount' => ['required', 'integer', 'min:1'],
             'deadline_at' => ['nullable', 'date'],
             'location_label' => ['nullable', 'string', 'max:190'],
-            'cover_url' => ['nullable', 'url', 'max:1000'],
+            'cover' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
 
         abort_unless(in_array((string) $data['organization_id'], $request->user()->managedOrganizationIds(), true), 403);
+
+        if ($request->hasFile('cover')) {
+            $data['cover_url'] = $this->images->storeCampaignCover($request->file('cover'), $campaign->cover_url);
+        }
+        unset($data['cover']);
 
         $before = $campaign->only(['organization_id', 'category_id', 'title', 'slug', 'description', 'target_amount', 'deadline_at', 'location_label', 'cover_url', 'status', 'published_at', 'rejection_reason']);
         if ($campaign->status === 'published') {
