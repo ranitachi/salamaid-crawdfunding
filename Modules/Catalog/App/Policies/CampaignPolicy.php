@@ -18,12 +18,22 @@ class CampaignPolicy
 
     public function view(User $user, Campaign $campaign): bool
     {
-        return $this->viewAny($user);
+        return $this->viewAny($user) && $this->belongsToActorOrganization($user, $campaign);
     }
 
     public function moderate(User $user, Campaign $campaign): bool
     {
         return AdminPermissions::allowed($user, 'campaigns.review');
+    }
+
+    public function create(User $user): bool
+    {
+        return $user->hasAdminPermission('campaigns.manage');
+    }
+
+    private function belongsToActorOrganization(User $user, Campaign $campaign): bool
+    {
+        return ! $user->isOrganizationAdmin() || in_array((string) $campaign->organization_id, $user->managedOrganizationIds(), true);
     }
 
     /** Compatibility ability used by the admin policy contract. */

@@ -14,6 +14,7 @@ return [
         'reviewer' => 'Reviewer',
         'finance' => 'Finance',
         'support' => 'Support',
+        'organization_admin' => 'Admin Lembaga',
     ],
 
     /*
@@ -39,6 +40,9 @@ return [
         'support' => [
             'dashboard.view', 'organizations.view', 'campaigns.view', 'notifications.view',
             'donations.view', 'payments.view', 'payouts.view', 'reports.view', 'audit.view',
+        ],
+        'organization_admin' => [
+            'dashboard.view', 'campaigns.view', 'campaigns.manage', 'notifications.view', 'reports.view',
         ],
     ],
 

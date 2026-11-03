@@ -32,12 +32,43 @@ class CampaignModerationController extends Controller
         $perPage = (int) ($filters['per_page'] ?? 15);
 
         return view('admin.campaigns.index', [
-            'campaigns' => $this->query->paginate($filters, $perPage),
+            'campaigns' => $this->query->paginate($filters, $perPage, $request->user()),
             'statuses' => CampaignStatus::options(),
             'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
-            'organizations' => Organization::query()->orderBy('name')->get(['id', 'name']),
+            'organizations' => Organization::query()->when($request->user()->isOrganizationAdmin(), fn ($query) => $query->whereIn('id', $request->user()->managedOrganizationIds()))->orderBy('name')->get(['id', 'name']),
             'filters' => $filters,
         ]);
+    }
+
+    public function create(Request $request): View
+    {
+        $this->authorize('create', Campaign::class);
+
+        return view('admin.campaigns.create', [
+            'categories' => Category::query()->active()->orderBy('name')->get(['id', 'name']),
+            'organizations' => Organization::query()->whereIn('id', $request->user()->managedOrganizationIds())->orderBy('name')->get(['id', 'name']),
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $this->authorize('create', Campaign::class);
+        $data = $request->validate([
+            'organization_id' => ['required', 'uuid', 'exists:organizations,id'],
+            'category_id' => ['nullable', 'uuid', 'exists:categories,id'],
+            'title' => ['required', 'string', 'max:190'],
+            'slug' => ['required', 'string', 'max:190', 'alpha_dash', 'unique:campaigns,slug'],
+            'description' => ['required', 'string', 'max:10000'],
+            'target_amount' => ['required', 'integer', 'min:1'],
+            'deadline_at' => ['nullable', 'date'],
+            'location_label' => ['nullable', 'string', 'max:190'],
+            'cover_url' => ['nullable', 'url', 'max:1000'],
+        ]);
+        abort_unless(in_array((string) $data['organization_id'], $request->user()->managedOrganizationIds(), true), 403);
+        $data['status'] = 'draft';
+        $campaign = Campaign::create($data);
+
+        return to_route('admin.campaigns.show', $campaign)->with('success', 'Campaign berhasil dibuat sebagai draft.');
     }
 
     public function show(Campaign $campaign, Request $request): View

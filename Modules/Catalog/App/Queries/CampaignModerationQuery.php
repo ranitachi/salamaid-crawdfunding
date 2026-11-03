@@ -3,6 +3,7 @@
 namespace Modules\Catalog\App\Queries;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Models\User;
 use Modules\Catalog\Entities\Campaign;
 
 class CampaignModerationQuery
@@ -10,7 +11,7 @@ class CampaignModerationQuery
     /**
      * @param array<string, mixed> $filters
      */
-    public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
+    public function paginate(array $filters = [], int $perPage = 15, ?User $actor = null): LengthAwarePaginator
     {
         return Campaign::query()
             ->with([
@@ -33,6 +34,7 @@ class CampaignModerationQuery
             })
             ->when($filters['date_from'] ?? null, fn ($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($filters['date_to'] ?? null, fn ($query, $date) => $query->whereDate('created_at', '<=', $date))
+            ->when($actor?->isOrganizationAdmin(), fn ($query) => $query->whereIn('organization_id', $actor->managedOrganizationIds()))
             ->orderByDesc('created_at')
             ->paginate($perPage)
             ->withQueryString();

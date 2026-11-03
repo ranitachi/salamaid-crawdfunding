@@ -24,6 +24,8 @@
 
     <section class="public-home-section"><div class="public-home-section__heading"><div><h2>Program pilihan</h2><small>Kategori aktif dari database</small></div><a href="{{ route('public.program') }}">Eksplor <span class="material-symbols-outlined">chevron_right</span></a></div><div class="public-chip-row public-home__categories"><a class="public-chip is-active" href="{{ route('public.program') }}">Semua</a>@foreach ($categories as $category)<a class="public-chip" href="{{ route('public.program', ['category' => $category->slug]) }}">{{ $category->name }}</a>@endforeach</div></section>
 
+    <section class="public-home-section"><div class="public-home-section__heading"><h2><i></i> Program terbaru</h2><a href="{{ route('public.program') }}">Lihat semua <span class="material-symbols-outlined">chevron_right</span></a></div><div class="public-home-program-list">@forelse($programs as $program)<a class="public-home-program-card" href="{{ route('public.campaigns.show', $program->slug) }}"><div>@if($program->cover_url)<img src="{{ $program->cover_url }}" alt="">@else<span class="material-symbols-outlined">volunteer_activism</span>@endif</div><small>{{ $program->category?->name ?? 'Program kebaikan' }}</small><h3>{{ $program->title }}</h3><p>{{ $program->organization?->name }}</p></a>@empty<p class="public-muted">Belum ada program pilihan.</p>@endforelse</div></section>
+
     <section class="public-trust public-trust--home"><div class="public-trust__item"><span class="material-symbols-outlined">verified_user</span><div><strong>{{ $brand['app_name'] ?? 'Salamaid' }} · Organisasi terverifikasi</strong><small>Campaign, donasi, dan update transparansi diambil dari data yang sudah direview.</small></div></div></section>
 </div>
 @endsection

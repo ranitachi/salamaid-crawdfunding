@@ -161,6 +161,65 @@ class DevelopmentSeeder extends Seeder
             ],
         );
 
+        $partnerOrganization = Organization::updateOrCreate(
+            ['slug' => 'komunitas-peduli-umat'],
+            [
+                'name' => 'Komunitas Peduli Umat',
+                'description' => 'Lembaga demo kedua untuk menguji pemisahan data campaign berbasis organisasi.',
+                'contact_email' => 'halo@peduliumat.test',
+                'contact_phone' => '+62 812 2222 3333',
+                'status' => 'verified',
+                'verified_at' => now(),
+            ],
+        );
+        $partnerAdmin = User::updateOrCreate(
+            ['email' => 'admin@peduliumat.test'],
+            [
+                'name' => 'Admin Komunitas Peduli Umat',
+                'password' => 'change-me-local',
+                'role' => 'organization_admin',
+                'is_active' => true,
+                'email_verified_at' => now(),
+            ],
+        );
+        OrganizationMember::updateOrCreate(
+            ['organization_id' => $partnerOrganization->id, 'user_id' => $partnerAdmin->id],
+            ['role' => 'owner'],
+        );
+
+        Campaign::updateOrCreate(
+            ['slug' => 'paket-sembako-ramadan'],
+            [
+                'organization_id' => $partnerOrganization->id,
+                'category_id' => $humanity->id,
+                'title' => 'Paket Sembako Ramadan',
+                'description' => 'Program demo Komunitas Peduli Umat untuk menyediakan paket sembako bagi keluarga penerima manfaat.',
+                'target_amount' => 45000000,
+                'collected_amount' => 12500000,
+                'deadline_at' => Carbon::now()->addMonths(2),
+                'location_label' => 'Bekasi, Jawa Barat',
+                'status' => 'published',
+                'is_featured' => true,
+                'cover_url' => '/images/demo/paket-pangan-keluarga.png',
+            ],
+        );
+        Campaign::updateOrCreate(
+            ['slug' => 'kelas-digital-pemuda'],
+            [
+                'organization_id' => $partnerOrganization->id,
+                'category_id' => $category->id,
+                'title' => 'Kelas Digital Pemuda',
+                'description' => 'Campaign demo untuk pelatihan keterampilan digital pemuda di komunitas lokal.',
+                'target_amount' => 30000000,
+                'collected_amount' => 0,
+                'deadline_at' => Carbon::now()->addMonths(4),
+                'location_label' => 'Depok, Jawa Barat',
+                'status' => 'draft',
+                'is_featured' => false,
+                'cover_url' => '/images/demo/beasiswa-anak-negeri.png',
+            ],
+        );
+
         foreach ([
             [$campaign, 'beasiswa-anak-negeri.png', 'Ruang belajar untuk masa depan'],
             [$foodCampaign, 'paket-pangan-keluarga.png', 'Pangan untuk keluarga'],
@@ -186,10 +245,18 @@ class DevelopmentSeeder extends Seeder
             ],
         );
 
-        Payment::updateOrCreate(
-            ['order_id' => 'SALAMAID-DEMO-0001'],
+        $upsertDemoPayment = static function (Donation $donation, string $orderId, array $attributes): Payment {
+            $payment = Payment::query()->where('donation_id', $donation->id)->first();
+            if (! $payment && Payment::query()->where('order_id', $orderId)->where('donation_id', '!=', $donation->id)->exists()) {
+                $orderId .= '-'.substr((string) $donation->id, 0, 8);
+            }
+            $payment ??= new Payment;
+            $payment->forceFill($attributes + ['order_id' => $orderId, 'donation_id' => $donation->id])->save();
+            return $payment;
+        };
+
+        $upsertDemoPayment($donation, 'SALAMAID-DEMO-0001',
             [
-                'donation_id' => $donation->id,
                 'provider' => 'demo',
                 'channel_code' => 'QRIS',
                 'status' => 'paid',
@@ -197,8 +264,7 @@ class DevelopmentSeeder extends Seeder
                 'signature' => 'demo-signature',
                 'raw_request_json' => ['source' => 'DevelopmentSeeder'],
                 'raw_callback_json' => ['status' => 'paid'],
-            ],
-        );
+            ]);
 
         // Mayar Sandbox reconciliation fixture. The order_id is the provider
         // transaction ID visible in the Mayar dashboard; the local payment
@@ -217,10 +283,8 @@ class DevelopmentSeeder extends Seeder
             ],
         );
 
-        Payment::updateOrCreate(
-            ['order_id' => 'f48688e4-1aa0-427e-9fa0-675a69289939'],
+        $upsertDemoPayment($mayarDonation, 'f48688e4-1aa0-427e-9fa0-675a69289939',
             [
-                'donation_id' => $mayarDonation->id,
                 'provider' => 'mayar',
                 'channel_code' => 'transfer_va_bni',
                 'status' => 'paid',
@@ -232,8 +296,7 @@ class DevelopmentSeeder extends Seeder
                     'amount' => 10000,
                     'payment_method' => 'Transfer VA - BNI',
                 ],
-            ],
-        );
+            ]);
 
         $mayarPendingDonation = Donation::updateOrCreate(
             ['campaign_id' => $foodCampaign->id, 'user_id' => $donor->id, 'message' => 'Fixture Mayar pending'],
@@ -249,18 +312,15 @@ class DevelopmentSeeder extends Seeder
             ],
         );
 
-        Payment::updateOrCreate(
-            ['order_id' => 'MAYAR-DEMO-PENDING-0001'],
+        $upsertDemoPayment($mayarPendingDonation, 'MAYAR-DEMO-PENDING-0001',
             [
-                'donation_id' => $mayarPendingDonation->id,
                 'provider' => 'mayar',
                 'channel_code' => 'mayar_checkout',
                 'status' => 'pending',
                 'redirect_url' => 'https://web.mayar.io/payment/MAYAR-DEMO-PENDING-0001',
                 'raw_request_json' => ['source' => 'DevelopmentSeeder', 'environment' => 'sandbox', 'name' => 'Demo Donor', 'email' => 'donor@salamaid.test', 'mobile' => '+628120000000'],
                 'raw_callback_json' => ['source' => 'Mayar Sandbox fixture', 'provider_status' => 'created', 'amount' => 75000],
-            ],
-        );
+            ]);
 
         $mayarFailedDonation = Donation::updateOrCreate(
             ['campaign_id' => $environmentCampaign->id, 'user_id' => $donor->id, 'message' => 'Fixture Mayar failed'],
@@ -275,17 +335,14 @@ class DevelopmentSeeder extends Seeder
             ],
         );
 
-        Payment::updateOrCreate(
-            ['order_id' => 'MAYAR-DEMO-FAILED-0001'],
+        $upsertDemoPayment($mayarFailedDonation, 'MAYAR-DEMO-FAILED-0001',
             [
-                'donation_id' => $mayarFailedDonation->id,
                 'provider' => 'mayar',
                 'channel_code' => 'mayar_checkout',
                 'status' => 'failed',
                 'raw_request_json' => ['source' => 'DevelopmentSeeder', 'environment' => 'sandbox'],
                 'raw_callback_json' => ['source' => 'Mayar Sandbox fixture', 'provider_status' => 'expired', 'amount' => 125000],
-            ],
-        );
+            ]);
 
         Webhook::updateOrCreate(
             ['provider' => 'demo', 'order_id' => 'SALAMAID-DEMO-0001', 'event' => 'payment.paid'],

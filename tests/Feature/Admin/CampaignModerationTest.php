@@ -6,9 +6,34 @@ use App\Contracts\AdminAuditLogger;
 use Illuminate\Support\Facades\DB;
 use Mockery;
 use Modules\Catalog\App\Queries\CampaignModerationQuery;
+use Modules\Core\Entities\OrganizationMember;
 
 class CampaignModerationTest extends AdminReviewTestCase
 {
+    public function test_organization_admin_is_scoped_to_own_campaigns_and_cannot_see_mayar(): void
+    {
+        $organizationAdmin = $this->user('organization_admin');
+        $ownOrganization = $this->organization('verified', ['name' => 'Lembaga Saya']);
+        $otherOrganization = $this->organization('verified', ['name' => 'Lembaga Lain']);
+        OrganizationMember::create(['organization_id' => $ownOrganization->id, 'user_id' => $organizationAdmin->id, 'role' => 'owner']);
+        $ownCampaign = $this->campaign($ownOrganization, 'draft', ['title' => 'Campaign Milik Saya']);
+        $otherCampaign = $this->campaign($otherOrganization, 'draft', ['title' => 'Campaign Milik Lain']);
+
+        $this->actingAs($organizationAdmin)->get(route('admin.campaigns.index'))
+            ->assertOk()->assertSee('Campaign Milik Saya')->assertDontSee('Campaign Milik Lain');
+        $this->actingAs($organizationAdmin)->get(route('admin.campaigns.show', $otherCampaign))->assertForbidden();
+        $this->actingAs($organizationAdmin)->get(route('admin.mayar-transactions.index'))->assertForbidden();
+
+        $this->actingAs($organizationAdmin)->post(route('admin.campaigns.store'), [
+            'organization_id' => $ownOrganization->id,
+            'title' => 'Campaign Baru Lembaga Saya',
+            'slug' => 'campaign-baru-lembaga-saya',
+            'description' => 'Deskripsi campaign baru yang cukup jelas.',
+            'target_amount' => 1000000,
+        ])->assertRedirect();
+        $this->assertDatabaseHas('campaigns', ['title' => 'Campaign Baru Lembaga Saya', 'organization_id' => $ownOrganization->id, 'status' => 'draft']);
+        $this->assertNotNull($ownCampaign->fresh());
+    }
     public function test_unverified_organization_campaign_cannot_be_published(): void
     {
         $reviewer = $this->user('reviewer');

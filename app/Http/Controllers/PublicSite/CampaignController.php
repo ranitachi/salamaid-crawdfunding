@@ -20,6 +20,7 @@ class CampaignController
             'featured' => $featured,
             'heroCampaign' => $featured->first(),
             'categories' => $this->campaigns->categories(),
+            'programs' => $this->campaigns->programs(),
             'impact' => $this->campaigns->impactSummary(),
         ]);
     }

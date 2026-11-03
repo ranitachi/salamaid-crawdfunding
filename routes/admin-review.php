@@ -26,6 +26,13 @@ Route::prefix('organizations')->name('organizations.')
     });
 
 Route::prefix('campaigns')->name('campaigns.')
+    ->middleware('admin.permission:campaigns.manage')
+    ->group(function () {
+        Route::get('/create', [CampaignModerationController::class, 'create'])->name('create');
+        Route::post('/', [CampaignModerationController::class, 'store'])->name('store');
+    });
+
+Route::prefix('campaigns')->name('campaigns.')
     ->middleware('admin.permission:campaigns.view,campaigns.review,campaigns.publish')
     ->group(function () {
     Route::get('/', [CampaignModerationController::class, 'index'])->name('index');
@@ -41,3 +48,4 @@ Route::prefix('campaigns')->name('campaigns.')
     Route::delete('/{campaign}', [CampaignModerationController::class, 'destroy'])->name('destroy');
     Route::delete('/{campaign}/force', [CampaignModerationController::class, 'forceDestroy'])->name('force-destroy');
     });
+

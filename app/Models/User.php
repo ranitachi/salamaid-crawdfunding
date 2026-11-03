@@ -80,4 +80,20 @@ class User extends Authenticatable
 
         return false;
     }
+
+    public function organizationMemberships()
+    {
+        return $this->hasMany(\Modules\Core\Entities\OrganizationMember::class);
+    }
+
+    /** @return array<int, string> */
+    public function managedOrganizationIds(): array
+    {
+        return $this->organizationMemberships()->pluck('organization_id')->map(fn ($id): string => (string) $id)->all();
+    }
+
+    public function isOrganizationAdmin(): bool
+    {
+        return $this->role === 'organization_admin';
+    }
 }

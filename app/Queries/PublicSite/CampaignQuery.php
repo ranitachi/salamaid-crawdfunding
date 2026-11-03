@@ -31,6 +31,13 @@ class CampaignQuery
             ->get();
     }
 
+    public function programs(int $limit = 6): Collection
+    {
+        if (! $this->tablesAvailable()) return collect();
+
+        return $this->base()->latest('published_at')->limit($limit)->get();
+    }
+
     public function paginate(Request $request, int $perPage = 12)
     {
         if (! $this->tablesAvailable()) {

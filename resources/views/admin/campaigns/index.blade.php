@@ -9,7 +9,7 @@
         title="Moderasi Campaign"
         description="Review konten, kelola publikasi, feature, dan penutupan campaign."
     >
-        <span class="admin-pagination" style="padding:0; border:0;">{{ $campaigns->total() }} campaign ditemukan</span>
+        <div class="admin-page-header__actions"><span class="admin-pagination" style="padding:0; border:0;">{{ $campaigns->total() }} campaign ditemukan</span>@if(auth()->user()?->hasAdminPermission('campaigns.manage'))<a class="admin-button admin-button--primary" href="{{ route('admin.campaigns.create') }}">+ Buat Campaign</a>@endif</div>
     </x-admin.page-header>
 
     <x-admin.filter-bar method="GET" action="{{ route('admin.campaigns.index') }}">
