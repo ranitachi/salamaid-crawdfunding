@@ -29,7 +29,7 @@
 .public-program-priority-card__body > small {
     position: absolute;
     z-index: 2;
-    top: 139px;
+    top: 126px;
     right: 10px;
     left: 10px;
     display: inline-flex;
@@ -68,8 +68,8 @@
     overflow: hidden;
     margin: 0;
     color: #fff;
-    font-size: 16px;
-    line-height: 1.2;
+    font-size: 14px;
+    line-height: 1.1;
     text-shadow: 0 1px 3px #0008;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
