@@ -140,6 +140,30 @@ class CampaignUpdateAdminController extends Controller
         ]);
     }
 
+    public function previewAttachment(CampaignUpdate $update, CampaignUpdateAttachment $attachment): StreamedResponse
+    {
+        $this->authorize('view', $update);
+
+        abort_unless(str_starts_with((string) $attachment->mime_type, 'image/'), 404);
+
+        $disk = Storage::disk($attachment->disk);
+        abort_unless($disk->exists($attachment->path), 404);
+        $stream = $disk->readStream($attachment->path);
+        abort_unless(is_resource($stream), 404);
+
+        $filename = rawurlencode($attachment->original_name);
+
+        return response()->stream(function () use ($stream): void {
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, [
+            'Content-Type' => $attachment->mime_type,
+            'Content-Length' => (string) $attachment->size,
+            'Content-Disposition' => "inline; filename*=UTF-8''{$filename}",
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     public function destroyAttachment(Request $request, CampaignUpdate $update, CampaignUpdateAttachment $attachment): RedirectResponse
     {
         $this->authorize('manageAttachments', $update);

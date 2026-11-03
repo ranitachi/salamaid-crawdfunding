@@ -28,6 +28,7 @@ Route::middleware('admin.permission:transparency.view,transparency.review,transp
 
         Route::scopeBindings()->group(function () {
             Route::post('{update}/attachments', [Controller::class, 'storeAttachment'])->name('attachments.store');
+            Route::get('{update}/attachments/{attachment}/preview', [Controller::class, 'previewAttachment'])->name('attachments.preview');
             Route::get('{update}/attachments/{attachment}', [Controller::class, 'downloadAttachment'])->name('attachments.download');
             Route::delete('{update}/attachments/{attachment}', [Controller::class, 'destroyAttachment'])->name('attachments.destroy');
         });

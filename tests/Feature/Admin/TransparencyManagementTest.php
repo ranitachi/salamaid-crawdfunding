@@ -394,6 +394,29 @@ class TransparencyManagementTest extends AdminReviewTestCase
         Storage::disk('local')->assertExists($attachment->path);
     }
 
+    public function test_image_evidence_can_be_previewed_but_remains_private_and_scoped(): void
+    {
+        $campaign = $this->publishedCampaign();
+        $update = $this->update($campaign, 'draft');
+        $file = UploadedFile::fake()->image('bukti.jpg', 120, 80);
+
+        $this->actingAs($this->user('reviewer'))
+            ->post("/admin/transparency/{$update->id}/attachments", ['file' => $file])
+            ->assertSessionHas('success');
+
+        $attachment = CampaignUpdateAttachment::firstOrFail();
+        $this->actingAs($this->user('reviewer'))
+            ->get(route('admin.transparency.attachments.preview', [$update, $attachment]))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'image/jpeg')
+            ->assertHeader('Content-Disposition', "inline; filename*=UTF-8''bukti.jpg");
+
+        $other = $this->update($campaign, 'draft');
+        $this->actingAs($this->user('reviewer'))
+            ->get(route('admin.transparency.attachments.preview', [$other, $attachment]))
+            ->assertNotFound();
+    }
+
     public function test_evidence_can_be_removed_only_while_editable(): void
     {
         $reviewer = $this->user('reviewer');

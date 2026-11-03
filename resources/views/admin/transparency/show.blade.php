@@ -4,6 +4,7 @@
     use Modules\Transparency\App\Enums\CampaignUpdateStatus as Status;
     $textareaStyle = 'width:100%; min-height:80px; padding:8px 10px; border:1px solid var(--admin-ink); font:inherit; font-size:12px;';
     $canReview = auth()->user()->can('review', $update);
+    $canSubmit = auth()->user()->can('submit', $update);
     $canPublish = auth()->user()->can('publish', $update);
     $canManageFiles = auth()->user()->can('manageAttachments', $update) && $update->isEditable();
 @endphp
@@ -69,7 +70,14 @@
                 <tbody>
                     @forelse ($update->attachments as $attachment)
                         <tr>
-                            <td><span class="admin-table__primary">{{ $attachment->original_name }}</span><span class="admin-table__secondary">sha256 {{ \Illuminate\Support\Str::limit($attachment->checksum, 12, '…') }}</span></td>
+                            <td>
+                                @if (str_starts_with((string) $attachment->mime_type, 'image/'))
+                                    <a href="{{ route('admin.transparency.attachments.preview', [$update, $attachment]) }}" target="_blank" rel="noopener" aria-label="Lihat {{ $attachment->original_name }}">
+                                        <img src="{{ route('admin.transparency.attachments.preview', [$update, $attachment]) }}" alt="{{ $attachment->original_name }}" loading="lazy" style="display:block; width:96px; height:64px; margin-bottom:8px; border:1px solid var(--admin-line); object-fit:cover;">
+                                    </a>
+                                @endif
+                                <span class="admin-table__primary">{{ $attachment->original_name }}</span><span class="admin-table__secondary">sha256 {{ \Illuminate\Support\Str::limit($attachment->checksum, 12, '…') }}</span>
+                            </td>
                             <td>{{ $attachment->mime_type }}</td>
                             <td>{{ number_format($attachment->size / 1024, 0, ',', '.') }} KB</td>
                             <td>{{ $attachment->uploader?->name ?? '—' }}<span class="admin-table__secondary">{{ $attachment->created_at?->format('d M Y H:i') }}</span></td>
@@ -104,10 +112,14 @@
                     </form>
                 @endif
 
-                @if ($canReview && $status?->canTransitionTo(Status::UNDER_REVIEW))
+                @if ($canSubmit && $status?->canTransitionTo(Status::UNDER_REVIEW))
                     <form method="POST" action="{{ route('admin.transparency.submit', $update) }}">@csrf
                         <button class="admin-button admin-button--primary" type="submit">Kirim ke review</button>
                     </form>
+                @endif
+
+                @if ($status === Status::DRAFT)
+                    <p class="admin-table__secondary" style="margin:0; line-height:1.5;">Draft dibuat oleh <strong>{{ $update->creator?->name ?? 'pengguna admin' }}</strong>. Setelah dikirim ke review, hanya reviewer dengan permission <code>transparency.review</code> yang dapat menyetujui dan mempublikasikannya.</p>
                 @endif
 
                 @if ($canReview && $status === Status::UNDER_REVIEW)
