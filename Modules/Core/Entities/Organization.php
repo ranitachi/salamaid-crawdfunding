@@ -14,8 +14,9 @@ class Organization extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
-        'slug','name','logo_url','description','address',
-        'contact_email','contact_phone','bank_account_json','verified_at',
+        'slug','name','logo_url','banner_url','description','tagline','address',
+        'contact_email','contact_phone','website_url','instagram_url','facebook_url','whatsapp_url',
+        'primary_color','secondary_color','bank_account_json','verified_at',
         'status','rejection_reason','suspension_reason','reviewed_by',
         'reviewed_at','suspended_at',
     ];

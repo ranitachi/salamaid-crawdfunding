@@ -30,4 +30,20 @@ class OrganizationPolicy
     {
         return AdminPermissions::allowed($user, 'organizations.review');
     }
+
+    public function manageSettings(User $user, Organization $organization): bool
+    {
+        if (! AdminPermissions::allowed($user, 'organizations.manage')) {
+            return false;
+        }
+
+        if ($user->role === 'super_admin') {
+            return true;
+        }
+
+        return $organization->members()
+            ->where('user_id', $user->getKey())
+            ->whereIn('role', ['owner', 'admin'])
+            ->exists();
+    }
 }

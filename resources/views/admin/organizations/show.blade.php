@@ -9,6 +9,9 @@
     ]" />
 
     <x-admin.page-header :title="$organization->name" :description="$organization->slug">
+        @can('manageSettings', $organization)
+            <a href="{{ route('admin.organizations.settings.edit', $organization) }}" class="admin-button admin-button--quiet">Edit profil publik</a>
+        @endcan
         @if ($canReview)
             <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
                 @if ($organization->status === 'pending')

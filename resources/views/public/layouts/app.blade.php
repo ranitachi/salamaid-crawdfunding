@@ -1,5 +1,8 @@
 @php($brand = app(\App\Services\AppSettingsService::class)->all())
 @php($navigation = app(\App\Services\AppSettingsService::class)->publicNavigation())
+@php($publicOrganization = $organization ?? (isset($campaign) ? $campaign->organization : null))
+@php($publicPrimary = filled($publicOrganization?->primary_color) ? $publicOrganization->primary_color : ($brand['primary_color'] ?? '#BC0004'))
+@php($publicSecondary = filled($publicOrganization?->secondary_color) ? $publicOrganization->secondary_color : ($brand['primary_soft_color'] ?? '#FFF0EF'))
 @php($metaDescription = $description ?? 'Salamaid — platform gotong royong dan donasi terpercaya.')
 @php($canonical = $canonical ?? url()->current())
 <!doctype html>
@@ -23,7 +26,7 @@
     @if (!empty($brand['favicon_url']))<link rel="icon" href="{{ $brand['favicon_url'] }}">@endif
     @vite(['resources/css/public.css', 'resources/css/public-responsive.css', 'resources/css/public-detail.css', 'resources/css/public-checkout.css', 'resources/css/public-payment.css', 'resources/css/public-account.css', 'resources/js/public.js'])
 </head>
-<body class="{{ request()->routeIs('public.campaigns.show') ? 'public-campaign-route' : '' }}" style="--public-primary: {{ $brand['primary_color'] ?? '#BC0004' }}; --public-primary-soft: {{ $brand['primary_soft_color'] ?? '#FFF0EF' }};">
+<body class="{{ request()->routeIs('public.campaigns.show') ? 'public-campaign-route' : '' }}" style="--public-primary: {{ $publicPrimary }}; --public-primary-soft: {{ $publicSecondary }};">
     <div class="public-shell">
         <header class="public-header">
             <a class="public-brand" href="{{ route('public.home') }}">

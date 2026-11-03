@@ -90,7 +90,7 @@ class CampaignQuery
             ->where('slug', $slug)
             ->whereHas('organization', fn (Builder $organization) => $organization->where('status', 'verified'))
             ->with([
-                'organization:id,name,status,logo_url,description',
+                'organization:id,name,slug,status,logo_url,banner_url,tagline,primary_color,secondary_color,description,address,contact_email,contact_phone,website_url,instagram_url,facebook_url,whatsapp_url',
                 'category:id,name,slug,icon',
                 'media' => fn ($media) => $media->orderBy('sort'),
                 'updates' => fn ($updates) => $updates->public()->with('attachments')->latest('published_at'),

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Catalog\App\Http\Controllers\Admin\CampaignModerationController;
 use Modules\Core\App\Http\Controllers\Admin\OrganizationReviewController;
+use Modules\Core\App\Http\Controllers\Admin\OrganizationProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,13 @@ Route::prefix('organizations')->name('organizations.')
     Route::post('/{organization}/reject', [OrganizationReviewController::class, 'reject'])->name('reject');
     Route::post('/{organization}/suspend', [OrganizationReviewController::class, 'suspend'])->name('suspend');
     Route::post('/{organization}/restore', [OrganizationReviewController::class, 'restore'])->name('restore');
+    });
+
+Route::prefix('organizations')->name('organizations.')
+    ->middleware('admin.permission:organizations.manage')
+    ->group(function () {
+        Route::get('/{organization}/settings', [OrganizationProfileController::class, 'edit'])->name('settings.edit');
+        Route::put('/{organization}/settings', [OrganizationProfileController::class, 'update'])->name('settings.update');
     });
 
 Route::prefix('campaigns')->name('campaigns.')

@@ -18,6 +18,12 @@
         ['label' => 'Audit Log', 'icon' => '⌁', 'path' => '/admin/audit-logs', 'match' => 'admin/audit-logs*', 'permissions' => ['audit.view']],
         ['label' => 'Pengaturan', 'icon' => '⚙', 'path' => '/admin/settings', 'match' => 'admin/settings*', 'permissions' => ['settings.manage']],
     ];
+    $managedOrganization = auth()->user()?->isOrganizationAdmin()
+        ? auth()->user()->organizationMemberships()->with('organization')->first()?->organization
+        : null;
+    if ($managedOrganization) {
+        $items[] = ['label' => 'Profil Lembaga', 'icon' => '◈', 'path' => route('admin.organizations.settings.edit', $managedOrganization), 'match' => 'admin/organizations/'.$managedOrganization->id.'/settings', 'permissions' => ['organizations.manage']];
+    }
     $canSee = fn (array $item): bool => auth()->user()?->hasAnyAdminPermission(...$item['permissions']) ?? false;
 @endphp
 

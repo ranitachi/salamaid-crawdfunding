@@ -2,10 +2,51 @@
 
 namespace Tests\Feature\Admin;
 
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Modules\Core\Entities\OrganizationMember;
 use Modules\Core\Entities\Organization;
 
 class OrganizationReviewTest extends AdminReviewTestCase
 {
+    public function test_organization_admin_can_update_own_public_profile_and_branding(): void
+    {
+        Storage::fake('public');
+        $admin = $this->user('organization_admin');
+        $organization = $this->organization('verified');
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $admin->id, 'role' => 'owner']);
+
+        $this->actingAs($admin)->get(route('admin.organizations.settings.edit', $organization))->assertOk();
+        $this->actingAs($admin)->put(route('admin.organizations.settings.update', $organization), [
+            'tagline' => 'Bersama menghadirkan dampak',
+            'description' => 'Profil publik baru',
+            'address' => 'Bandung',
+            'contact_email' => 'publik@lembaga.test',
+            'contact_phone' => '+62 812 0000 0000',
+            'primary_color' => '#AA0000',
+            'secondary_color' => '#FFF1F0',
+            'logo' => UploadedFile::fake()->image('logo.png'),
+        ])->assertRedirect(route('admin.organizations.settings.edit', $organization));
+
+        $organization->refresh();
+        $this->assertSame('Bersama menghadirkan dampak', $organization->tagline);
+        $this->assertSame('#AA0000', $organization->primary_color);
+        $this->assertNotEmpty($organization->logo_url);
+        $this->assertDatabaseHas('admin_audit_logs', ['action' => 'organization.profile.updated', 'subject_id' => $organization->id]);
+    }
+
+    public function test_organization_admin_cannot_update_another_organization(): void
+    {
+        $admin = $this->user('organization_admin');
+        $owned = $this->organization('verified');
+        $other = $this->organization('verified');
+        OrganizationMember::create(['organization_id' => $owned->id, 'user_id' => $admin->id, 'role' => 'owner']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.organizations.settings.edit', $other))
+            ->assertForbidden();
+    }
+
     public function test_reviewer_can_view_and_filter_organizations(): void
     {
         $reviewer = $this->user('reviewer');
