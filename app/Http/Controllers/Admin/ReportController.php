@@ -21,15 +21,15 @@ class ReportController extends Controller
 
     public function index(Request $request)
     {
-        return view('admin.reports.index', ['report' => $this->query->summary($request)]);
+        return view('admin.reports.index', ['report' => $this->query->forUser($request->user())->summary($request)]);
     }
 
     public function export(Request $request): StreamedResponse
     {
         $filename = 'admin-report-'.now()->format('Ymd-His').'.csv';
-        $rows = $this->query->exportRows($request);
         /** @var User $actor */
         $actor = $request->user();
+        $rows = $this->query->forUser($actor)->exportRows($request);
 
         $this->audit->log(
             'report.export',

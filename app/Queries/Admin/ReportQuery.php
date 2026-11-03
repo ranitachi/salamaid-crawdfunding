@@ -35,7 +35,7 @@ class ReportQuery
 
     private function campaignSummary($from, $to): array
     {
-        $query = DB::table('campaigns')->whereBetween('created_at', [$from, $to]);
+        $query = $this->campaignsQuery()->whereBetween('created_at', [$from, $to]);
 
         return [
             'total' => (clone $query)->count(),
@@ -46,7 +46,7 @@ class ReportQuery
 
     private function donationSummary($from, $to): array
     {
-        $query = DB::table('donations')->whereBetween('created_at', [$from, $to]);
+        $query = $this->donationsQuery()->whereBetween('created_at', [$from, $to]);
 
         return [
             'total' => (clone $query)->count(),
@@ -58,20 +58,20 @@ class ReportQuery
 
     private function paymentSummary($from, $to): array
     {
-        $query = DB::table('payments')->whereBetween('created_at', [$from, $to]);
+        $query = $this->paymentsQuery()->whereBetween('payments.created_at', [$from, $to]);
 
         return [
             'total' => (clone $query)->count(),
-            'by_status' => (clone $query)->select('status', DB::raw('count(*) as total'))
-                ->groupBy('status')->orderBy('status')->pluck('total', 'status')->all(),
-            'by_provider' => (clone $query)->select('provider', DB::raw('count(*) as total'))
-                ->groupBy('provider')->orderBy('provider')->pluck('total', 'provider')->all(),
+            'by_status' => (clone $query)->select('payments.status', DB::raw('count(*) as total'))
+                ->groupBy('payments.status')->orderBy('payments.status')->pluck('total', 'status')->all(),
+            'by_provider' => (clone $query)->select('payments.provider', DB::raw('count(*) as total'))
+                ->groupBy('payments.provider')->orderBy('payments.provider')->pluck('total', 'provider')->all(),
         ];
     }
 
     private function payoutSummary($from, $to): array
     {
-        $query = DB::table('payouts')->whereBetween('created_at', [$from, $to]);
+        $query = $this->payoutsQuery()->whereBetween('created_at', [$from, $to]);
 
         return [
             'total' => (clone $query)->count(),
@@ -83,11 +83,11 @@ class ReportQuery
 
     private function feeSummary($from, $to): array
     {
-        $donations = DB::table('donations')->whereBetween('donations.created_at', [$from, $to]);
+        $donations = $this->donationsQuery()->whereBetween('donations.created_at', [$from, $to]);
         $platform = (float) (clone $donations)->sum('fee_platform');
         $channel = (float) (clone $donations)->sum('fee_channel');
 
-        $byChannel = DB::table('donations')
+        $byChannel = $this->donationsQuery()
             ->leftJoin('payments', 'payments.donation_id', '=', 'donations.id')
             ->whereBetween('donations.created_at', [$from, $to])
             ->selectRaw("COALESCE(payments.channel_code, donations.method) as channel, SUM(donations.fee_channel) as total")
@@ -103,6 +103,67 @@ class ReportQuery
             'total_amount' => $platform + $channel,
             'by_channel' => $byChannel,
         ];
+    }
+
+    private function campaignsQuery()
+    {
+        $query = DB::table('campaigns');
+
+        if ($this->organizationIds !== null) {
+            $query->whereIn('organization_id', $this->organizationIds);
+        }
+
+        return $query;
+    }
+
+    private function donationsQuery()
+    {
+        $query = DB::table('donations');
+
+        if ($this->organizationIds !== null) {
+            $query->whereIn('campaign_id', DB::table('campaigns')
+                ->select('id')
+                ->whereIn('organization_id', $this->organizationIds));
+        }
+
+        return $query;
+    }
+
+    private function paymentsQuery()
+    {
+        $query = DB::table('payments')
+            ->join('donations', 'donations.id', '=', 'payments.donation_id');
+
+        if ($this->organizationIds !== null) {
+            $query->whereIn('donations.campaign_id', DB::table('campaigns')
+                ->select('id')
+                ->whereIn('organization_id', $this->organizationIds));
+        }
+
+        return $query->select('payments.*');
+    }
+
+    private function payoutsQuery()
+    {
+        $query = DB::table('payouts');
+
+        if ($this->organizationIds !== null) {
+            $query->whereIn('organization_id', $this->organizationIds);
+        }
+
+        return $query;
+    }
+
+    /** @var array<int, string>|null */
+    private ?array $organizationIds = null;
+
+    public function forUser(?\App\Models\User $user): self
+    {
+        $this->organizationIds = $user?->isOrganizationAdmin()
+            ? $user->managedOrganizationIds()
+            : null;
+
+        return $this;
     }
 
     public function exportRows(Request $request): array

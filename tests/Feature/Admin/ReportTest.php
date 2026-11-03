@@ -6,6 +6,11 @@ use App\Models\AdminAuditLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Modules\Core\Entities\Organization;
+use Modules\Core\Entities\OrganizationMember;
+use App\Queries\Admin\ReportQuery;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ReportTest extends TestCase
@@ -56,5 +61,39 @@ class ReportTest extends TestCase
         $audit = AdminAuditLog::query()->where('action', 'report.export')->latest('id')->firstOrFail();
         $this->assertSame(now()->toDateString(), $audit->context['filters']['date_from']);
         $this->assertSame(14, $audit->after['metric_rows']);
+    }
+
+    public function test_organization_admin_report_is_scoped_to_managed_organizations(): void
+    {
+        $organization = Organization::create(['slug' => 'report-owned', 'name' => 'Lembaga Milik Admin', 'status' => 'verified']);
+        $foreignOrganization = Organization::create(['slug' => 'report-foreign', 'name' => 'Lembaga Lain', 'status' => 'verified']);
+        $admin = User::factory()->create(['role' => 'organization_admin']);
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $admin->id, 'role' => 'owner']);
+
+        foreach ([[$organization, 'owned'], [$foreignOrganization, 'foreign']] as [$owner, $suffix]) {
+            $campaignId = (string) Str::uuid();
+            $donationId = (string) Str::uuid();
+            DB::table('campaigns')->insert([
+                'id' => $campaignId, 'title' => "Campaign {$suffix}", 'slug' => "report-{$suffix}",
+                'organization_id' => $owner->id, 'category_id' => null, 'description' => 'Report scope test',
+                'status' => 'published', 'target_amount' => 100000, 'collected_amount' => 10000,
+                'deadline_at' => now()->addDay(), 'location_label' => null, 'cover_url' => null,
+                'is_featured' => false, 'meta_json' => null, 'created_at' => now(), 'updated_at' => now(),
+            ]);
+            DB::table('donations')->insert([
+                'id' => $donationId, 'campaign_id' => $campaignId, 'user_id' => null,
+                'gross_amount' => 100000, 'fee_platform' => 1000, 'fee_channel' => 500, 'net_amount' => 98500,
+                'method' => 'qris', 'anonymous' => true, 'message' => null, 'ref_code' => null,
+                'status' => 'paid', 'paid_at' => now(), 'expired_at' => null, 'created_at' => now(), 'updated_at' => now(),
+            ]);
+        }
+
+        $request = Request::create('/admin/reports', 'GET', ['date_from' => now()->toDateString(), 'date_to' => now()->toDateString()]);
+        $request->setUserResolver(fn () => $admin);
+        $report = app(ReportQuery::class)->forUser($admin)->summary($request);
+
+        $this->assertSame(1, $report['campaigns']['total']);
+        $this->assertSame(1, $report['donations']['total']);
+        $this->assertSame(100000.0, $report['donations']['gross_amount']);
     }
 }
