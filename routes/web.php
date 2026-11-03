@@ -24,6 +24,8 @@ Route::get('/', [CampaignController::class, 'home'])->name('public.home');
 Route::get('/program', [CampaignController::class, 'program'])->name('public.program');
 Route::get('/lembaga', [OrganizationController::class, 'index'])->name('public.organizations.index');
 Route::get('/user', [PublicAccountController::class, 'user'])->name('public.user');
+Route::get('/about', [PublicAccountController::class, 'about'])->name('public.about');
+Route::get('/contact', [PublicAccountController::class, 'contact'])->name('public.contact');
 Route::get('/terms', fn () => view('public.terms'))->name('public.terms');
 Route::get('/help', [PublicAccountController::class, 'help'])->name('public.help');
 Route::get('/privacy', [PublicAccountController::class, 'privacy'])->name('public.privacy');

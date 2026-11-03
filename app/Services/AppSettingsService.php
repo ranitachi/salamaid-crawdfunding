@@ -35,6 +35,9 @@ class AppSettingsService
         'contact_address' => '',
         'contact_city' => '',
         'contact_country' => 'Indonesia',
+        'about_title' => 'Tentang Salamaid',
+        'about_content' => 'Salamaid adalah platform gotong royong yang mempertemukan kepedulian dengan program kebaikan yang transparan.',
+        'contact_description' => 'Hubungi tim Salamaid melalui kanal berikut untuk pertanyaan, kerja sama, atau bantuan.',
     ];
 
     /** @return array<string, string> */

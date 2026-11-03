@@ -12,6 +12,7 @@ use Illuminate\View\View;
 use Modules\Donation\Entities\Donation;
 use Modules\Payment\App\Exceptions\MayarRequestException;
 use App\Services\PublicReceiptPdfService;
+use App\Services\AppSettingsService;
 
 class PublicAccountController extends Controller
 {
@@ -67,6 +68,16 @@ class PublicAccountController extends Controller
     public function privacy(): View
     {
         return view('public.privacy');
+    }
+
+    public function about(AppSettingsService $settings): View
+    {
+        return view('public.about', ['brand' => $settings->all()]);
+    }
+
+    public function contact(AppSettingsService $settings): View
+    {
+        return view('public.contact', ['brand' => $settings->all()]);
     }
 
     public function donations(Request $request): View

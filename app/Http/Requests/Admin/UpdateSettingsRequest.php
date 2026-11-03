@@ -31,6 +31,9 @@ class UpdateSettingsRequest extends FormRequest
             'contact_address' => ['nullable', 'string', 'max:190'],
             'contact_city' => ['nullable', 'string', 'max:80'],
             'contact_country' => ['nullable', 'string', 'max:80'],
+            'about_title' => ['nullable', 'string', 'max:120'],
+            'about_content' => ['nullable', 'string', 'max:10000'],
+            'contact_description' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

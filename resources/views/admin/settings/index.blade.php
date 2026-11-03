@@ -33,6 +33,12 @@
             <div class="admin-field"><label for="contact_city">Kota</label><input id="contact_city" name="contact_city" value="{{ old('contact_city', $settings['contact_city']) }}"></div>
             <div class="admin-field"><label for="contact_country">Negara</label><input id="contact_country" name="contact_country" value="{{ old('contact_country', $settings['contact_country']) }}"></div>
         </div>
+        <div class="admin-panel__header"><div><h2>Konten publik</h2><p>Konten ini ditampilkan pada halaman Tentang Kami dan Kontak Kami.</p></div></div>
+        <div class="admin-panel__body admin-settings-grid">
+            <div class="admin-field"><label for="about_title">Judul Tentang Kami</label><input id="about_title" name="about_title" value="{{ old('about_title', $settings['about_title']) }}" required></div>
+            <div class="admin-field"><label for="contact_description">Deskripsi Kontak Kami</label><textarea id="contact_description" name="contact_description" rows="4" required>{{ old('contact_description', $settings['contact_description']) }}</textarea></div>
+            <div class="admin-field" style="grid-column:1 / -1;"><label for="about_content">Isi Tentang Kami</label><textarea id="about_content" name="about_content" rows="8" required>{{ old('about_content', $settings['about_content']) }}</textarea></div>
+        </div>
         <div class="admin-panel__body" style="display:flex; justify-content:flex-end; border-top:1px solid var(--admin-line);"><button class="admin-button admin-button--primary" type="submit">Simpan pengaturan</button></div>
     </form>
 @endsection
