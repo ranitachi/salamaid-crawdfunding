@@ -44,9 +44,32 @@ class CreateMayarPaymentAction
                 'channel_code' => 'mayar_checkout',
                 'redirect_url' => $data['link'],
                 'status' => 'pending',
-                'expired_at' => isset($data['expiredAt']) ? Carbon::createFromTimestampMs((int) $data['expiredAt']) : $expiresAt,
+                'expired_at' => $this->expiryFromProvider($data['expiredAt'] ?? null, $expiresAt),
                 'raw_request_json' => $payload,
             ],
         );
+    }
+
+    private function expiryFromProvider(mixed $value, Carbon $fallback): Carbon
+    {
+        try {
+            if (is_numeric($value)) {
+                $timestamp = (int) $value;
+
+                // Mayar environments have returned both Unix seconds and
+                // milliseconds. Small/epoch values are invalid for a new checkout.
+                $expiry = $timestamp >= 100_000_000_000
+                    ? Carbon::createFromTimestampMs($timestamp)
+                    : ($timestamp >= 1_000_000_000 ? Carbon::createFromTimestamp($timestamp) : null);
+            } elseif (is_string($value) && trim($value) !== '') {
+                $expiry = Carbon::parse($value);
+            } else {
+                $expiry = null;
+            }
+
+            return $expiry?->isFuture() ? $expiry : $fallback;
+        } catch (\Throwable) {
+            return $fallback;
+        }
     }
 }

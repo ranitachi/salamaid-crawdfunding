@@ -31,7 +31,7 @@ class PublicDonationCheckoutTest extends TestCase
     public function test_checkout_creates_pending_donation_and_mayar_payment(): void
     {
         $campaign = $this->campaign();
-        Http::fake(['*/payments/create' => Http::response(['data' => ['transactionId' => 'mayar-checkout-test', 'link' => 'https://web.mayar.io/payment/mayar-checkout-test']], 200)]);
+        Http::fake(['*/payments/create' => Http::response(['data' => ['transactionId' => 'mayar-checkout-test', 'link' => 'https://web.mayar.io/payment/mayar-checkout-test', 'expiredAt' => 2000]], 200)]);
 
         $this->post(route('public.campaigns.donate.store', $campaign->slug), [
             'name' => 'Demo Donor', 'email' => 'donor@example.test', 'mobile' => '+628120000000',
@@ -40,6 +40,7 @@ class PublicDonationCheckoutTest extends TestCase
 
         $this->assertDatabaseHas('donations', ['campaign_id' => $campaign->id, 'gross_amount' => 50000, 'status' => 'pending', 'anonymous' => 1]);
         $this->assertDatabaseHas('payments', ['order_id' => 'mayar-checkout-test', 'provider' => 'mayar', 'status' => 'pending']);
+        $this->assertTrue(Payment::where('order_id', 'mayar-checkout-test')->firstOrFail()->expired_at->isFuture());
     }
 
     public function test_checkout_validates_amount_and_does_not_call_provider(): void
