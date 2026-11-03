@@ -239,7 +239,7 @@
             <thead>
             <tr>
                 <th>Tipe</th>
-                <th>URL</th>
+                <th>Preview</th>
                 <th>Caption</th>
                 <th>Urutan</th>
                 @if ($canEdit)<th>Aksi</th>@endif
@@ -249,7 +249,8 @@
             @foreach ($campaign->media as $media)
                 <tr>
                     <td><x-admin.status-badge :status="$media->type" :label="$media->type" /></td>
-                    <td><a href="{{ $media->url }}" target="_blank" rel="noopener noreferrer">{{ $media->url }}</a></td>
+                    @php($mediaUrl = str_contains($media->url, '/storage/') ? '/storage/'.\Illuminate\Support\Str::after($media->url, '/storage/') : $media->url)
+                    <td><a href="{{ $mediaUrl }}" target="_blank" rel="noopener noreferrer"><img src="{{ $mediaUrl }}" alt="{{ $media->caption ?: 'Media campaign' }}" style="display:block;width:120px;height:72px;object-fit:cover;border:1px solid var(--admin-ink);border-radius:6px;"></a></td>
                     <td>{{ $media->caption ?: '—' }}</td>
                     <td>{{ $media->sort }}</td>
                     @if ($canEdit)

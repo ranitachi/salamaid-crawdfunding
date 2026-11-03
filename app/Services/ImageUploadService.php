@@ -54,7 +54,9 @@ class ImageUploadService
         $disk->put($path, $contents);
         $this->deleteOwnedFile($previousUrl);
 
-        return $disk->url($path);
+        // Use a relative public URL so local and deployed domains never leak
+        // the APP_URL value used by another environment.
+        return '/storage/'.$path;
     }
 
     private function optimizedJpeg(UploadedFile $file): string
