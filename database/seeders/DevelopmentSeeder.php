@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\HelpArticle;
+use App\Models\HelpCategory;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,17 @@ class DevelopmentSeeder extends Seeder
 {
     public function run(): void
     {
+        $helpCategories = [];
+        foreach ([
+            ['name' => 'Akun dan profil', 'slug' => 'akun-dan-profil', 'sort_order' => 10],
+            ['name' => 'Donasi dan pembayaran', 'slug' => 'donasi-dan-pembayaran', 'sort_order' => 20],
+            ['name' => 'Campaign dan transparansi', 'slug' => 'campaign-dan-transparansi', 'sort_order' => 30],
+            ['name' => 'Keamanan dan privasi', 'slug' => 'keamanan-dan-privasi', 'sort_order' => 40],
+            ['name' => 'Umum', 'slug' => 'umum', 'sort_order' => 99],
+        ] as $category) {
+            $helpCategories[$category['name']] = HelpCategory::updateOrCreate(['slug' => $category['slug']], $category + ['is_active' => true]);
+        }
+
         foreach ([
             ['category' => 'Donasi dan pembayaran', 'question' => 'Bagaimana cara berdonasi?', 'answer' => 'Pilih campaign, tekan tombol Donasi Sekarang, isi nominal dan data donatur, lalu lanjutkan pembayaran melalui Mayar.', 'sort_order' => 10],
             ['category' => 'Donasi dan pembayaran', 'question' => 'Bagaimana jika pembayaran belum selesai?', 'answer' => 'Buka menu Donasi Saya, pilih receipt yang berstatus Pending, lalu gunakan tombol Lanjutkan pembayaran atau Buat ulang link pembayaran.', 'sort_order' => 20],
@@ -30,7 +42,7 @@ class DevelopmentSeeder extends Seeder
             ['category' => 'Akun dan profil', 'question' => 'Bagaimana mengubah data pribadi?', 'answer' => 'Buka Akun, gulir ke bagian Data Pribadi, ubah nama, email, atau nomor WhatsApp, lalu tekan Simpan perubahan.', 'sort_order' => 10],
             ['category' => 'Akun dan profil', 'question' => 'Bagaimana mengatur ulang password?', 'answer' => 'Gunakan menu Lupa password pada halaman login. Tautan reset akan dikirim jika email terdaftar.', 'sort_order' => 20],
         ] as $article) {
-            HelpArticle::updateOrCreate(['question' => $article['question']], $article + ['is_published' => true]);
+            HelpArticle::updateOrCreate(['question' => $article['question']], $article + ['help_category_id' => $helpCategories[$article['category']]->id, 'is_published' => true]);
         }
 
         DB::table('app_settings')->updateOrInsert(

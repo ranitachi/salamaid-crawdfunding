@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\HelpArticle;
+use App\Models\HelpCategory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -47,5 +48,26 @@ class HelpArticleManagementTest extends TestCase
 
         $this->actingAs($user)->get(route('public.account.help'))
             ->assertOk()->assertSee('Tampil?')->assertDontSee('Rahasia?');
+    }
+
+    public function test_admin_can_manage_help_category_master_and_cannot_delete_used_category(): void
+    {
+        $admin = User::factory()->role('admin')->create();
+
+        $this->actingAs($admin)->post(route('admin.help.categories.store'), [
+            'name' => 'Pembayaran', 'sort_order' => 15, 'is_active' => 1,
+        ])->assertRedirect();
+
+        $category = HelpCategory::where('name', 'Pembayaran')->firstOrFail();
+        $this->actingAs($admin)->get(route('admin.help.create'))->assertOk()->assertSee('Pilih kategori')->assertSee($category->name);
+        $article = HelpArticle::create(['help_category_id' => $category->id, 'category' => $category->name, 'question' => 'Q', 'answer' => 'A']);
+
+        $this->actingAs($admin)->patch(route('admin.help.categories.update', $category), [
+            'name' => 'Cara Pembayaran', 'sort_order' => 15, 'is_active' => 1,
+        ])->assertRedirect();
+        $this->assertSame('Cara Pembayaran', $article->fresh()->category);
+
+        $this->actingAs($admin)->delete(route('admin.help.categories.destroy', $category->fresh()))->assertRedirect()->assertSessionHas('error');
+        $this->assertDatabaseHas('help_categories', ['id' => $category->id]);
     }
 }

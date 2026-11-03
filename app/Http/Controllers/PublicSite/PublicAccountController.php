@@ -48,7 +48,8 @@ class PublicAccountController extends Controller
 
     public function help(): View
     {
-        $articles = HelpArticle::query()->published()->orderBy('category')->orderBy('sort_order')->orderBy('id')->get();
+        $articles = HelpArticle::query()->published()->with('helpCategory')->orderBy('sort_order')->orderBy('id')->get()
+            ->sortBy(fn (HelpArticle $article) => [$article->helpCategory?->sort_order ?? 999, $article->category, $article->sort_order, $article->id]);
 
         return view('public.help', ['articles' => $articles->groupBy('category')]);
     }

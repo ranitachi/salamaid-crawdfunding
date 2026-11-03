@@ -3,7 +3,7 @@
 @section('content')
 <x-admin.breadcrumb :items="[['label' => 'Pusat Bantuan']]" />
 <x-admin.page-header title="Pusat Bantuan Publik" description="Kelola pertanyaan dan jawaban yang tampil pada halaman bantuan publik.">
-    <a class="admin-button admin-button--primary" href="{{ route('admin.help.create') }}">+ Tambah Artikel</a>
+    <a class="admin-button admin-button--quiet" href="{{ route('admin.help.categories.index') }}">Kelola Kategori</a><a class="admin-button admin-button--primary" href="{{ route('admin.help.create') }}">+ Tambah Artikel</a>
 </x-admin.page-header>
 @if (session('success'))<x-admin.toast :message="session('success')" />@endif
 <x-admin.filter-bar method="GET" action="{{ route('admin.help.index') }}">
