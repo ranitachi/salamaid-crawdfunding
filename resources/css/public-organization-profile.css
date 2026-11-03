@@ -22,6 +22,14 @@
     color: #fff;
 }
 
+.public-header .public-brand__mark {
+    background: var(--public-brand-primary, var(--public-primary));
+}
+
+.public-bottom-nav a.is-active {
+    color: var(--public-brand-primary, var(--public-primary));
+}
+
 .public-organization-page > .is-hidden {
     display: none;
 }
