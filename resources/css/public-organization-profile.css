@@ -22,6 +22,10 @@
     color: #fff;
 }
 
+.public-organization-page > .is-hidden {
+    display: none;
+}
+
 .public-organization-campaigns .public-program-feed {
     gap: 10px;
 }

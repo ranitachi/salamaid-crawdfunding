@@ -166,6 +166,10 @@ class DevelopmentSeeder extends Seeder
             [
                 'name' => 'Komunitas Peduli Umat',
                 'description' => 'Lembaga demo kedua untuk menguji pemisahan data campaign berbasis organisasi.',
+                'tagline' => 'Berbagi kepedulian, menguatkan umat.',
+                'logo_url' => '/images/demo/komunitas-peduli-umat-logo.png',
+                'primary_color' => '#0F766E',
+                'secondary_color' => '#E6FFFB',
                 'contact_email' => 'halo@peduliumat.test',
                 'contact_phone' => '+62 812 2222 3333',
                 'status' => 'verified',
