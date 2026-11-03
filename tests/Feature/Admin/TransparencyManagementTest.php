@@ -105,6 +105,16 @@ class TransparencyManagementTest extends AdminReviewTestCase
         $this->assertSame('draft', $update->fresh()->status);
     }
 
+    public function test_campaign_transparency_action_opens_create_form_with_campaign_selected(): void
+    {
+        $campaign = $this->publishedCampaign();
+
+        $this->actingAs($this->user('admin'))
+            ->get(route('admin.transparency.create', ['campaign_id' => $campaign->id]))
+            ->assertOk()
+            ->assertSee('<option value="'.$campaign->id.'" selected>', false);
+    }
+
     public function test_reviewer_and_admin_can_list_filter_and_view(): void
     {
         $campaign = $this->publishedCampaign();
