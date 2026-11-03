@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\HelpArticle;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,16 @@ class DevelopmentSeeder extends Seeder
 {
     public function run(): void
     {
+        foreach ([
+            ['category' => 'Donasi dan pembayaran', 'question' => 'Bagaimana cara berdonasi?', 'answer' => 'Pilih campaign, tekan tombol Donasi Sekarang, isi nominal dan data donatur, lalu lanjutkan pembayaran melalui Mayar.', 'sort_order' => 10],
+            ['category' => 'Donasi dan pembayaran', 'question' => 'Bagaimana jika pembayaran belum selesai?', 'answer' => 'Buka menu Donasi Saya, pilih receipt yang berstatus Pending, lalu gunakan tombol Lanjutkan pembayaran atau Buat ulang link pembayaran.', 'sort_order' => 20],
+            ['category' => 'Donasi dan pembayaran', 'question' => 'Di mana melihat riwayat donasi?', 'answer' => 'Setelah login, buka menu Akun lalu pilih Donasi Saya. Setiap donasi memiliki receipt dan status pembayaran.', 'sort_order' => 30],
+            ['category' => 'Akun dan profil', 'question' => 'Bagaimana mengubah data pribadi?', 'answer' => 'Buka Akun, gulir ke bagian Data Pribadi, ubah nama, email, atau nomor WhatsApp, lalu tekan Simpan perubahan.', 'sort_order' => 10],
+            ['category' => 'Akun dan profil', 'question' => 'Bagaimana mengatur ulang password?', 'answer' => 'Gunakan menu Lupa password pada halaman login. Tautan reset akan dikirim jika email terdaftar.', 'sort_order' => 20],
+        ] as $article) {
+            HelpArticle::updateOrCreate(['question' => $article['question']], $article + ['is_published' => true]);
+        }
+
         DB::table('app_settings')->updateOrInsert(
             ['key' => 'public_navigation'],
             [

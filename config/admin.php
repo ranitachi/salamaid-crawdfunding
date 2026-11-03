@@ -26,7 +26,7 @@ return [
         'admin' => [
             'dashboard.view', 'organizations.review', 'campaigns.review', 'notifications.view',
             'campaigns.publish', 'donations.view', 'payments.view', 'payouts.view',
-            'transparency.review', 'categories.manage', 'reports.view', 'audit.view',
+            'transparency.review', 'categories.manage', 'help.manage', 'reports.view', 'audit.view',
         ],
         'reviewer' => [
             'dashboard.view', 'organizations.review', 'campaigns.review', 'notifications.view',

@@ -35,6 +35,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     require base_path('Modules/Payment/routes/admin.php');
     require base_path('Modules/Operations/routes/admin.php');
     require base_path('routes/admin-master.php');
+    require base_path('routes/admin-help.php');
     require base_path('routes/admin-audit.php');
     require base_path('routes/admin-report.php');
     require base_path('routes/admin-notifications.php');

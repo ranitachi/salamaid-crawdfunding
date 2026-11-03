@@ -12,6 +12,7 @@
     $managementItems = [
         ['label' => 'Transparansi', 'icon' => '◌', 'path' => '/admin/transparency', 'match' => 'admin/transparency*', 'permissions' => ['transparency.view', 'transparency.review']],
         ['label' => 'Kategori', 'icon' => '#', 'path' => '/admin/categories', 'match' => 'admin/categories*', 'permissions' => ['categories.manage']],
+        ['label' => 'Pusat Bantuan', 'icon' => '?', 'path' => '/admin/help', 'match' => 'admin/help*', 'permissions' => ['help.manage']],
         ['label' => 'Pengguna & Role', 'icon' => '♙', 'path' => '/admin/users', 'match' => 'admin/users*', 'permissions' => ['users.roles.manage']],
         ['label' => 'Laporan', 'icon' => '▥', 'path' => '/admin/reports', 'match' => 'admin/reports*', 'permissions' => ['reports.view']],
         ['label' => 'Audit Log', 'icon' => '⌁', 'path' => '/admin/audit-logs', 'match' => 'admin/audit-logs*', 'permissions' => ['audit.view']],

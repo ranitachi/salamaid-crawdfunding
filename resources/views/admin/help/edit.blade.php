@@ -1,0 +1,2 @@
+@extends('admin.layouts.app', ['title' => 'Edit Artikel Bantuan'])
+@section('content')<x-admin.breadcrumb :items="[['label' => 'Pusat Bantuan', 'url' => route('admin.help.index')], ['label' => 'Edit']]" /><x-admin.page-header title="Edit Artikel Bantuan" description="Perbarui konten dan status publikasi artikel." />@if (session('success'))<x-admin.toast :message="session('success')" />@endif @include('admin.help._form', ['editing' => true])@endsection

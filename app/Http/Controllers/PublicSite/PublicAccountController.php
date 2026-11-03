@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\PublicSite;
 
 use App\Http\Controllers\Controller;
+use App\Models\HelpArticle;
 use App\Queries\PublicSite\CampaignQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -47,7 +48,9 @@ class PublicAccountController extends Controller
 
     public function help(): View
     {
-        return view('public.help');
+        $articles = HelpArticle::query()->published()->orderBy('category')->orderBy('sort_order')->orderBy('id')->get();
+
+        return view('public.help', ['articles' => $articles->groupBy('category')]);
     }
 
     public function privacy(): View
