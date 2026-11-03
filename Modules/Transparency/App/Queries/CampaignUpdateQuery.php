@@ -4,6 +4,7 @@ namespace Modules\Transparency\App\Queries;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
+use App\Models\User;
 use Modules\Transparency\App\Enums\CampaignUpdateStatus;
 use Modules\Transparency\Entities\CampaignUpdate;
 
@@ -12,12 +13,13 @@ class CampaignUpdateQuery
     /**
      * @param array<string, mixed> $filters validated CampaignUpdateIndexRequest data
      */
-    public function paginate(array $filters, int $perPage = 15): LengthAwarePaginator
+    public function paginate(array $filters, int $perPage = 15, ?User $actor = null): LengthAwarePaginator
     {
         return CampaignUpdate::query()
             ->select(['id', 'campaign_id', 'type', 'status', 'title', 'amount_used', 'submitted_at', 'published_at', 'created_at'])
             ->with(['campaign:id,title,organization_id', 'campaign.organization:id,name'])
             ->withCount('attachments')
+            ->when($actor?->isOrganizationAdmin(), fn ($q) => $q->whereHas('campaign', fn ($campaign) => $campaign->whereIn('organization_id', $actor->managedOrganizationIds())))
             ->when($filters['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
             ->when($filters['type'] ?? null, fn ($q, $type) => $q->where('type', $type))
             ->when($filters['campaign_id'] ?? null, fn ($q, $id) => $q->where('campaign_id', $id))
@@ -37,11 +39,12 @@ class CampaignUpdateQuery
     /**
      * @return array<string, int>
      */
-    public function statusCounts(): array
+    public function statusCounts(?User $actor = null): array
     {
         $counts = CampaignUpdate::query()
             ->selectRaw('status, count(*) as aggregate')
             ->groupBy('status')
+            ->when($actor?->isOrganizationAdmin(), fn ($q) => $q->whereHas('campaign', fn ($campaign) => $campaign->whereIn('organization_id', $actor->managedOrganizationIds())))
             ->pluck('aggregate', 'status');
 
         return collect(CampaignUpdateStatus::cases())

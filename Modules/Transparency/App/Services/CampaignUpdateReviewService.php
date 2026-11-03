@@ -36,6 +36,9 @@ class CampaignUpdateReviewService
     {
         /** @var Campaign $campaign */
         $campaign = Campaign::query()->findOrFail($data['campaign_id']);
+        if ($actor->isOrganizationAdmin() && ! in_array((string) $campaign->organization_id, $actor->managedOrganizationIds(), true)) {
+            throw AdminActionException::requirement('Campaign bukan bagian dari lembaga yang Anda kelola.');
+        }
         $type = CampaignUpdateType::from($data['type']);
         $payoutId = $type === CampaignUpdateType::FUND_REPORT ? ($data['payout_id'] ?? null) : null;
 

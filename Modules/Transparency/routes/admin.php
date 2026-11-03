@@ -13,7 +13,7 @@ use Modules\Transparency\App\Http\Controllers\Admin\CampaignUpdateAdminControlle
 | Attachment routes use scoped bindings: an attachment must belong to {update}.
 */
 
-Route::middleware('admin.permission:transparency.view,transparency.review')
+Route::middleware('admin.permission:transparency.view,transparency.review,transparency.manage')
     ->whereUuid(['update', 'attachment'])
     ->group(function () {
         Route::get('/', [Controller::class, 'index'])->name('index');

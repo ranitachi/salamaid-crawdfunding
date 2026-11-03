@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Modules\Catalog\Entities\Campaign;
 use Modules\Core\Entities\Organization;
+use Modules\Core\Entities\OrganizationMember;
 use Modules\Operations\Entities\Payout;
 use Modules\Transparency\App\Events\CampaignUpdateStatusChanged;
 use Modules\Transparency\Entities\CampaignUpdate;
@@ -124,6 +125,38 @@ class TransparencyManagementTest extends AdminReviewTestCase
             ->assertSee($campaign->title);
 
         $this->actingAs($this->user('reviewer'))->get('/admin/transparency?status=bogus')->assertSessionHasErrors('status');
+    }
+
+    public function test_organization_admin_can_submit_only_updates_for_owned_campaigns(): void
+    {
+        $organization = $this->organization('verified');
+        $foreignOrganization = $this->organization('verified');
+        $member = $this->user('organization_admin');
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $member->id, 'role' => 'owner']);
+        $campaign = $this->publishedCampaign($organization);
+        $foreignCampaign = $this->publishedCampaign($foreignOrganization);
+
+        $this->actingAs($member)->get('/admin/transparency')->assertOk();
+        $this->actingAs($member)->post('/admin/transparency', [
+            'campaign_id' => $campaign->id,
+            'type' => 'update',
+            'title' => 'Kabar kegiatan lembaga',
+            'content' => 'Kegiatan terbaru lembaga telah selesai dilaksanakan.',
+        ])->assertRedirect();
+
+        $update = CampaignUpdate::query()->where('campaign_id', $campaign->id)->firstOrFail();
+        $this->actingAs($member)->post("/admin/transparency/{$update->id}/submit")->assertSessionHas('success');
+        $this->actingAs($member)->post("/admin/transparency/{$update->id}/approve")->assertForbidden();
+        $this->actingAs($member)->post("/admin/transparency/{$update->id}/publish")->assertForbidden();
+
+        $foreignUpdate = $this->update($foreignCampaign);
+        $this->actingAs($member)->get("/admin/transparency/{$foreignUpdate->id}")->assertForbidden();
+        $this->actingAs($member)->post('/admin/transparency', [
+            'campaign_id' => $foreignCampaign->id,
+            'type' => 'update',
+            'title' => 'Tidak boleh',
+            'content' => 'Update untuk campaign milik lembaga lain.',
+        ])->assertForbidden();
     }
 
     public function test_list_query_does_not_n_plus_one(): void

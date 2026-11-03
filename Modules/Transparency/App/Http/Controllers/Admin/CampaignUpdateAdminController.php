@@ -35,8 +35,8 @@ class CampaignUpdateAdminController extends Controller
         $filters = $request->validated();
 
         return view('admin.transparency.index', [
-            'updates' => $this->query->paginate($filters, (int) ($filters['per_page'] ?? 15)),
-            'counts' => $this->query->statusCounts(),
+            'updates' => $this->query->paginate($filters, (int) ($filters['per_page'] ?? 15), $request->user()),
+            'counts' => $this->query->statusCounts($request->user()),
             'statuses' => CampaignUpdateStatus::options(),
             'types' => CampaignUpdateType::options(),
             'filters' => $filters,
@@ -48,8 +48,8 @@ class CampaignUpdateAdminController extends Controller
         $this->authorize('create', CampaignUpdate::class);
 
         return view('admin.transparency.create', [
-            'campaigns' => Campaign::query()->orderBy('title')->get(['id', 'title', 'organization_id']),
-            'payouts' => Payout::query()->where('status', 'paid')->with('organization:id,name')
+            'campaigns' => Campaign::query()->when($request->user()->isOrganizationAdmin(), fn ($q) => $q->whereIn('organization_id', $request->user()->managedOrganizationIds()))->orderBy('title')->get(['id', 'title', 'organization_id']),
+            'payouts' => Payout::query()->where('status', 'paid')->when($request->user()->isOrganizationAdmin(), fn ($q) => $q->whereIn('organization_id', $request->user()->managedOrganizationIds()))->with('organization:id,name')
                 ->latest('paid_at')->get(['id', 'organization_id', 'amount', 'paid_at']),
             'types' => CampaignUpdateType::options(),
             'selectedCampaign' => $request->query('campaign_id'),
@@ -81,7 +81,7 @@ class CampaignUpdateAdminController extends Controller
 
     public function submit(Request $request, CampaignUpdate $update): RedirectResponse
     {
-        $this->authorize('review', $update);
+        $this->authorize('submit', $update);
 
         return $this->run($update, fn () => $this->service->submit($update, $request->user()), 'Update dikirim ke antrean review.');
     }

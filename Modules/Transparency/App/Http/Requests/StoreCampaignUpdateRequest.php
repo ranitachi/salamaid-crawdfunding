@@ -4,6 +4,7 @@ namespace Modules\Transparency\App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Modules\Catalog\Entities\Campaign;
 use Modules\Transparency\App\Enums\CampaignUpdateType;
 use Modules\Transparency\Entities\CampaignUpdate;
 
@@ -11,7 +12,18 @@ class StoreCampaignUpdateRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('create', CampaignUpdate::class) ?? false;
+        $user = $this->user();
+        if (! $user || ! $user->can('create', CampaignUpdate::class)) {
+            return false;
+        }
+
+        if ($user->isOrganizationAdmin()) {
+            $campaign = Campaign::query()->find($this->input('campaign_id'));
+
+            return $campaign && in_array((string) $campaign->organization_id, $user->managedOrganizationIds(), true);
+        }
+
+        return true;
     }
 
     /**

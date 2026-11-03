@@ -10,7 +10,7 @@
         ['label' => 'Rekonsiliasi payout', 'icon' => '≋', 'path' => '/admin/payouts-reconciliation', 'match' => 'admin/payouts-reconciliation', 'permissions' => ['payouts.view', 'payouts.manage']],
     ];
     $managementItems = [
-        ['label' => 'Transparansi', 'icon' => '◌', 'path' => '/admin/transparency', 'match' => 'admin/transparency*', 'permissions' => ['transparency.view', 'transparency.review']],
+        ['label' => 'Transparansi', 'icon' => '◌', 'path' => '/admin/transparency', 'match' => 'admin/transparency*', 'permissions' => ['transparency.view', 'transparency.review', 'transparency.manage']],
         ['label' => 'Kategori', 'icon' => '#', 'path' => '/admin/categories', 'match' => 'admin/categories*', 'permissions' => ['categories.manage']],
         ['label' => 'Pusat Bantuan', 'icon' => '?', 'path' => '/admin/help', 'match' => 'admin/help*', 'permissions' => ['help.manage']],
         ['label' => 'Pengguna & Role', 'icon' => '♙', 'path' => '/admin/users', 'match' => 'admin/users*', 'permissions' => ['users.roles.manage']],

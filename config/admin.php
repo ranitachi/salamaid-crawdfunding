@@ -42,7 +42,7 @@ return [
             'donations.view', 'payments.view', 'payouts.view', 'reports.view', 'audit.view',
         ],
         'organization_admin' => [
-            'dashboard.view', 'organizations.manage', 'campaigns.view', 'campaigns.manage', 'notifications.view', 'reports.view',
+            'dashboard.view', 'organizations.manage', 'campaigns.view', 'campaigns.manage', 'transparency.manage', 'notifications.view', 'reports.view',
         ],
     ],
 
