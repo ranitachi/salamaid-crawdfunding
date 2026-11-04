@@ -83,15 +83,29 @@
             </div>
             <div class="admin-panel__body">
                 <dl class="admin-detail-list">
+                    <div><dt>Jenis organisasi</dt><dd>{{ $organization->organization_type ?: '—' }}</dd></div>
+                    <div><dt>Penanggung jawab</dt><dd>{{ $organization->responsible_name ?: '—' }}</dd></div>
                     <div><dt>Email</dt><dd>{{ $organization->contact_email ?: '—' }}</dd></div>
                     <div><dt>Telepon</dt><dd>{{ $organization->contact_phone ?: '—' }}</dd></div>
                     <div><dt>Alamat</dt><dd>{{ $organization->address ?: '—' }}</dd></div>
+                    <div><dt>Kota/Provinsi</dt><dd>{{ collect([$organization->city, $organization->province])->filter()->join(', ') ?: '—' }}</dd></div>
+                    <div><dt>Nomor pengajuan</dt><dd>{{ $organization->application_reference ?: '—' }}</dd></div>
                     <div><dt>Diajukan</dt><dd>{{ $organization->created_at?->format('d M Y H:i') ?? '—' }}</dd></div>
                     <div><dt>Terverifikasi</dt><dd>{{ $organization->verified_at?->format('d M Y H:i') ?? '—' }}</dd></div>
                 </dl>
                 <div style="margin-top:16px;">
                     <div class="admin-table__secondary">Deskripsi</div>
                     <div style="font-size:12px; line-height:1.6;">{!! nl2br(e($organization->description ?: '—')) !!}</div>
+                </div>
+                <div style="margin-top:16px;">
+                    <div class="admin-table__secondary">Dokumen verifikasi</div>
+                    @if ($canViewSensitive && filled($organization->verification_document_path))
+                        <a class="admin-button admin-button--quiet" href="{{ route('admin.organizations.verification-document', $organization) }}">Unduh dokumen verifikasi</a>
+                    @elseif (filled($organization->verification_document_path))
+                        <p class="admin-table__secondary">Dokumen tersedia untuk reviewer.</p>
+                    @else
+                        <p class="admin-table__secondary">Belum ada dokumen verifikasi.</p>
+                    @endif
                 </div>
             </div>
         </section>

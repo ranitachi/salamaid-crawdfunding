@@ -20,6 +20,7 @@ Route::prefix('organizations')->name('organizations.')
     ->middleware('admin.permission:organizations.view,organizations.review')
     ->group(function () {
     Route::get('/', [OrganizationReviewController::class, 'index'])->name('index');
+    Route::get('/{organization}/verification-document', [OrganizationReviewController::class, 'verificationDocument'])->name('verification-document');
     Route::get('/{organization}', [OrganizationReviewController::class, 'show'])->name('show');
     Route::post('/{organization}/approve', [OrganizationReviewController::class, 'approve'])->name('approve');
     Route::post('/{organization}/reject', [OrganizationReviewController::class, 'reject'])->name('reject');

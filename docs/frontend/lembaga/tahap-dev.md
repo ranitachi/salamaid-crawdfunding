@@ -147,16 +147,20 @@ Kriteria selesai: pemohon dapat mengetahui status tanpa harus memiliki akses adm
 
 ## Tahap M5 — Review dan verifikasi Admin Salamaid
 
+Status: `DONE`
+
 Pekerjaan:
 
-- [ ] Tampilkan pengajuan pending pada `/admin/organizations?status=pending`.
-- [ ] Tampilkan profil, penanggung jawab, kontak, branding, dan dokumen privat melalui endpoint terotorisasi.
-- [ ] Sediakan aksi approve, reject dengan alasan, dan request revision bila diperlukan.
-- [ ] Catat actor, waktu, alasan, dan perubahan status ke audit log.
-- [ ] Kirim notifikasi in-app untuk hasil review.
-- [ ] Email notification tetap opt-in dan tidak aktif otomatis.
+- [x] Tampilkan pengajuan pending pada `/admin/organizations?status=pending`.
+- [x] Tampilkan profil, penanggung jawab, kontak, branding, dan dokumen privat melalui endpoint terotorisasi.
+- [x] Sediakan aksi approve, reject dengan alasan, dan pemulihan status untuk pengajuan ditolak/ditangguhkan.
+- [x] Catat actor, waktu, alasan, dan perubahan status ke audit log.
+- [x] Kirim notifikasi in-app kepada reviewer saat ada pengajuan baru dan kepada pemilik saat hasil review berubah.
+- [x] Email notification tetap opt-in dan tidak aktif otomatis.
 
 Kriteria selesai: hanya role yang memiliki permission review yang dapat memutuskan status.
+
+Catatan implementasi: dokumen verifikasi diambil melalui disk `private` dan hanya dapat diunduh oleh reviewer melalui route terotorisasi. Aktivasi `users.is_active` tetap menjadi scope M6.
 
 ## Tahap M6 — Aktivasi akun dan pembatasan login
 

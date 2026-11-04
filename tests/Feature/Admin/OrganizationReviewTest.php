@@ -4,6 +4,8 @@ namespace Tests\Feature\Admin;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\AdminActionRequired;
 use Modules\Core\Entities\OrganizationMember;
 use Modules\Core\Entities\Organization;
 
@@ -80,6 +82,45 @@ class OrganizationReviewTest extends AdminReviewTestCase
             ->assertViewHas('canReview', true);
     }
 
+    public function test_reviewer_can_download_private_verification_document(): void
+    {
+        Storage::fake('private');
+        $reviewer = $this->user('reviewer');
+        $path = 'organizations/verification/legal.pdf';
+        Storage::disk('private')->put($path, 'private document');
+        $organization = $this->organization('pending', ['verification_document_path' => $path]);
+
+        $response = $this->actingAs($reviewer)->get(route('admin.organizations.verification-document', $organization));
+
+        $response->assertOk()
+            ->assertHeader('Cache-Control', 'no-store, private')
+            ->assertHeader('X-Content-Type-Options', 'nosniff')
+            ->assertDownload('dokumen-verifikasi-'.\Illuminate\Support\Str::slug($organization->name).'.pdf');
+    }
+
+    public function test_support_cannot_download_private_verification_document(): void
+    {
+        Storage::fake('private');
+        $support = $this->user('support');
+        $organization = $this->organization('pending', ['verification_document_path' => 'organizations/verification/legal.pdf']);
+
+        $this->actingAs($support)
+            ->get(route('admin.organizations.verification-document', $organization))
+            ->assertForbidden();
+    }
+
+    public function test_missing_private_verification_document_returns_safe_error(): void
+    {
+        Storage::fake('private');
+        $reviewer = $this->user('reviewer');
+        $organization = $this->organization('pending', ['verification_document_path' => 'organizations/verification/missing.pdf']);
+
+        $this->actingAs($reviewer)
+            ->get(route('admin.organizations.verification-document', $organization))
+            ->assertRedirect()
+            ->assertSessionHas('error', 'Dokumen verifikasi tidak tersedia.');
+    }
+
     public function test_support_can_view_but_cannot_see_bank_account_or_review(): void
     {
         $support = $this->user('support');
@@ -130,6 +171,22 @@ class OrganizationReviewTest extends AdminReviewTestCase
         $this->assertNotNull($organization->verified_at);
         $this->assertSame($reviewer->id, $organization->reviewed_by);
         $this->assertNotNull($organization->reviewed_at);
+    }
+
+    public function test_owner_receives_in_app_notification_after_review(): void
+    {
+        Notification::fake();
+        $reviewer = $this->user('reviewer');
+        $owner = $this->user('organization_admin');
+        $organization = $this->organization('pending');
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $owner->id, 'role' => 'owner']);
+
+        $this->actingAs($reviewer)->post(route('admin.organizations.approve', $organization))->assertSessionHas('success');
+
+        Notification::assertSentTo($owner, AdminActionRequired::class, function (AdminActionRequired $notification) use ($owner): bool {
+            return $notification->toArray($owner)['kind'] === 'organization_status'
+                && $notification->toArray($owner)['status'] === 'verified';
+        });
     }
 
     public function test_reject_organization_requires_reason(): void

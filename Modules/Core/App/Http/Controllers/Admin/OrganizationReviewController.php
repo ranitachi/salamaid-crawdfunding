@@ -7,7 +7,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Modules\Core\App\Enums\OrganizationStatus;
 use Modules\Core\App\Http\Requests\OrganizationIndexRequest;
 use Modules\Core\App\Http\Requests\RejectOrganizationRequest;
@@ -46,6 +49,25 @@ class OrganizationReviewController extends Controller
             'organization' => $organization,
             'canViewSensitive' => Gate::forUser($request->user())->allows('viewSensitive', $organization),
             'canReview' => Gate::forUser($request->user())->allows('review', $organization),
+        ]);
+    }
+
+    public function verificationDocument(Organization $organization, Request $request): StreamedResponse|RedirectResponse
+    {
+        $this->authorize('viewSensitive', $organization);
+
+        $path = (string) $organization->verification_document_path;
+
+        if ($path === '' || ! Storage::disk('private')->exists($path)) {
+            return back()->with('error', 'Dokumen verifikasi tidak tersedia.');
+        }
+
+        $extension = (string) Str::of(pathinfo($path, PATHINFO_EXTENSION))->lower()->match('/^[a-z0-9]{1,10}$/');
+        $filename = 'dokumen-verifikasi-'.Str::slug($organization->name).($extension !== '' ? '.'.$extension : '');
+
+        return Storage::disk('private')->download($path, $filename, [
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 
