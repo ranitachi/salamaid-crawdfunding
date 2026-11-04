@@ -39,4 +39,38 @@ class PublicOrganizationTest extends TestCase
             ->assertSee(route('public.organizations.show', $organization->slug), false)
             ->assertSee('1 program publik');
     }
+
+    public function test_public_organization_index_searches_and_paginates(): void
+    {
+        foreach (range(1, 13) as $number) {
+            $organization = Organization::create([
+                'slug' => 'lembaga-'.$number,
+                'name' => $number === 1 ? 'Rumah Pendidikan' : 'Lembaga '.$number,
+                'description' => $number === 1 ? 'Fokus pendidikan anak.' : 'Program sosial.',
+                'status' => 'verified',
+                'verified_at' => now(),
+            ]);
+
+            Campaign::create([
+                'organization_id' => $organization->id,
+                'title' => 'Campaign '.$number,
+                'slug' => 'campaign-'.$number,
+                'description' => 'Cerita',
+                'target_amount' => 1000000,
+                'status' => 'published',
+                'published_at' => now(),
+            ]);
+        }
+
+        $this->get(route('public.organizations.index', ['q' => 'pendidikan']))
+            ->assertOk()
+            ->assertSee('Rumah Pendidikan')
+            ->assertDontSee('Lembaga 2')
+            ->assertSee('data-auto-submit-search', false);
+
+        $this->get(route('public.organizations.index', ['page' => 2]))
+            ->assertOk()
+            ->assertSee('public-organization-list-card', false)
+            ->assertSee('public-pagination', false);
+    }
 }

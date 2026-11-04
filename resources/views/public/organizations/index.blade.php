@@ -6,6 +6,12 @@
         <div><h1>Lembaga terverifikasi</h1><p>Pilih lembaga untuk melihat profil dan seluruh program kebaikannya.</p></div>
     </header>
 
+    <form class="public-organization-search public-search" method="GET" action="{{ route('public.organizations.index') }}" data-auto-submit-search-form>
+        <span class="material-symbols-outlined" aria-hidden="true">search</span>
+        <input name="q" value="{{ request('q') }}" type="search" placeholder="Cari nama lembaga..." autocomplete="off" data-auto-submit-search>
+        <button type="submit" aria-label="Cari"><span class="material-symbols-outlined">arrow_forward</span></button>
+    </form>
+
     <section class="public-organization-grid" aria-label="Daftar lembaga">
         @forelse ($organizations as $organization)
             <a class="public-organization-list-card" href="{{ route('public.organizations.show', $organization->slug) }}">
@@ -20,5 +26,9 @@
             <div class="public-trust"><div class="public-trust__item"><strong>Belum ada lembaga</strong><span>Lembaga terverifikasi akan tampil di halaman ini.</span></div></div>
         @endforelse
     </section>
+
+    @if ($organizations->hasPages())
+        {{ $organizations->links('public.pagination') }}
+    @endif
 </div>
 @endsection

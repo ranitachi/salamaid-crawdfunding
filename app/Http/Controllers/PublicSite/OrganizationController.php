@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\PublicSite;
 
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Modules\Catalog\Entities\Campaign;
 use Modules\Core\Entities\Organization;
@@ -9,14 +10,23 @@ use Modules\Donation\Entities\Donation;
 
 class OrganizationController
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $organizations = Organization::query()
             ->where('status', 'verified')
             ->whereHas('campaigns', fn ($query) => $query->published())
+            ->when($request->filled('q'), function ($query) use ($request): void {
+                $term = trim((string) $request->string('q'));
+                $query->where(function ($query) use ($term): void {
+                    $query->where('name', 'like', "%{$term}%")
+                        ->orWhere('description', 'like', "%{$term}%")
+                        ->orWhere('tagline', 'like', "%{$term}%");
+                });
+            })
             ->withCount(['campaigns as published_campaign_count' => fn ($query) => $query->published()])
             ->orderBy('name')
-            ->get();
+            ->paginate(12)
+            ->withQueryString();
 
         return view('public.organizations.index', compact('organizations'));
     }

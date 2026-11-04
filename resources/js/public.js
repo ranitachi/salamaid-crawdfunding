@@ -9,6 +9,16 @@ document.querySelectorAll('[data-public-search]').forEach((input) => {
     });
 });
 
+document.querySelectorAll('[data-auto-submit-search]').forEach((input) => {
+    let timer;
+    input.addEventListener('input', () => {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => {
+            input.form?.requestSubmit();
+        }, 350);
+    });
+});
+
 document.querySelectorAll('input[name="amount_preset"]').forEach((input) => {
     input.addEventListener('change', () => {
         const amount = document.querySelector('#public-amount');
