@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use App\Support\OrganizationAdminAccess;
 
 /**
  * Runs after `auth`: only active users with a valid admin role may continue.
@@ -36,6 +37,7 @@ class EnsureUserIsAdmin
         }
 
         abort_unless($user->isAdmin(), 403);
+        abort_unless(OrganizationAdminAccess::canAccess($user), 403, 'Akun lembaga belum diverifikasi.');
 
         return $next($request);
     }

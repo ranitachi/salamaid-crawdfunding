@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\User;
+use App\Support\OrganizationAdminAccess;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -46,6 +47,16 @@ class LoginRequest extends FormRequest
 
             throw ValidationException::withMessages([
                 'email' => 'Email atau password salah, atau akun tidak memiliki akses admin.',
+            ]);
+        }
+
+        $user = $this->user();
+        if ($user instanceof User && ! OrganizationAdminAccess::canAccess($user)) {
+            Auth::guard('web')->logout();
+            RateLimiter::hit($this->throttleKey(), 60);
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun lembaga belum diverifikasi atau tidak memiliki keanggotaan lembaga yang aktif.',
             ]);
         }
 

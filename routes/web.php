@@ -7,6 +7,7 @@ use App\Http\Controllers\PublicSite\PublicAccountController;
 use App\Http\Controllers\PublicSite\PublicAuthController;
 use App\Http\Controllers\PublicSite\PublicSeoController;
 use App\Http\Controllers\PublicSite\OrganizationController;
+use App\Http\Controllers\PublicSite\PartnerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,9 @@ Route::get('/', [CampaignController::class, 'home'])->name('public.home');
 
 Route::get('/program', [CampaignController::class, 'program'])->name('public.program');
 Route::get('/lembaga', [OrganizationController::class, 'index'])->name('public.organizations.index');
+Route::get('/mitra', [PartnerController::class, 'index'])->name('public.partner');
+Route::get('/mitra/register', [PartnerController::class, 'register'])->name('public.partner.register');
+Route::get('/mitra/status', [PartnerController::class, 'status'])->name('public.partner.status');
 Route::get('/user', [PublicAccountController::class, 'user'])->name('public.user');
 Route::get('/about', [PublicAccountController::class, 'about'])->name('public.about');
 Route::get('/contact', [PublicAccountController::class, 'contact'])->name('public.contact');

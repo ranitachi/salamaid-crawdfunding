@@ -4,6 +4,8 @@ namespace Tests\Feature\Admin;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Modules\Core\Entities\Organization;
+use Modules\Core\Entities\OrganizationMember;
 use Tests\TestCase;
 
 class AdminAuthenticationTest extends TestCase
@@ -51,7 +53,18 @@ class AdminAuthenticationTest extends TestCase
     public function test_every_admin_role_can_open_dashboard(): void
     {
         foreach (array_keys(config('admin.roles')) as $role) {
-            $this->actingAs(User::factory()->role($role)->create())
+            $user = User::factory()->role($role)->create();
+            if ($role === 'organization_admin') {
+                $organization = Organization::create([
+                    'slug' => 'org-dashboard-'.uniqid(),
+                    'name' => 'Organisasi Dashboard',
+                    'status' => 'verified',
+                    'verified_at' => now(),
+                ]);
+                OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $user->id, 'role' => 'owner']);
+            }
+
+            $this->actingAs($user)
                 ->get('/admin')
                 ->assertOk();
         }
@@ -69,6 +82,42 @@ class AdminAuthenticationTest extends TestCase
 
         $this->post('/admin/logout')->assertRedirect(route('admin.login'));
         $this->assertGuest();
+    }
+
+    public function test_organization_admin_requires_verified_membership_to_login(): void
+    {
+        foreach (['pending', 'rejected', 'suspended'] as $status) {
+            $user = User::factory()->role('organization_admin')->create();
+            $organization = Organization::create([
+                'slug' => 'org-'.$status.'-'.uniqid(),
+                'name' => 'Organisasi '.ucfirst($status),
+                'status' => $status,
+                'verified_at' => $status === 'verified' ? now() : null,
+            ]);
+            OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $user->id, 'role' => 'owner']);
+
+            $this->post('/admin/login', ['email' => $user->email, 'password' => 'password'])
+                ->assertSessionHasErrors('email');
+            $this->assertGuest();
+        }
+
+        $withoutMembership = User::factory()->role('organization_admin')->create();
+        $this->post('/admin/login', ['email' => $withoutMembership->email, 'password' => 'password'])
+            ->assertSessionHasErrors('email');
+        $this->assertGuest();
+
+        $verified = User::factory()->role('organization_admin')->create();
+        $organization = Organization::create([
+            'slug' => 'org-verified-'.uniqid(),
+            'name' => 'Organisasi Verified',
+            'status' => 'verified',
+            'verified_at' => now(),
+        ]);
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $verified->id, 'role' => 'owner']);
+
+        $this->post('/admin/login', ['email' => $verified->email, 'password' => 'password'])
+            ->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticatedAs($verified);
     }
 
     public function test_login_rejects_wrong_password_without_flashing_it(): void

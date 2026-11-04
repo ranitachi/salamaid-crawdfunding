@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Modules\Donation\Entities\Donation;
 use Modules\Payment\Entities\Payment;
+use Modules\Core\Entities\OrganizationMember;
 use Modules\Transparency\Entities\CampaignUpdate;
 
 /**
@@ -127,6 +128,10 @@ class AdminSecurityHardeningTest extends AdminReviewTestCase
 
         foreach ([...array_keys(config('admin.roles')), 'user'] as $role) {
             $user = $this->user($role);
+            if ($role === 'organization_admin') {
+                $organization = $this->organization('verified');
+                OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $user->id, 'role' => 'owner']);
+            }
 
             foreach ($routes as $route) {
                 $allowed = $role !== 'user' && $user->hasAnyAdminPermission(...$this->permissionsOf($route));

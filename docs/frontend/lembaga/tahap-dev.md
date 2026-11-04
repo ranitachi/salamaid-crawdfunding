@@ -35,18 +35,20 @@ Aktor:
 
 ## Tahap M0 — Audit existing dan aturan akses
 
-Status: `READY`
+Status: `DONE`
 
 - [x] Pastikan tabel `users`, `organizations`, dan `organization_members` digunakan sebagai fondasi.
 - [x] Pastikan `organizations.status` mendukung `pending`, `verified`, `rejected`, dan `suspended`.
 - [x] Pastikan role `organization_admin` dan permission `organizations.manage` tersedia.
 - [x] Pastikan admin review organisasi yang sudah ada tetap digunakan.
-- [ ] Tetapkan bahwa akun `organization_admin` pending/rejected/suspended tidak dapat login admin.
-- [ ] Pastikan akun `organization_admin` tanpa membership organisasi juga ditolak.
+- [x] Tetapkan bahwa akun `organization_admin` pending/rejected/suspended tidak dapat login admin.
+- [x] Pastikan akun `organization_admin` tanpa membership organisasi juga ditolak.
 
-Kriteria selesai: aturan akses tertulis dalam policy/middleware dan memiliki feature test.
+Kriteria selesai: aturan akses tertulis dalam helper dan middleware/login request, serta memiliki feature test.
 
 ## Tahap M1 — Halaman publik informasi mitra
+
+Status: `DONE`
 
 Target route:
 
@@ -58,11 +60,13 @@ Target route:
 
 Pekerjaan:
 
-- [ ] Buat halaman informasi “Menjadi Mitra Salamaid”.
-- [ ] Jelaskan manfaat, syarat, proses verifikasi, dan aturan membuat campaign.
-- [ ] Tambahkan tombol `Daftar sebagai Lembaga` dan `Login Admin Lembaga`.
-- [ ] Gunakan layout publik, branding Salamaid global, dan copy berbahasa Indonesia yang natural.
-- [ ] Tambahkan FAQ singkat terkait proses verifikasi dan status pengajuan.
+- [x] Buat halaman informasi “Menjadi Mitra Salamaid”.
+- [x] Jelaskan manfaat, syarat, proses verifikasi, dan aturan membuat campaign.
+- [x] Tambahkan tombol `Daftar sebagai Lembaga` dan `Login Admin Lembaga`.
+- [x] Gunakan layout publik, branding Salamaid global, dan copy berbahasa Indonesia yang natural.
+- [x] Tambahkan FAQ singkat terkait proses verifikasi dan status pengajuan.
+
+Route `/mitra/register` dan `/mitra/status` sudah tersedia sebagai halaman pengantar sementara. Form submit dan pelacakan pengajuan akan dikerjakan pada M2–M4.
 
 Kriteria selesai: halaman responsif, dapat diakses publik, dan tidak mencampur alur donatur.
 
