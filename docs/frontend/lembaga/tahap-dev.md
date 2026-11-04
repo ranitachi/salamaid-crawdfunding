@@ -102,6 +102,8 @@ Kriteria selesai: pengajuan valid dapat disimpan dan pengajuan invalid tidak mem
 
 ## Tahap M3 — Pembuatan data dan relasi
 
+Status: `DONE`
+
 Saat form berhasil dikirim, buat dalam satu database transaction:
 
 ```text
@@ -118,28 +120,30 @@ organization_members
 
 Pekerjaan:
 
-- [ ] Buat service `OrganizationRegistrationService`.
-- [ ] Buat user pendaftar sebagai `organization_admin` tetapi belum aktif.
-- [ ] Buat organisasi dengan status `pending`.
-- [ ] Hubungkan pendaftar sebagai owner pada `organization_members`.
-- [ ] Pastikan email dan slug organisasi tidak duplikat.
-- [ ] Jika proses gagal, rollback seluruh user, organisasi, dan membership.
-- [ ] Simpan nomor pengajuan atau token status yang tidak mudah ditebak.
+- [x] Buat service `OrganizationRegistrationService`.
+- [x] Buat user pendaftar sebagai `organization_admin` tetapi belum aktif.
+- [x] Buat organisasi dengan status `pending`.
+- [x] Hubungkan pendaftar sebagai owner pada `organization_members`.
+- [x] Pastikan email dan slug organisasi tidak duplikat.
+- [x] Jika proses gagal, rollback seluruh user, organisasi, dan membership.
+- [x] Simpan nomor pengajuan atau token status yang tidak mudah ditebak.
 
-Kriteria selesai: setiap pengajuan memiliki tepat satu pemilik awal dan dapat dilacak.
+Kriteria selesai: setiap pengajuan memiliki tepat satu pemilik awal, nomor pengajuan acak, dan dapat dilacak.
 
 ## Tahap M4 — Halaman status pengajuan
 
+Status: `DONE`
+
 Pekerjaan:
 
-- [ ] Setelah submit, tampilkan nomor pengajuan dan status `Menunggu verifikasi`.
-- [ ] Sediakan halaman `/mitra/status` dengan akses aman.
-- [ ] Tampilkan status `pending`, `verified`, `rejected`, atau `suspended`.
-- [ ] Jika ditolak, tampilkan alasan penolakan secara aman.
-- [ ] Sediakan `Perbaiki Pengajuan` untuk status rejected.
-- [ ] Jangan membuka detail pengajuan hanya berdasarkan ID berurutan.
+- [x] Setelah submit, tampilkan nomor pengajuan dan status `Menunggu verifikasi`.
+- [x] Sediakan halaman `/mitra/status` dengan akses aman melalui nomor pengajuan + email, lalu session scope.
+- [x] Tampilkan status `pending`, `verified`, `rejected`, atau `suspended`.
+- [x] Jika ditolak, tampilkan alasan penolakan secara aman.
+- [x] Sediakan `Perbaiki Pengajuan` untuk status rejected.
+- [x] Jangan membuka detail pengajuan hanya berdasarkan ID berurutan.
 
-Kriteria selesai: pemohon dapat mengetahui status tanpa harus memiliki akses admin.
+Kriteria selesai: pemohon dapat mengetahui status tanpa harus memiliki akses admin dan dapat mengirim ulang pengajuan rejected tanpa membuat akun duplikat.
 
 ## Tahap M5 — Review dan verifikasi Admin Salamaid
 

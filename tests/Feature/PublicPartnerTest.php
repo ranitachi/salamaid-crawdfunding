@@ -103,4 +103,64 @@ class PublicPartnerTest extends TestCase
         $this->assertNotNull($organization->verification_document_path);
         Storage::disk('private')->assertExists($organization->verification_document_path);
     }
+
+    public function test_partner_status_lookup_is_session_scoped_and_rejected_application_can_be_repaired(): void
+    {
+        $user = User::factory()->role('organization_admin')->inactive()->create([
+            'name' => 'Dina Pengurus',
+            'email' => 'dina@peduli.test',
+            'mobile' => '081234567892',
+        ]);
+        $organization = Organization::create([
+            'slug' => 'peduli-rejected',
+            'name' => 'Lembaga Peduli',
+            'organization_type' => 'yayasan',
+            'responsible_name' => 'Dina Pengurus',
+            'contact_email' => $user->email,
+            'contact_phone' => $user->mobile,
+            'address' => 'Alamat lama',
+            'city' => 'Depok',
+            'province' => 'Jawa Barat',
+            'description' => 'Deskripsi lama',
+            'application_reference' => 'SM-REJECT1234',
+            'status' => 'rejected',
+            'rejection_reason' => 'Mohon lengkapi alamat lembaga.',
+        ]);
+        OrganizationMember::create(['organization_id' => $organization->id, 'user_id' => $user->id, 'role' => 'owner']);
+
+        $this->post(route('public.partner.status.lookup'), [
+            'application_reference' => 'SM-REJECT1234',
+            'email' => 'dina@peduli.test',
+        ])->assertRedirect(route('public.partner.status'));
+
+        $this->get(route('public.partner.status'))
+            ->assertOk()
+            ->assertSee('Perlu diperbaiki')
+            ->assertSee('Mohon lengkapi alamat lembaga.')
+            ->assertSee(route('public.partner.register', ['reference' => 'SM-REJECT1234']), false);
+
+        $this->get(route('public.partner.register', ['reference' => 'SM-REJECT1234']))
+            ->assertOk()
+            ->assertSee('Perbaiki pengajuan lembaga')
+            ->assertSee('Alamat lama');
+
+        $this->post(route('public.partner.register.store'), [
+            'application_reference' => 'SM-REJECT1234',
+            'name' => 'Lembaga Peduli Baru',
+            'organization_type' => 'yayasan',
+            'responsible_name' => 'Dina Pengurus',
+            'email' => 'dina@peduli.test',
+            'mobile' => '081234567893',
+            'password' => 'password-baru',
+            'password_confirmation' => 'password-baru',
+            'address' => 'Alamat baru',
+            'city' => 'Depok',
+            'province' => 'Jawa Barat',
+            'description' => 'Deskripsi sudah dilengkapi.',
+        ])->assertRedirect(route('public.partner.status'));
+
+        $this->assertDatabaseHas('organizations', ['id' => $organization->id, 'status' => 'pending', 'name' => 'Lembaga Peduli Baru']);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertFalse($user->fresh()->is_active);
+    }
 }

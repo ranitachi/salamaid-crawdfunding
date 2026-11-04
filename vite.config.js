@@ -14,6 +14,7 @@ export default defineConfig({
                 'resources/css/public-home.css',
                 'resources/css/public-partner.css',
                 'resources/css/public-partner-form.css',
+                'resources/css/public-partner-status.css',
                 'resources/css/public-program-overrides.css',
                 'resources/css/public-campaign-media.css',
                 'resources/css/public-organization-profile.css',

@@ -28,6 +28,8 @@ Route::get('/mitra', [PartnerController::class, 'index'])->name('public.partner'
 Route::get('/mitra/register', [PartnerController::class, 'register'])->name('public.partner.register');
 Route::post('/mitra/register', [PartnerController::class, 'store'])->name('public.partner.register.store');
 Route::get('/mitra/status', [PartnerController::class, 'status'])->name('public.partner.status');
+Route::post('/mitra/status', [PartnerController::class, 'lookup'])->name('public.partner.status.lookup');
+Route::post('/mitra/status/clear', [PartnerController::class, 'clearStatus'])->name('public.partner.status.clear');
 Route::get('/user', [PublicAccountController::class, 'user'])->name('public.user');
 Route::get('/about', [PublicAccountController::class, 'about'])->name('public.about');
 Route::get('/contact', [PublicAccountController::class, 'contact'])->name('public.contact');

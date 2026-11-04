@@ -25,7 +25,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,1,0&display=swap" rel="stylesheet">
     <title>{{ $title ?? 'Salamaid' }} · {{ $brand['app_name'] ?? 'Salamaid' }}</title>
     @if (!empty($brand['favicon_url']))<link rel="icon" type="image/png" href="{{ $brand['favicon_url'] }}">@endif
-    @vite(['resources/css/public.css', 'resources/css/public-responsive.css', 'resources/css/public-home.css', 'resources/css/public-partner.css', 'resources/css/public-partner-form.css', 'resources/css/public-program-overrides.css', 'resources/css/public-detail.css', 'resources/css/public-campaign-media.css', 'resources/css/public-organization-profile.css', 'resources/css/public-checkout.css', 'resources/css/public-payment.css', 'resources/css/public-account.css', 'resources/js/public.js'])
+    @vite(['resources/css/public.css', 'resources/css/public-responsive.css', 'resources/css/public-home.css', 'resources/css/public-partner.css', 'resources/css/public-partner-form.css', 'resources/css/public-partner-status.css', 'resources/css/public-program-overrides.css', 'resources/css/public-detail.css', 'resources/css/public-campaign-media.css', 'resources/css/public-organization-profile.css', 'resources/css/public-checkout.css', 'resources/css/public-payment.css', 'resources/css/public-account.css', 'resources/js/public.js'])
 </head>
 <body class="{{ request()->routeIs('public.campaigns.show') ? 'public-campaign-route' : '' }}" style="--public-primary: {{ $publicPrimary }}; --public-primary-soft: {{ $publicSecondary }}; --public-brand-primary: {{ $brand['primary_color'] ?? '#BC0004' }}; --public-brand-primary-soft: {{ $brand['primary_soft_color'] ?? '#FFF0EF' }};">
     <div class="public-shell">
