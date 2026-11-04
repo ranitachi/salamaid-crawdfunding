@@ -5,6 +5,7 @@
 
     <x-admin.page-header title="Pengaturan aplikasi" description="Kelola identitas, warna, logo, dan informasi kontak yang digunakan pada panel Salamaid.">
         <span class="admin-status admin-status--approved">Hanya Super Admin</span>
+        <a class="admin-button admin-button--quiet" href="{{ route('admin.settings.locations.index') }}">Master lokasi</a>
     </x-admin.page-header>
 
     @if (session('success'))<x-admin.toast :message="session('success')" />@endif

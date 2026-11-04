@@ -27,6 +27,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::middleware('admin.permission:settings.manage')->prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [SettingsController::class, 'index'])->name('index');
         Route::put('/', [SettingsController::class, 'update'])->name('update');
+        Route::get('locations', [\App\Http\Controllers\Admin\LocationController::class, 'index'])->name('locations.index');
+        Route::post('locations/provinces', [\App\Http\Controllers\Admin\LocationController::class, 'storeProvince'])->name('locations.provinces.store');
+        Route::post('locations/cities', [\App\Http\Controllers\Admin\LocationController::class, 'storeCity'])->name('locations.cities.store');
+        Route::patch('locations/provinces/{province}/toggle', [\App\Http\Controllers\Admin\LocationController::class, 'toggleProvince'])->name('locations.provinces.toggle');
+        Route::patch('locations/cities/{city}/toggle', [\App\Http\Controllers\Admin\LocationController::class, 'toggleCity'])->name('locations.cities.toggle');
     });
 
     // Module-owned admin routes. Authentication and admin-role protection come

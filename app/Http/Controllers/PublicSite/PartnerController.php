@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Modules\Core\Entities\Organization;
+use App\Models\Province;
 
 class PartnerController
 {
@@ -21,7 +22,21 @@ class PartnerController
     {
         $organization = $this->sessionOrganization($request);
 
-        return view('public.partners.register', ['organization' => $organization]);
+        return view('public.partners.register', [
+            'organization' => $organization,
+            'provinces' => Province::query()->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
+        ]);
+    }
+
+    public function cities(Province $province): \Illuminate\Http\JsonResponse
+    {
+        abort_unless($province->is_active, 404);
+
+        return response()->json($province->cities()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['id', 'name', 'type']));
     }
 
     public function store(PublicOrganizationRegistrationRequest $request, OrganizationRegistrationService $service): RedirectResponse

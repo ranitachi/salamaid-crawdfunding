@@ -26,6 +26,7 @@ Route::get('/program', [CampaignController::class, 'program'])->name('public.pro
 Route::get('/lembaga', [OrganizationController::class, 'index'])->name('public.organizations.index');
 Route::get('/mitra', [PartnerController::class, 'index'])->name('public.partner');
 Route::get('/mitra/register', [PartnerController::class, 'register'])->name('public.partner.register');
+Route::get('/mitra/locations/{province}/cities', [PartnerController::class, 'cities'])->name('public.partner.locations.cities');
 Route::post('/mitra/register', [PartnerController::class, 'store'])->name('public.partner.register.store');
 Route::get('/mitra/status', [PartnerController::class, 'status'])->name('public.partner.status');
 Route::post('/mitra/status', [PartnerController::class, 'lookup'])->name('public.partner.status.lookup');

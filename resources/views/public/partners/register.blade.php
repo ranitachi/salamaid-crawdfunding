@@ -13,13 +13,13 @@
             <h2>Informasi lembaga</h2>
             <label class="public-field"><span>Nama lembaga <i>*</i></span><input name="name" value="{{ old('name', $organization?->name) }}" placeholder="Contoh: Yayasan Peduli Sesama" required></label>
             @error('name')<small class="public-error">{{ $message }}</small>@enderror
-            <label class="public-field"><span>Jenis lembaga <i>*</i></span><select name="organization_type" required><option value="">Pilih jenis lembaga</option>@foreach(['yayasan' => 'Yayasan', 'lembaga_sosial' => 'Lembaga sosial', 'komunitas' => 'Komunitas', 'organisasi' => 'Organisasi'] as $value => $label)<option value="{{ $value }}" @selected(old('organization_type', $organization?->organization_type) === $value)>{{ $label }}</option>@endforeach</select></label>
+            <label class="public-field"><span>Jenis lembaga <i>*</i></span><span class="public-select-wrap"><select name="organization_type" required><option value="">Pilih jenis lembaga</option>@foreach(['yayasan' => 'Yayasan', 'lembaga_sosial' => 'Lembaga sosial', 'komunitas' => 'Komunitas', 'organisasi' => 'Organisasi'] as $value => $label)<option value="{{ $value }}" @selected(old('organization_type', $organization?->organization_type) === $value)>{{ $label }}</option>@endforeach</select><span class="material-symbols-outlined">expand_more</span></span></label>
             @error('organization_type')<small class="public-error">{{ $message }}</small>@enderror
             <label class="public-field"><span>Nama penanggung jawab <i>*</i></span><input name="responsible_name" value="{{ old('responsible_name', $organization?->responsible_name) }}" autocomplete="name" placeholder="Nama lengkap penanggung jawab" required></label>
             @error('responsible_name')<small class="public-error">{{ $message }}</small>@enderror
             <div class="public-partner-form-grid">
-                <div><label class="public-field"><span>Kota/kabupaten <i>*</i></span><input name="city" value="{{ old('city', $organization?->city) }}" placeholder="Contoh: Jakarta Selatan" required></label>@error('city')<small class="public-error">{{ $message }}</small>@enderror</div>
-                <div><label class="public-field"><span>Provinsi <i>*</i></span><input name="province" value="{{ old('province', $organization?->province) }}" placeholder="Contoh: DKI Jakarta" required></label>@error('province')<small class="public-error">{{ $message }}</small>@enderror</div>
+                <div><label class="public-field"><span>Provinsi <i>*</i></span><span class="public-select-wrap"><select id="partner-province" name="province" data-cities-url="{{ route('public.partner.locations.cities', ['province' => '__PROVINCE__']) }}" required><option value="">Pilih provinsi</option>@foreach($provinces as $province)<option value="{{ $province->name }}" data-province-id="{{ $province->id }}" @selected(old('province', $organization?->province) === $province->name)>{{ $province->name }}</option>@endforeach</select><span class="material-symbols-outlined">expand_more</span></span></label>@error('province')<small class="public-error">{{ $message }}</small>@enderror</div>
+                <div><label class="public-field"><span>Kabupaten/kota <i>*</i></span><span class="public-select-wrap"><select id="partner-city" name="city" data-old-city="{{ old('city', $organization?->city) }}" required disabled><option value="">Pilih provinsi terlebih dahulu</option></select><span class="material-symbols-outlined">expand_more</span></span></label>@error('city')<small class="public-error">{{ $message }}</small>@enderror</div>
             </div>
             <label class="public-field"><span>Alamat lengkap <i>*</i></span><textarea name="address" rows="3" placeholder="Alamat kantor atau sekretariat lembaga" required>{{ old('address', $organization?->address) }}</textarea></label>
             @error('address')<small class="public-error">{{ $message }}</small>@enderror
@@ -53,3 +53,41 @@
     </section>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+(() => {
+    const province = document.querySelector('#partner-province');
+    const city = document.querySelector('#partner-city');
+    if (!province || !city) return;
+    const oldCity = city.dataset.oldCity || '';
+    const loadCities = async () => {
+        const selected = province.options[province.selectedIndex];
+        const id = selected?.dataset.provinceId;
+        city.innerHTML = '<option value="">Memuat kabupaten/kota...</option>';
+        city.disabled = true;
+        if (!id) {
+            city.innerHTML = '<option value="">Pilih provinsi terlebih dahulu</option>';
+            return;
+        }
+        try {
+            const url = province.dataset.citiesUrl.replace('__PROVINCE__', id);
+            const response = await fetch(url, { headers: { Accept: 'application/json' } });
+            if (!response.ok) throw new Error('location request failed');
+            const cities = await response.json();
+            city.innerHTML = '<option value="">Pilih kabupaten/kota</option>';
+            cities.forEach((item) => {
+                const option = new Option(`${item.type} ${item.name}`, item.name, false, item.name === oldCity);
+                city.add(option);
+            });
+            city.disabled = cities.length === 0;
+            if (cities.length === 0) city.innerHTML = '<option value="">Data kabupaten/kota belum tersedia</option>';
+        } catch (_) {
+            city.innerHTML = '<option value="">Gagal memuat data lokasi</option>';
+        }
+    };
+    province.addEventListener('change', loadCities);
+    if (province.value) loadCities();
+})();
+</script>
+@endpush
