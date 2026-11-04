@@ -1,0 +1,43 @@
+.public-partner-form-card .public-field select {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 42px 12px 13px;
+    border: 1px solid var(--public-line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--public-ink);
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.35;
+    cursor: pointer;
+}
+
+.public-partner-form-card .public-field select:focus {
+    outline: 2px solid var(--public-primary-soft);
+    border-color: var(--public-primary);
+}
+
+.public-partner-form-card .public-field select:disabled {
+    background: #f7f3f2;
+    color: var(--public-muted);
+    cursor: not-allowed;
+}
+
+.public-select-wrap {
+    position: relative;
+    display: block;
+}
+
+.public-select-wrap select {
+    appearance: none;
+}
+
+.public-select-wrap > .material-symbols-outlined {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    pointer-events: none;
+    color: var(--public-primary);
+    font-size: 20px;
+    transform: translateY(-50%);
+}
