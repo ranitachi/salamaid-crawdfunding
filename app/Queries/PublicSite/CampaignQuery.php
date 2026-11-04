@@ -8,7 +8,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Schema;
 use Modules\Catalog\Entities\Campaign;
-use Modules\Donation\Entities\Donation;
 use Modules\Core\Entities\Category;
 
 class CampaignQuery
@@ -67,21 +66,6 @@ class CampaignQuery
         if (! Schema::hasTable('categories') || ! Schema::hasTable('campaigns')) return collect();
 
         return Category::query()->active()->whereHas('campaigns', fn (Builder $campaign) => $campaign->where('status', 'published'))->orderBy('name')->get(['id', 'name', 'slug', 'icon']);
-    }
-
-    /** @return array{amount: int, count: int} */
-    public function impactSummary(): array
-    {
-        if (! Schema::hasTable('donations')) {
-            return ['amount' => 0, 'count' => 0];
-        }
-
-        $paid = Donation::query()->where('status', 'paid');
-
-        return [
-            'amount' => (int) (clone $paid)->sum('net_amount'),
-            'count' => (int) $paid->count(),
-        ];
     }
 
     public function findPublished(string $slug): ?Campaign

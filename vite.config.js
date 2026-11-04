@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/js/admin.js',
                 'resources/css/public.css',
                 'resources/css/public-responsive.css',
+                'resources/css/public-home.css',
                 'resources/css/public-program-overrides.css',
                 'resources/css/public-campaign-media.css',
                 'resources/css/public-organization-profile.css',

@@ -9,7 +9,17 @@
         <div class="public-home__banner-overlay"><span class="public-home__banner-tag"><span class="material-symbols-outlined">campaign</span> Campaign pilihan</span><span class="public-home__banner-time"><span class="material-symbols-outlined">verified</span> Terverifikasi</span><h1>{{ $heroCampaign?->title ?? 'Jembatan kebaikan untuk mereka yang membutuhkan.' }}</h1><p>@if($heroCampaign?->organization?->slug)<a class="public-organization-link" href="{{ route('public.organizations.show', $heroCampaign->organization->slug) }}">{{ $heroCampaign->organization->name }}</a>@else{{ $heroCampaign?->organization?->name ?? 'Salamaid menghubungkan kepedulian dengan dampak nyata.' }}@endif</p><a href="{{ $heroCampaign ? route('public.campaigns.show', $heroCampaign->slug) : route('public.program') }}">Lihat campaign <span class="material-symbols-outlined">arrow_forward</span></a></div><div class="public-home__banner-dots"><b></b><b></b><b></b></div>
     </section>
 
-    <section class="public-wallet" aria-label="Ringkasan donasi"><div class="public-wallet__heading"><span class="public-wallet__icon material-symbols-outlined">volunteer_activism</span><div><small>Total donasi tersalurkan</small><strong>Rp {{ number_format($impact['amount'] ?? 0, 0, ',', '.') }}</strong></div><span class="material-symbols-outlined public-wallet__verified">verified</span><span class="public-wallet__count">{{ number_format($impact['count'] ?? 0, 0, ',', '.') }} donasi</span></div><div class="public-wallet__status"><span></span><small>Transparansi penyaluran tersedia di setiap campaign</small><a href="{{ route('public.program') }}">Jelajahi</a></div></section>
+    <section class="public-home__action" aria-label="Mulai berdonasi">
+        <div class="public-home__action-main">
+            <span class="public-home__action-icon material-symbols-outlined">volunteer_activism</span>
+            <div>
+                <small>Mulai berbagi kebaikan</small>
+                <strong>Temukan campaign yang berarti</strong>
+            </div>
+            <a class="public-home__action-button" href="{{ route('public.program') }}">Jelajahi <span class="material-symbols-outlined">arrow_forward</span></a>
+        </div>
+        <div class="public-home__action-status"><span></span><small>Campaign terverifikasi dan transparan</small><a href="{{ route('public.organizations.index') }}">Lihat lembaga</a></div>
+    </section>
 
     <section class="public-shortcuts" aria-label="Kategori program">
         @php($categoryIconMap = ['heart' => 'volunteer_activism', 'leaf' => 'eco', 'book-open' => 'menu_book'])
