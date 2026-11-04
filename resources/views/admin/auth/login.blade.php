@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Masuk · {{ $brand['app_name'] ?? 'Salamaid' }} Admin</title>
-    @if (!empty($brand['favicon_url']))<link rel="icon" type="image/png" href="{{ $brand['favicon_url'] }}">@endif
+    @if (!empty($brand['favicon_url']))<link rel="icon" href="{{ $brand['favicon_url'] }}?v=salamaid-20261104">@endif
     @vite(['resources/css/admin.css'])
 </head>
 <body class="admin-body" style="--admin-primary: {{ $brand['primary_color'] ?? '#D92D20' }}; --admin-primary-soft: {{ $brand['primary_soft_color'] ?? '#FEE4E2' }}; --admin-accent: {{ $brand['accent_color'] ?? '#FF806F' }};">

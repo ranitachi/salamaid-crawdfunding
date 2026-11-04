@@ -31,7 +31,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $status }} · {{ $appName }}</title>
-    @if (!empty($brand['favicon_url']))<link rel="icon" type="image/png" href="{{ $brand['favicon_url'] }}">@endif
+        @if (!empty($brand['favicon_url']))<link rel="icon" href="{{ $brand['favicon_url'] }}?v=salamaid-20261104">@endif
     <style>
         :root { font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif; color: #1c1b1b; background: #fcf9f8; }
         * { box-sizing: border-box; }

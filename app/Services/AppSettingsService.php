@@ -29,7 +29,7 @@ class AppSettingsService
         'accent_color' => '#FF806F',
         'brand_icon' => 'S',
         'logo_url' => '/icon/icon-web.png',
-        'favicon_url' => '/icon/icon-web.png',
+        'favicon_url' => '/icon/salamaid-favicon.svg',
         'contact_email' => '',
         'contact_phone' => '',
         'contact_address' => '',
