@@ -12,15 +12,15 @@ class CampaignController
 {
     public function __construct(private readonly CampaignQuery $campaigns, private readonly PublicDonationCheckoutService $checkout) {}
 
-    public function home(): View
+    public function home(Request $request): View
     {
-        $featured = $this->campaigns->featured();
+        $featured = $this->campaigns->featuredPage(3, max(1, $request->integer('featured_page', 1)));
 
         return view('public.home', [
             'featured' => $featured,
             'heroCampaign' => $featured->first(),
             'categories' => $this->campaigns->categories(),
-            'programs' => $this->campaigns->programs(),
+            'programs' => $this->campaigns->programsPage(6, max(1, $request->integer('program_page', 1))),
         ]);
     }
 

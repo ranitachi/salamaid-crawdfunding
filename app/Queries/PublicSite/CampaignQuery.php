@@ -40,6 +40,31 @@ class CampaignQuery
         return $this->base()->latest('published_at')->limit($limit)->get();
     }
 
+    public function featuredPage(int $perPage = 3, int $page = 1)
+    {
+        if (! $this->tablesAvailable()) {
+            return new LengthAwarePaginator([], 0, $perPage, $page);
+        }
+
+        return $this->base()
+            ->where('is_featured', true)
+            ->latest('featured_at')
+            ->paginate($perPage, ['*'], 'featured_page', $page)
+            ->withQueryString();
+    }
+
+    public function programsPage(int $perPage = 6, int $page = 1)
+    {
+        if (! $this->tablesAvailable()) {
+            return new LengthAwarePaginator([], 0, $perPage, $page);
+        }
+
+        return $this->base()
+            ->latest('published_at')
+            ->paginate($perPage, ['*'], 'program_page', $page)
+            ->withQueryString();
+    }
+
     public function paginate(Request $request, int $perPage = 12)
     {
         if (! $this->tablesAvailable()) {

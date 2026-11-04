@@ -109,3 +109,22 @@
         font-size: 11px;
     }
 }
+
+.public-load-more {
+    width: 100%;
+    margin-top: 10px;
+    border: 1px solid var(--public-primary);
+    background: #fff;
+    color: var(--public-primary);
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.public-load-more:hover {
+    background: var(--public-primary-soft);
+}
+
+.public-load-more[disabled] {
+    cursor: wait;
+    opacity: .65;
+}

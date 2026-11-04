@@ -39,3 +39,7 @@
     <section class="public-trust public-trust--home"><div class="public-trust__item"><span class="material-symbols-outlined">verified_user</span><div><strong>{{ $brand['app_name'] ?? 'Salamaid' }} · Organisasi terverifikasi</strong><small>Campaign, donasi, dan update transparansi diambil dari data yang sudah direview.</small></div></div></section>
 </div>
 @endsection
+
+@push('scripts')
+<script type="application/json" id="public-load-more-state">@json(['featured' => $featured->nextPageUrl(), 'programs' => $programs->nextPageUrl()])</script>
+@endpush

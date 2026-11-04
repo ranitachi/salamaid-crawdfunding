@@ -19,6 +19,59 @@ document.querySelectorAll('[data-auto-submit-search]').forEach((input) => {
     });
 });
 
+const loadMoreStateElement = document.querySelector('#public-load-more-state');
+if (loadMoreStateElement) {
+    const loadMoreState = JSON.parse(loadMoreStateElement.textContent || '{}');
+    const loadMoreSections = [
+        { key: 'featured', selector: '.public-priority-row' },
+        { key: 'programs', selector: '.public-home .public-program-feed' },
+        { key: 'campaigns', selector: '.public-program-page .public-program-feed' },
+    ];
+
+    loadMoreSections.forEach(({ key, selector }) => {
+        const target = document.querySelector(selector);
+        let nextUrl = loadMoreState[key];
+        if (!target || !nextUrl) return;
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'public-button public-load-more';
+        button.textContent = 'Lihat selanjutnya';
+        target.after(button);
+
+        button.addEventListener('click', async () => {
+            button.disabled = true;
+            button.textContent = 'Memuat...';
+
+            try {
+                const response = await fetch(nextUrl, { headers: { Accept: 'text/html' } });
+                if (!response.ok) throw new Error('Gagal memuat data berikutnya.');
+
+                const html = await response.text();
+                const documentFragment = new DOMParser().parseFromString(html, 'text/html');
+                const incoming = documentFragment.querySelector(selector);
+                const incomingState = documentFragment.querySelector('#public-load-more-state');
+
+                if (!incoming) throw new Error('Data berikutnya tidak tersedia.');
+                Array.from(incoming.children).forEach((item) => target.append(item));
+
+                const nextState = incomingState ? JSON.parse(incomingState.textContent || '{}') : {};
+                nextUrl = nextState[key] || null;
+                if (!nextUrl) {
+                    button.remove();
+                    return;
+                }
+
+                button.disabled = false;
+                button.textContent = 'Lihat selanjutnya';
+            } catch (error) {
+                button.disabled = false;
+                button.textContent = 'Coba lagi';
+            }
+        });
+    });
+}
+
 document.querySelectorAll('input[name="amount_preset"]').forEach((input) => {
     input.addEventListener('change', () => {
         const amount = document.querySelector('#public-amount');
