@@ -18,7 +18,7 @@
             </div>
             <a class="public-home__action-button" href="{{ route('public.program') }}">Jelajahi <span class="material-symbols-outlined">arrow_forward</span></a>
         </div>
-        <div class="public-home__action-status"><span></span><small>Campaign terverifikasi dan transparan</small><a href="{{ route('public.organizations.index') }}">Lihat lembaga</a><a href="{{ route('public.partner') }}">Daftar mitra</a></div>
+        <div class="public-home__action-status"><span></span><small>Campaign terverifikasi dan transparan</small><a href="{{ route('public.organizations.index') }}">Lihat lembaga</a><a class="public-home__partner-link" href="{{ route('public.partner') }}"><span class="material-symbols-outlined">handshake</span>Daftar mitra</a></div>
     </section>
 
     <section class="public-shortcuts" aria-label="Kategori program">

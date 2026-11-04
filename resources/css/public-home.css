@@ -88,6 +88,20 @@
     white-space: nowrap;
 }
 
+.public-home__action-status .public-home__partner-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 8px;
+    border-radius: 999px;
+    background: var(--public-primary-soft);
+    color: var(--public-primary);
+}
+
+.public-home__partner-link .material-symbols-outlined {
+    font-size: 15px;
+}
+
 @media (min-width: 701px) {
     .public-home__action {
         max-width: 720px;
