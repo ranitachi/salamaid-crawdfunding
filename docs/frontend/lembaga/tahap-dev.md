@@ -72,6 +72,8 @@ Kriteria selesai: halaman responsif, dapat diakses publik, dan tidak mencampur a
 
 ## Tahap M2 — Form registrasi lembaga
 
+Status: `DONE`
+
 Field minimum:
 
 - Nama lembaga
@@ -89,14 +91,14 @@ Field minimum:
 
 Pekerjaan:
 
-- [ ] Buat Form Request khusus pendaftaran lembaga.
-- [ ] Validasi email unik, nomor telepon, format file, ukuran file, dan data wajib.
-- [ ] Tampilkan error dalam bahasa Indonesia.
-- [ ] Simpan password menggunakan hashing Laravel.
-- [ ] Jangan menampilkan password atau dokumen privat di response, log, atau audit.
-- [ ] Gunakan upload teroptimasi untuk logo dan private storage untuk dokumen legal.
+- [x] Buat Form Request khusus pendaftaran lembaga.
+- [x] Validasi email unik, nomor telepon, format file, ukuran file, dan data wajib.
+- [x] Tampilkan error dalam bahasa Indonesia.
+- [x] Simpan password menggunakan hashing Laravel.
+- [x] Jangan menampilkan password atau dokumen privat di response, log, atau audit.
+- [x] Gunakan upload teroptimasi untuk logo dan private storage untuk dokumen legal.
 
-Kriteria selesai: pengajuan valid dapat disimpan dan pengajuan invalid tidak membuat data setengah jadi.
+Kriteria selesai: pengajuan valid dapat disimpan dan pengajuan invalid tidak membuat data setengah jadi. Akun dibuat nonaktif dan organisasi berstatus pending sampai M5–M6 memverifikasi dan mengaktifkannya.
 
 ## Tahap M3 — Pembuatan data dan relasi
 

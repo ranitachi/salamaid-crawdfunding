@@ -3,6 +3,11 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Modules\Core\Entities\Organization;
+use Modules\Core\Entities\OrganizationMember;
+use App\Models\User;
 use Tests\TestCase;
 
 class PublicPartnerTest extends TestCase
@@ -24,10 +29,78 @@ class PublicPartnerTest extends TestCase
     {
         $this->get(route('public.partner.register'))
             ->assertOk()
-            ->assertSee('Pendaftaran lembaga');
+            ->assertSee('Daftar sebagai lembaga')
+            ->assertSee('Nama lembaga');
 
         $this->get(route('public.partner.status'))
             ->assertOk()
             ->assertSee('Status pengajuan mitra');
+    }
+
+    public function test_public_partner_registration_creates_pending_owner_and_inactive_admin(): void
+    {
+        $response = $this->post(route('public.partner.register.store'), [
+            'name' => 'Yayasan Cahaya Sesama',
+            'organization_type' => 'yayasan',
+            'responsible_name' => 'Ayu Lestari',
+            'email' => 'ayu@cahaya.test',
+            'mobile' => '081234567890',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'address' => 'Jl. Kebaikan No. 1',
+            'city' => 'Bandung',
+            'province' => 'Jawa Barat',
+            'description' => 'Berfokus pada pendidikan anak dan pemberdayaan keluarga.',
+        ]);
+
+        $response->assertRedirect(route('public.partner.status'))
+            ->assertSessionHas('registration_reference');
+
+        $user = User::where('email', 'ayu@cahaya.test')->firstOrFail();
+        $organization = Organization::where('name', 'Yayasan Cahaya Sesama')->firstOrFail();
+
+        $this->assertSame('organization_admin', $user->role);
+        $this->assertFalse($user->is_active);
+        $this->assertSame('pending', $organization->status);
+        $this->assertSame($organization->id, OrganizationMember::where('user_id', $user->id)->value('organization_id'));
+        $this->assertSame('owner', OrganizationMember::where('user_id', $user->id)->value('role'));
+    }
+
+    public function test_invalid_partner_registration_does_not_create_records(): void
+    {
+        $this->from(route('public.partner.register'))
+            ->post(route('public.partner.register.store'), ['name' => 'Tidak Lengkap'])
+            ->assertRedirect(route('public.partner.register'))
+            ->assertSessionHasErrors(['organization_type', 'email', 'password', 'address', 'description']);
+
+        $this->assertDatabaseMissing('users', ['email' => 'tidak-lengkap@salamaid.test']);
+        $this->assertDatabaseCount('organizations', 0);
+    }
+
+    public function test_partner_registration_optimizes_logo_and_keeps_document_private(): void
+    {
+        Storage::fake('public');
+        Storage::fake('private');
+
+        $this->post(route('public.partner.register.store'), [
+            'name' => 'Komunitas Bumi Sehat',
+            'organization_type' => 'komunitas',
+            'responsible_name' => 'Raka Pratama',
+            'email' => 'raka@bumisehat.test',
+            'mobile' => '081234567891',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'address' => 'Jl. Sehat No. 2',
+            'city' => 'Bogor',
+            'province' => 'Jawa Barat',
+            'description' => 'Komunitas kesehatan masyarakat.',
+            'logo' => UploadedFile::fake()->image('logo.jpg', 2400, 1600),
+            'verification_document' => UploadedFile::fake()->create('legal.pdf', 100, 'application/pdf'),
+        ])->assertRedirect(route('public.partner.status'));
+
+        $organization = Organization::where('name', 'Komunitas Bumi Sehat')->firstOrFail();
+        $this->assertStringStartsWith('/storage/organizations/logos/', (string) $organization->logo_url);
+        $this->assertNotNull($organization->verification_document_path);
+        Storage::disk('private')->assertExists($organization->verification_document_path);
     }
 }

@@ -24,6 +24,14 @@ class ImageUploadService
         return $this->storeCampaignImage($file, $previousUrl);
     }
 
+    public function storeOrganizationLogo(UploadedFile $file): string
+    {
+        $path = 'organizations/logos/'.Str::uuid().'.jpg';
+        Storage::disk('public')->put($path, $this->optimizedJpeg($file, 800, 800));
+
+        return '/storage/'.$path;
+    }
+
     public function deleteOwnedFile(?string $url): void
     {
         if (! $url) {
@@ -49,7 +57,7 @@ class ImageUploadService
     {
         $path = 'campaigns/'.Str::uuid().'.jpg';
         $disk = Storage::disk('public');
-        $contents = $this->optimizedJpeg($file);
+        $contents = $this->optimizedJpeg($file, 1600, 1000);
 
         $disk->put($path, $contents);
         $this->deleteOwnedFile($previousUrl);
@@ -59,7 +67,7 @@ class ImageUploadService
         return '/storage/'.$path;
     }
 
-    private function optimizedJpeg(UploadedFile $file): string
+    private function optimizedJpeg(UploadedFile $file, int $maxWidth, int $maxHeight): string
     {
         $source = @imagecreatefromstring((string) file_get_contents($file->getRealPath()));
 
@@ -69,7 +77,7 @@ class ImageUploadService
 
         $width = imagesx($source);
         $height = imagesy($source);
-        $scale = min(1, 1600 / max(1, $width), 1000 / max(1, $height));
+        $scale = min(1, $maxWidth / max(1, $width), $maxHeight / max(1, $height));
         $targetWidth = max(1, (int) round($width * $scale));
         $targetHeight = max(1, (int) round($height * $scale));
         $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
